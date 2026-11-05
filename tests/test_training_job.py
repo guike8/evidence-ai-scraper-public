@@ -6,6 +6,7 @@ import concurrent.futures
 import importlib
 import json
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -29,16 +30,35 @@ SENTINEL_NAMES = (
 )
 
 
-def fake_python(tmp_path, *, sleep=0.15, failure_stage=None, grandchild=False, clean_environment=False):
-    """Run the real supervisor, substituting only its MLX stage process."""
-    script = tmp_path / "python"
+@pytest.fixture(autouse=True)
+def private_checkout(tmp_path, monkeypatch):
+    """Use a real interpreter and production supervisor, with a stub MLX module.
+
+    Executing a new shebang wrapper and then execing Python a second time adds
+    platform startup work absent from the actual --python interpreter workflow.
+    The isolated source checkout replaces only the expensive training module.
+    """
+    checkout = tmp_path / "checkout"
+    package = checkout / "training"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    shutil.copyfile(job.__file__, package / "job.py")
+    monkeypatch.setattr(job, "REPOSITORY", checkout)
+
+
+def fake_stage(tmp_path, *, sleep=0.15, failure_stage=None, grandchild=False, clean_environment=False):
+    """Substitute only the model stage, never the Python executable."""
+    package = tmp_path / "checkout" / "training"
+    if clean_environment:
+        # -m imports this package in both the supervisor and every stage, before
+        # either module can scrub an incorrectly inherited environment itself.
+        (package / "__init__.py").write_text(
+            f"import os\nassert not set({SENTINEL_NAMES!r}).intersection(os.environ)\n"
+        )
+    script = package / "train.py"
     script.write_text(
-        f"#!{sys.executable}\n"
         "import os,sys,time,subprocess\n"
         "from pathlib import Path\n"
-        + (f"assert not set({SENTINEL_NAMES!r}).intersection(os.environ)\n" if clean_environment else "")
-        + "if sys.argv[1:3] != ['-m','training.train']:\n"
-        f"    os.execv({sys.executable!r}, [{sys.executable!r}, *sys.argv[1:]])\n"
         "stage=sys.argv[sys.argv.index('--stage')+1]\n"
         "root=Path(sys.argv[sys.argv.index('--model')+1])\n"
         "with (root/'calls').open('a') as stream: stream.write(stage+'\\n')\n"
@@ -46,7 +66,8 @@ def fake_python(tmp_path, *, sleep=0.15, failure_stage=None, grandchild=False, c
         "assert os.environ['HF_HUB_DISABLE_IMPLICIT_TOKEN']=='1'\n"
         + (
             "heartbeat=str(root/'heartbeat')\n"
-            "code='import time\\nfrom pathlib import Path\\np=Path('+repr(heartbeat)+')\\nwhile True:\\n"
+            "code='import time,signal\\nfrom pathlib import Path\\nsignal.signal(signal.SIGTERM,signal.SIG_IGN)"
+            "\\np=Path('+repr(heartbeat)+')\\nuntil=time.monotonic()+15\\nwhile time.monotonic()<until:\\n"
             ' with p.open("a") as stream: stream.write(".")\\n time.sleep(0.03)\'\n'
             "child=subprocess.Popen([sys.executable,'-c',code])\n"
             "(root/'grandchild.pid').write_text(str(child.pid))\n"
@@ -56,17 +77,15 @@ def fake_python(tmp_path, *, sleep=0.15, failure_stage=None, grandchild=False, c
         + f"time.sleep({sleep!r})\n"
         + f"sys.exit(7 if stage=={failure_stage!r} else 0)\n"
     )
-    script.chmod(0o700)
-    return script
 
 
 def config(tmp_path, **changes):
     model, data = tmp_path / "model", tmp_path / "data"
     model.mkdir(exist_ok=True)
     data.mkdir(exist_ok=True)
-    python = fake_python(tmp_path)
+    fake_stage(tmp_path)
     return job.make_config(
-        python=str(python),
+        python=sys.executable,
         model=str(model),
         data=str(data),
         run_dir=str(tmp_path / "private-run"),
@@ -135,9 +154,9 @@ def test_offline_environment_preserves_os_settings_without_credentials(monkeypat
 def test_detached_supervisor_and_stage_processes_do_not_inherit_credentials(tmp_path, monkeypatch):
     contaminate_environment(monkeypatch)
     options = config(tmp_path)
-    # The executable checks the environment before dispatching the supervisor,
-    # then checks it again when each actual stage is launched.
-    fake_python(tmp_path, clean_environment=True)
+    # Package import checks happen before dispatching the actual supervisor,
+    # then again when each stage is launched by the real interpreter.
+    fake_stage(tmp_path, clean_environment=True)
     job.start_job(options)
     assert wait_done(options["run_dir"])["status"] == "completed"
     assert (Path(options["model"]) / "calls").read_text().splitlines() == list(job.STAGES)
@@ -160,9 +179,36 @@ def test_stage_launch_also_scrubs_a_direct_callers_environment(tmp_path, monkeyp
     assert final["stages_completed"] == list(job.STAGES)
 
 
+def test_startup_measurement_keeps_the_parent_deadline_and_whole_job_elapsed(tmp_path, monkeypatch):
+    options = config(tmp_path)
+    options["max_seconds"] = 60
+    directory = Path(options["run_dir"])
+    directory.mkdir()
+    job._write_json(
+        directory / "job-state.json", {"status": "starting", "config_hash": job._identity(options)}
+    )
+    options["started_monotonic"] = 100.0
+    clock = iter((110.0, 111.0, 112.0, 113.0, 115.0))
+    timeouts = []
+
+    class Child:
+        def wait(self, timeout):
+            timeouts.append(timeout)
+            return 0
+
+    monkeypatch.setattr(job.time, "monotonic", lambda: next(clock))
+    monkeypatch.setattr(job.subprocess, "Popen", lambda *args, **kwargs: Child())
+    final = job.run_stages(options)
+    assert final["status"] == "completed"
+    assert timeouts == [49.0, 48.0, 47.0]  # Deadline remains parent start 100 + budget 60.
+    assert final["supervisor_startup_seconds"] == 10
+    assert final["supervisor_elapsed_seconds"] == 5
+    assert final["elapsed_seconds"] == 15
+
+
 def test_stage_failure_is_terminal_and_is_never_automatically_restarted(tmp_path):
     options = config(tmp_path)
-    fake_python(tmp_path, failure_stage="sanity")
+    fake_stage(tmp_path, failure_stage="sanity")
     job.start_job(options)
     final = wait_done(options["run_dir"])
     assert final["status"] == "failed"
@@ -176,7 +222,7 @@ def test_stage_failure_is_terminal_and_is_never_automatically_restarted(tmp_path
 def test_deadline_kills_only_owned_stage_and_its_descendants(tmp_path):
     options = config(tmp_path)
     options["max_seconds"] = 3
-    fake_python(tmp_path, sleep=60, grandchild=True)
+    fake_stage(tmp_path, sleep=60, grandchild=True)
     unrelated = subprocess.Popen([sys.executable, "-c", "import time;time.sleep(60)"])
     try:
         started = time.monotonic()
@@ -198,7 +244,7 @@ def test_deadline_kills_only_owned_stage_and_its_descendants(tmp_path):
 
 def test_supervisor_stop_cleans_up_owned_stage_and_persists_failure(tmp_path):
     options = config(tmp_path)
-    fake_python(tmp_path, sleep=60)
+    fake_stage(tmp_path, sleep=60)
     result = job.start_job(options)
     deadline = time.monotonic() + 3
     calls = Path(options["model"]) / "calls"
@@ -210,6 +256,97 @@ def test_supervisor_stop_cleans_up_owned_stage_and_persists_failure(tmp_path):
     assert final["status"] == "failed"
     assert final["exception_type"] == "InterruptedError"
     assert not job.start_job(options)["started"]
+
+
+def test_cleanup_permission_error_preserves_original_failure_and_reports_unverified(tmp_path, monkeypatch):
+    options = config(tmp_path)
+    directory = Path(options["run_dir"])
+    directory.mkdir()
+    job._write_json(
+        directory / "job-state.json", {"status": "starting", "config_hash": job._identity(options)}
+    )
+    options["started_monotonic"] = time.monotonic()
+
+    class Child:
+        def wait(self, timeout):
+            raise subprocess.TimeoutExpired("owned-test-stage", timeout)
+
+    def denied_cleanup(_):
+        raise PermissionError("private details must not enter state")
+
+    monkeypatch.setattr(job.subprocess, "Popen", lambda *args, **kwargs: Child())
+    monkeypatch.setattr(job, "_stop_owned_group", denied_cleanup)
+    final = job.run_stages(options)
+    assert final["status"] == "failed"
+    assert final["exception_type"] == "TimeoutExpired"
+    assert final["cleanup_exception_type"] == "PermissionError"
+    assert final["cleanup_confirmed"] is False
+    assert "private details" not in json.dumps(final)
+
+
+def test_reaped_leader_cannot_authorize_signaling_a_reused_group(monkeypatch):
+    attempted = []
+
+    def kill_group(pid, signum):
+        attempted.append((pid, signum))
+
+    monkeypatch.setattr(job.os, "killpg", kill_group)
+    child = type("ReapedChild", (), {"pid": 123456789, "returncode": 0, "wait": lambda *_args, **_kw: 0})()
+    with pytest.raises(RuntimeError, match="ownership"):
+        job._stop_owned_group(child)
+    assert attempted and all(item == (123456789, 0) for item in attempted)
+
+
+def test_permission_denial_requires_proof_of_absence_before_cleanup_is_accepted(monkeypatch):
+    attempted = []
+    waited = []
+
+    class Child:
+        pid = 123456789
+        returncode = None
+
+        def wait(self, timeout):
+            waited.append(timeout)
+            self.returncode = -signal.SIGTERM
+            return self.returncode
+
+    def kill_group(pid, signum):
+        attempted.append(signum)
+        if signum == signal.SIGKILL:
+            raise PermissionError("test zombie-only group")
+        if signum == 0:
+            assert waited  # Only the owned leader was reaped, before the probe.
+            raise ProcessLookupError
+
+    monkeypatch.setattr(job.os, "getpgid", lambda pid: pid)
+    monkeypatch.setattr(job.os, "killpg", kill_group)
+    monkeypatch.setattr(job.time, "sleep", lambda _: None)
+    job._stop_owned_group(Child())
+    assert attempted == [signal.SIGTERM, signal.SIGKILL, 0]
+
+
+def test_permission_denial_with_present_group_stays_unverified(monkeypatch):
+    attempted = []
+
+    class Child:
+        pid = 123456789
+        returncode = None
+
+        def wait(self, timeout):
+            self.returncode = -signal.SIGTERM
+            return self.returncode
+
+    def kill_group(pid, signum):
+        attempted.append(signum)
+        if signum != 0:
+            raise PermissionError("test denied signal")
+
+    monkeypatch.setattr(job.os, "getpgid", lambda pid: pid)
+    monkeypatch.setattr(job.os, "killpg", kill_group)
+    with pytest.raises(PermissionError):
+        job._stop_owned_group(Child())
+    assert attempted[0] == signal.SIGTERM
+    assert len(attempted) > 1 and all(signum == 0 for signum in attempted[1:])
 
 
 def test_stale_pid_does_not_authorize_resume_or_signal_another_process(tmp_path):

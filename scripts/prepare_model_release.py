@@ -807,7 +807,7 @@ def prepare_release(
         "experimental": True,
         "production_readiness": "not_established",
         "upload_performed": False,
-        "test_status": "evaluated" if "test" in metrics else "test_not_evaluated",
+        "test_status": "evaluated" if "test" in metrics else "test_results_unverified",
         "base_model": BASE_ID,
         "base_revision": BASE_REVISION,
         "adapter_sha256": expected_digest,

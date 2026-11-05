@@ -196,7 +196,7 @@ def test_exact_model_only_bundle_preserves_source_and_loader_semantics(inputs):
     output = inputs["output"]
     assert {p.name for p in output.iterdir()} == release.ALLOWLIST
     assert result["experimental"] and result["production_readiness"] == "not_established"
-    assert result["test_status"] == "test_not_evaluated"
+    assert result["test_status"] == "test_results_unverified"
     assert result["tensor_verification"] == {"tensor_count": 4, "parameters": 7168, "all_finite": True}
     public_config = json.loads((output / "adapter_config.json").read_text())
     assert public_config == release.minimal_config(

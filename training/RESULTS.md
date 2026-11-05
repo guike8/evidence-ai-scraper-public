@@ -14,7 +14,7 @@ layers' q/v attention projections, scale 20, dropout zero, batch one,
 accumulation four and learning rate 1e-5. The adapter has 458,752 parameters
 across 32 float32 tensors, occupying 1,838,449 bytes.
 
-The corpus contains 720 training, 72 validation and 108 sealed test cases over
+The corpus contains 720 training, 72 validation and 108 held-out test cases over
 eight presets and a custom schema. Template families, domains, entities and
 source hashes are disjoint. Facts are independently authored before rendering
 HTML; no private pages, public benchmark cases or model-generated labels are
@@ -85,6 +85,54 @@ neither-reference examples. Actual server requests also enforced exclusivity.
 Guarded model measurements are recorded separately so grammar changes are not
 attributed to training.
 
+On the same 72 validation cases with this exclusive-reference grammar, the base
+accepted 0 records and the schema-ordered adapter accepted 27 (26 success and
+one partial), with all 72 adapter completions schema-valid. Required raw
+precision/recall were 82.35%/98.72% for the base and 96.89%/100% for the adapter.
+The adapter verified source support for 327 of 438 populated fields, of which
+322 also matched independent gold values. This remains an experimental result.
+All nine schema envelopes were supported, but none of the nine separate exact
+fact-and-evidence capability probes passed the full contract.
+
+## Frozen held-out comparison
+
+The selected adapter, grammar, 4,096-token output budget and inference policy
+were frozen before either 108-case test run. The snapshot/case hash, original
+base tensors, both adapter files and grammar fingerprints were verified for
+both arms. No weights or policy were tuned after opening the test split.
+
+| Metric | Base | Schema-ordered QLoRA720 |
+| --- | ---: | ---: |
+| Required raw precision | 81.58% (248/304) | 95.44% (251/263) |
+| Required raw recall | 98.41% (248/252) | 99.60% (251/252) |
+| All raw precision / recall | 82.86% / 95.12% | 96.07% / 97.63% |
+| Schema-valid completions | 104/108 | 107/108 |
+| Accepted records | 0/108 | 41/108 |
+| Accepted required precision / recall | unavailable / 0% | 100% / 32.54% |
+| Source-supported leaves | 7/776 | 500/687 |
+| Truncated completions | 4 | 1 |
+| Request latency p50 / p95 | 1.88 s / 6.72 s | 1.42 s / 2.50 s |
+
+All 231 populated facts in the adapter's accepted records matched the authored
+gold, including all 82 accepted required facts. Its raw candidates still
+contained 27 wrong/unlabeled values, and citation failures rejected many
+otherwise accurate records. There were no repetition flags. Failures and the
+one truncated adapter outcome remain in the 108-case denominator.
+
+These are warm-loaded-model request timings after capability probes, with a
+fresh source task per case. Generated length and failure patterns differ;
+this is not a universal throughput claim. Both isolated servers stopped after
+evaluation. The separate exact fact-and-evidence capability probes remained
+0/9, so the result does not qualify the model for general production use.
+
+Adapter SHA256:
+`a39abab04fec46859f2931f741b377a714cda6d7c2086ac2b29faa3a1d49ca09`.
+The evaluated training workflow matches source commit
+`e9d1458` byte for byte; subsequent process-supervision fixes do not change the
+frozen weights. The base and adapter test-receipt SHA256s are respectively
+`b2c034c793372d49363d2265462bb18cb722539f1df15b5ea6ef92349991908d` and
+`9a30bdb36e3c1fc1ae207a4b5454add1cc3f223f0d246067203284dfa8c0910e`.
+
 ## Weight-space experiment
 
 Inspired by [weight-space programming](https://rikiyat.github.io/blog/weight-space-programming/),
@@ -115,8 +163,8 @@ produced 640 tokens. Full unseen grammar-assisted WSP accuracy was not measured.
 
 ## Scope and publication
 
-The final model selection and held-out results must be frozen and reported
-before a production decision. No API inference fees were incurred; hardware,
+The held-out result remains below the full accepted-recall release target.
+No API inference fees were incurred; hardware,
 electricity and download costs were not measured. Real-page retrieval,
 representative human-reviewed data, multilingual behavior, unfamiliar custom
 schemas and fused artifacts still require separate evaluation.

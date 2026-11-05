@@ -471,17 +471,36 @@ def supervise(options, argv: list[str]) -> dict:
             env=environment,
         )
         code, status = "INFERENCE_PROCESS_FAILED", "failed"
+        completed_receipt = None
+        cleanup_error = None
         try:
             if child.wait(timeout=max(0.01, deadline - time.monotonic())) == 0:
-                return _read_object(directory / "receipt.json")
+                completed_receipt = _read_object(directory / "receipt.json")
         except subprocess.TimeoutExpired:
             code, status = "RUN_WALL_TIMEOUT", "timed_out"
         finally:
-            _stop_owned_group(child)
-        experiment = prepare(options)
-        outputs = _checkpoint(directory / "outputs.json", experiment)
-        _finish_pending(options, experiment, outputs, code)
-        return _report(options, experiment, outputs, status, time.monotonic() - started)
+            try:
+                _stop_owned_group(child)
+            except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+                cleanup_error = error
+        if completed_receipt is None:
+            experiment = prepare(options)
+            outputs = _checkpoint(directory / "outputs.json", experiment)
+            _finish_pending(options, experiment, outputs, code)
+            receipt = _report(options, experiment, outputs, status, time.monotonic() - started)
+        else:
+            receipt = completed_receipt
+        receipt["cleanup_confirmed"] = cleanup_error is None
+        if cleanup_error is not None:
+            # Model results remain intact; uncertain process cleanup prevents a
+            # successful supervisor result. Exception text can contain secrets.
+            receipt.update(
+                pre_cleanup_run_status=receipt["run_status"],
+                run_status="failed",
+                cleanup_exception_type=type(cleanup_error).__name__,
+            )
+        atomic_json(directory / "receipt.json", receipt)
+        return receipt
     finally:
         os.close(lock_fd)
 

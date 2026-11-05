@@ -251,21 +251,58 @@ def _stage_command(config: dict, stage: str) -> list[str]:
     ]
 
 
-def _stop_owned_group(process: subprocess.Popen) -> None:
-    """Signal only the new session created for this supervisor's own child."""
-    try:
-        os.killpg(process.pid, signal.SIGTERM)
-    except ProcessLookupError:
-        pass
+def _require_group_absent(process: subprocess.Popen, error: Exception) -> None:
+    """After signals cease, accept cleanup only with proof the group is gone."""
     try:
         process.wait(timeout=2)
     except subprocess.TimeoutExpired:
-        pass
-    # The stage may already have exited while leaving a descendant behind.
+        raise error from None
+    deadline = time.monotonic() + 0.25
+    while True:
+        try:
+            os.killpg(process.pid, 0)
+        except ProcessLookupError:
+            return
+        except PermissionError:
+            pass
+        if time.monotonic() >= deadline:
+            raise error
+        time.sleep(0.01)
+
+
+def _stop_owned_group(process: subprocess.Popen) -> None:
+    """Stop an exclusively owned new session before reaping its leader.
+
+    Keeping the leader unreaped reserves its PID throughout group signaling.
+    A reaped leader cannot authorize signals to a possibly reused group ID.
+    """
+    if process.returncode is not None:
+        _require_group_absent(
+            process, RuntimeError("Cannot verify process-group ownership after its leader was reaped")
+        )
+        return
+    if os.getpgid(process.pid) != process.pid:
+        raise RuntimeError("Owned process must have its own session/process group")
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        process.wait(timeout=2)
+        return
+    except PermissionError as error:
+        _require_group_absent(process, error)
+        return
+    # Do not poll()/wait() here: both reap the leader and release its PID even
+    # when a descendant ignores TERM. Retain the bounded two-second grace.
+    time.sleep(2)
     try:
         os.killpg(process.pid, signal.SIGKILL)
     except ProcessLookupError:
         pass
+    except PermissionError as error:
+        # Darwin can deny a signal to a zombie-only group. Do not assume that
+        # explanation: cease signals and require ESRCH after reaping our child.
+        _require_group_absent(process, error)
+        return
     process.wait(timeout=2)
 
 
@@ -279,7 +316,11 @@ def run_stages(config: dict, *, command_factory: Callable | None = None) -> dict
     started = time.monotonic()
     process = None
     completed = []
-    state.update(status="running", supervisor_pid=os.getpid())
+    state.update(
+        status="running",
+        supervisor_pid=os.getpid(),
+        supervisor_startup_seconds=started - config["started_monotonic"],
+    )
     _write_json(run_dir / "job-state.json", state)
     try:
         with (run_dir / "job.log").open("ab") as log:
@@ -305,17 +346,30 @@ def run_stages(config: dict, *, command_factory: Callable | None = None) -> dict
                 completed.append(stage)
         state.update(status="completed", stages_completed=completed)
     except BaseException as error:  # noqa: BLE001 - persist failure and clean up owned processes on every exit
+        cleanup_error = None
         if process is not None:
-            _stop_owned_group(process)
+            try:
+                _stop_owned_group(process)
+            except (OSError, RuntimeError, subprocess.SubprocessError) as termination_error:
+                cleanup_error = termination_error
         state.update(
-            status="timed_out" if isinstance(error, subprocess.TimeoutExpired) else "failed",
+            status="timed_out"
+            if isinstance(error, subprocess.TimeoutExpired) and cleanup_error is None
+            else "failed",
             exception_type=type(error).__name__,
             stages_completed=completed,
         )
+        if cleanup_error is not None:
+            state.update(cleanup_confirmed=False, cleanup_exception_type=type(cleanup_error).__name__)
         if isinstance(error, subprocess.CalledProcessError):
             state["exit_code"] = error.returncode
     finally:
-        state.update(finished_at_unix=time.time(), elapsed_seconds=time.monotonic() - started)
+        finished = time.monotonic()
+        state.update(
+            finished_at_unix=time.time(),
+            elapsed_seconds=finished - config["started_monotonic"],
+            supervisor_elapsed_seconds=finished - started,
+        )
         _write_json(run_dir / "job-state.json", state)
     return state
 

@@ -337,3 +337,60 @@ def test_adapter_reload_requires_every_saved_tensor_shape_dtype_and_value():
     ):
         with pytest.raises(ValueError):
             infer.check_adapter_tensors(saved, actual, equal)
+
+
+def test_unverified_cleanup_preserves_completed_model_results_and_checkpoints(experiment, monkeypatch):
+    options, cases = experiment
+    loader, _ = _runtime(cases, [])
+    completed = infer.execute(options, runtime_loader=loader)
+    checkpoint = Path(options.run_dir) / "outputs.json"
+    checkpoint_before = checkpoint.read_bytes()
+
+    class Child:
+        def wait(self, timeout):
+            return 0
+
+    monkeypatch.setattr(infer.subprocess, "Popen", lambda *args, **kwargs: Child())
+
+    def refuse_cleanup(_):
+        raise PermissionError("private cleanup diagnostic must not be logged")
+
+    monkeypatch.setattr(infer, "_stop_owned_group", refuse_cleanup)
+    receipt = infer.supervise(options, [])
+    assert receipt["run_status"] == "failed"
+    assert receipt["pre_cleanup_run_status"] == "completed"
+    assert receipt["cleanup_confirmed"] is False
+    assert receipt["cleanup_exception_type"] == "PermissionError"
+    assert receipt["raw_facts"] == completed["raw_facts"]
+    assert receipt["accepted_cases"] == completed["accepted_cases"] == 2
+    assert checkpoint.read_bytes() == checkpoint_before
+    assert "private cleanup diagnostic" not in (Path(options.run_dir) / "receipt.json").read_text()
+
+
+def test_timeout_cleanup_uncertainty_preserves_partial_results_and_all_denominators(experiment, monkeypatch):
+    options, cases = experiment
+    prepared = infer.prepare(options)
+    first = {"case_id": cases[0]["case_id"], "candidate": cases[0]["expected_candidate"]}
+    infer._save(Path(options.run_dir) / "outputs.json", prepared, [first])
+
+    class Child:
+        def wait(self, timeout):
+            raise subprocess.TimeoutExpired("test-only-child", timeout)
+
+    monkeypatch.setattr(infer.subprocess, "Popen", lambda *args, **kwargs: Child())
+
+    def refuse_cleanup(_):
+        raise RuntimeError("unverified reused process group")
+
+    monkeypatch.setattr(infer, "_stop_owned_group", refuse_cleanup)
+    receipt = infer.supervise(options, [])
+    assert receipt["run_status"] == "failed"
+    assert receipt["pre_cleanup_run_status"] == "timed_out"
+    assert receipt["cleanup_confirmed"] is False
+    assert receipt["cleanup_exception_type"] == "RuntimeError"
+    assert receipt["case_count"] == 2
+    assert receipt["raw_facts"]["present"] == sum(len(case["expected_fields"]) for case in cases)
+    assert receipt["accepted_cases"] == 1
+    rows = json.loads((Path(options.run_dir) / "outputs.json").read_text())["outputs"]
+    assert rows[0] == first
+    assert rows[1]["error_code"] == "RUN_WALL_TIMEOUT"
