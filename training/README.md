@@ -25,6 +25,11 @@ presentation and missing-field controls. It also documents the separate
 grammar changes separate in comparisons; the original v1 generator remains
 available unchanged.
 
+The [v3 curriculum](README-citation-v3.md) crosses ordinary and negative tasks
+with plaintext, JSON-LD and mixed sources. It adds independent layouts, source
+offsets and custom field names. Its data checks are separate from model quality
+measurements.
+
 ## Prepare on an Apple Silicon Mac
 
 Use Python 3.12 and a private experiment directory outside the source checkout.
@@ -98,6 +103,29 @@ Only data/evidence/warnings are training targets; application code assigns
 provenance and status. No test loss or test accuracy is used during training.
 Upstream's last validation callback precedes the final update, so evaluate the
 saved final adapter separately.
+
+### Initialize from a verified adapter
+
+To retain prior learning in a new run, supply both the adapter file and its
+trusted SHA256. Keep its compatible `adapter_config.json` and pinned-base
+`training.json` beside it, or retain the original run's parent `train.json`.
+
+```sh
+/private/scraper-lab/env/bin/python -m training.job start \
+  --python /private/scraper-lab/env/bin/python \
+  --model /private/scraper-lab/base --data /private/scraper-lab/citation-v3-mixed \
+  --run-dir /private/scraper-lab/run-002 --iters 1800 --max-seconds 3600 \
+  --learning-rate 0.000005 \
+  --init-adapter /private/scraper-lab/previous/adapters.safetensors \
+  --init-adapter-sha256 VERIFIED_ADAPTER_SHA256
+```
+
+This initializes weights with a fresh optimizer. It does not resume optimizer
+or RNG state. Each stage verifies base/config/file identities, snapshots the
+initialization privately, and checks actual tensor keys, shapes, finite values
+and exact loaded values. An initialization change between stages fails the
+run. The learning rate remains bounded; omitting these options preserves the
+original workflow.
 
 ## Compare models
 

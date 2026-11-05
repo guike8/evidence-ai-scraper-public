@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import concurrent.futures
+import hashlib
 import importlib
 import json
 import os
@@ -418,3 +419,47 @@ def test_invalid_budgets_rejected_before_launch(tmp_path, bad):
     }
     with pytest.raises(ValueError):
         job.make_config(**values)
+
+
+def test_warmstart_options_propagate_to_every_stage_and_change_job_identity(tmp_path):
+    initial = tmp_path / "previous" / "adapters.safetensors"
+    initial.parent.mkdir()
+    initial.write_bytes(b"trusted adapter")
+    digest = hashlib.sha256(initial.read_bytes()).hexdigest()
+    base = config(tmp_path)
+    warm = job.make_config(**base, learning_rate=5e-6, init_adapter=str(initial), init_adapter_sha256=digest)
+    assert job._identity(base) != job._identity(warm)
+    for stage in job.STAGES:
+        command = job._stage_command(warm, stage)
+        assert command[command.index("--learning-rate") + 1] == "5e-06"
+        assert command[command.index("--init-adapter") + 1] == str(initial)
+        assert command[command.index("--init-adapter-sha256") + 1] == digest
+    assert "learning_rate" not in base and "init_adapter" not in base
+    script = tmp_path / "checkout" / "training" / "train.py"
+    expected = {"--learning-rate": "5e-06", "--init-adapter": str(initial), "--init-adapter-sha256": digest}
+    script.write_text(
+        "import sys\n"
+        + f"assert all(sys.argv[sys.argv.index(flag)+1] == value for flag,value in {expected!r}.items())\n"
+        + script.read_text()
+    )
+    job.start_job(warm)
+    assert wait_done(warm["run_dir"])["stages_completed"] == list(job.STAGES)
+    assert str(initial) not in (Path(warm["run_dir"]) / "job-state.json").read_text()
+    initial.write_bytes(b"changed adapter")
+    with pytest.raises(ValueError, match="checksum"):
+        job.make_config(**warm)
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"learning_rate": float("nan")},
+        {"learning_rate": True},
+        {"learning_rate": 0.01},
+        {"init_adapter": "adapter.safetensors"},
+        {"init_adapter_sha256": "a" * 64},
+    ],
+)
+def test_invalid_warmstart_options_rejected_before_job_launch(tmp_path, changes):
+    with pytest.raises(ValueError):
+        config(tmp_path, **changes)

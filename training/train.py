@@ -14,6 +14,7 @@ import json
 import math
 import os
 import platform
+import re
 import statistics
 import time
 from pathlib import Path
@@ -27,6 +28,13 @@ MLX_LM_COMMIT = "736ab0d8c1d0edc79c3d798044fe6904e2fa23be"
 # Canonical SHA256 of the 204 .py files in the verified pinned VCS install.
 # Allows an offline-built wheel to prove code identity without VCS direct_url.
 MLX_LM_SOURCE_SHA256 = "ac34053e7d3f7f4825790feba96b90fa81ab4dd2069fafd971438c13d239cb99"
+MAX_INITIAL_ADAPTER_BYTES = 32 * 1024**2
+LORA_PARAMETERS = {
+    "rank": 8,
+    "scale": 20.0,
+    "dropout": 0.0,
+    "keys": ["self_attn.q_proj", "self_attn.v_proj"],
+}
 
 
 def file_hash(path: Path) -> str:
@@ -35,6 +43,124 @@ def file_hash(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _bounded_bytes(path: Path, limit: int) -> bytes:
+    if not path.is_file() or not 0 < path.stat().st_size <= limit:
+        raise ValueError("Initial adapter input is missing or exceeds its byte bound")
+    with path.open("rb") as stream:
+        value = stream.read(limit + 1)
+    if len(value) > limit:
+        raise ValueError("Initial adapter input exceeds its byte bound")
+    return value
+
+
+def verify_initial_adapter(path: str | Path | None, expected_sha: str | None) -> dict | None:
+    """Require trusted weights, compatible LoRA settings and a pinned-base receipt.
+
+    This is weights initialization only. No optimizer or RNG state is loaded.
+    Actual tensor keys, shapes and finiteness are checked after model wrapping.
+    """
+    if path is None and expected_sha is None:
+        return None
+    if path is None or not isinstance(expected_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", expected_sha):
+        raise ValueError("Initial adapter requires its explicit SHA256")
+    path = Path(path)
+    if path.suffix != ".safetensors":
+        raise ValueError("Initial adapter requires a safetensors file")
+    weight = _bounded_bytes(path, MAX_INITIAL_ADAPTER_BYTES)
+    if hashlib.sha256(weight).hexdigest() != expected_sha:
+        raise ValueError("Initial adapter checksum differs")
+    config_bytes = _bounded_bytes(path.parent / "adapter_config.json", 65536)
+    config = json.loads(config_bytes)
+    if (
+        not isinstance(config, dict)
+        or config.get("fine_tune_type") != "lora"
+        or type(config.get("num_layers")) is not int
+        or config["num_layers"] != 8
+        or config.get("lora_parameters") != LORA_PARAMETERS
+    ):
+        raise ValueError("Initial adapter LoRA configuration is incompatible")
+    receipts = (path.parent.parent / "train.json", path.parent / "training.json")
+    receipt_path = next((candidate for candidate in receipts if candidate.is_file()), None)
+    if receipt_path is None:
+        raise ValueError("Initial adapter requires its pinned-base training receipt")
+    receipt_bytes = _bounded_bytes(receipt_path, 262144)
+    receipt = json.loads(receipt_bytes)
+    base = receipt.get("base", {}) if isinstance(receipt, dict) else {}
+    if (
+        not isinstance(receipt, dict)
+        or not isinstance(base, dict)
+        or not isinstance(base.get("files"), dict)
+        or receipt.get("adapter_sha256") != expected_sha
+        or base.get("repo_id") != BASE_ID
+        or base.get("revision") != BASE_REVISION
+        or base.get("files", {}).get("model.safetensors") != BASE_WEIGHT_SHA256
+    ):
+        raise ValueError("Initial adapter training receipt has a different base or weights")
+    return {
+        "adapter_sha256": expected_sha,
+        "adapter_config_sha256": hashlib.sha256(config_bytes).hexdigest(),
+        "training_receipt_sha256": hashlib.sha256(receipt_bytes).hexdigest(),
+        "base_weight_sha256": BASE_WEIGHT_SHA256,
+        "optimizer_state_loaded": False,
+    }
+
+
+def snapshot_initial_adapter(path: Path, run_dir: Path, expected_sha: str) -> Path:
+    """Copy verified initialization bytes into the private run, never overwrite."""
+    destination = run_dir / "initial-adapter.safetensors"
+    if destination.exists():
+        if file_hash(destination) != expected_sha:
+            raise ValueError("Saved initial adapter changed between stages")
+        return destination
+    body = _bounded_bytes(path, MAX_INITIAL_ADAPTER_BYTES)
+    if hashlib.sha256(body).hexdigest() != expected_sha:
+        raise ValueError("Initial adapter changed before snapshot")
+    descriptor = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o400)
+    with os.fdopen(descriptor, "wb") as stream:
+        stream.write(body)
+        stream.flush()
+        os.fsync(stream.fileno())
+    return destination
+
+
+def freeze_initialization_identity(run_dir: Path, identity: dict) -> None:
+    """Keep metadata identity fixed across the supervisor's separate stages."""
+    path = run_dir / "initialization.json"
+    if path.exists():
+        if json.loads(_bounded_bytes(path, 65536)) != identity:
+            raise ValueError("Initial adapter metadata changed between stages")
+        return
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o400)
+    with os.fdopen(descriptor, "w") as stream:
+        json.dump(identity, stream, allow_nan=False)
+        stream.write("\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def load_initial_adapter(model, path: Path, mx, flatten) -> dict:
+    """Check against the actual wrapped model before any gradient operation."""
+    expected = dict(flatten(model.trainable_parameters()))
+    arrays = mx.load(str(path))
+    if (
+        not expected
+        or set(arrays) != set(expected)
+        or any(not key.endswith(("lora_a", "lora_b")) for key in arrays)
+        or any(
+            arrays[key].shape != value.shape or arrays[key].dtype != value.dtype
+            for key, value in expected.items()
+        )
+        or any(not mx.all(mx.isfinite(value)).item() for value in arrays.values())
+    ):
+        raise ValueError("Initial adapter tensor keys, shapes or finite values are incompatible")
+    model.load_weights(list(arrays.items()), strict=False)
+    actual = dict(flatten(model.trainable_parameters()))
+    mx.eval(actual)
+    if any(not mx.array_equal(actual[key], value).item() for key, value in arrays.items()):
+        raise RuntimeError("Initial adapter did not load exact tensor values")
+    return {"tensors": len(arrays), "parameters": sum(value.size for value in arrays.values()), "exact": True}
 
 
 def write_json(path: Path, value: dict) -> None:
@@ -100,7 +226,7 @@ def validate_config(config: dict) -> None:
     if config["iters"] % config["grad_accumulation_steps"]:
         raise ValueError("Iterations must include only complete gradient-accumulation groups")
     rate = config["learning_rate"]
-    if not isinstance(rate, (int, float)) or not math.isfinite(rate) or not 0 < rate <= 0.001:
+    if type(rate) not in (int, float) or not math.isfinite(rate) or not 0 < rate <= 0.001:
         raise ValueError("Learning rate must be finite and bounded")
 
 
@@ -180,7 +306,7 @@ def make_config(model_dir: Path, data_dir: Path, run_dir: Path, options) -> dict
         batch_size=1,
         iters=options.iters,
         grad_accumulation_steps=4,
-        learning_rate=1e-5,
+        learning_rate=getattr(options, "learning_rate", 1e-5),
         max_seq_length=options.max_seq_length,
         mask_prompt=True,
         grad_checkpoint=True,
@@ -190,12 +316,7 @@ def make_config(model_dir: Path, data_dir: Path, run_dir: Path, options) -> dict
         save_every=40,
         clear_cache_threshold=0,
         report_to=None,
-        lora_parameters={
-            "rank": 8,
-            "scale": 20.0,
-            "dropout": 0.0,
-            "keys": ["self_attn.q_proj", "self_attn.v_proj"],
-        },
+        lora_parameters=dict(LORA_PARAMETERS),
     )
     validate_config(config)
     return config
@@ -222,10 +343,24 @@ def execute(options) -> dict:
     ):
         raise ValueError("Training requires all three local dataset splits")
     base = verify_base(model_dir)
+    initial_path = getattr(options, "init_adapter", None)
+    initial = verify_initial_adapter(initial_path, getattr(options, "init_adapter_sha256", None))
+    if initial is not None and (
+        run_dir.resolve().is_relative_to(Path(initial_path).resolve().parent)
+        or Path(initial_path).resolve().is_relative_to(run_dir.resolve())
+    ):
+        raise ValueError("Keep the new run separate from its initial adapter")
     config = make_config(model_dir, data_dir, run_dir, options)
     if (run_dir / "adapter").exists() and options.stage == "train":
         raise ValueError("Existing training run: choose a new run directory; checkpoints are weights-only")
     run_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if initial:
+        freeze_initialization_identity(run_dir, initial)
+    initial_snapshot = (
+        snapshot_initial_adapter(Path(initial_path), run_dir, initial["adapter_sha256"]) if initial else None
+    )
+    if initial_snapshot:
+        config["resume_adapter_file"] = str(initial_snapshot)
     # These limits affect this isolated MLX process only, not machine services.
     mx.set_memory_limit(options.memory_gib * 1024**3)
     mx.set_cache_limit(512 * 1024**2)
@@ -233,6 +368,10 @@ def execute(options) -> dict:
     mx.random.seed(config["seed"])
     started = time.monotonic()
     model, tokenizer = load(str(model_dir), tokenizer_config={"trust_remote_code": False})
+    if initial_snapshot:
+        model.freeze()
+        linear_to_lora_layers(model, config["num_layers"], config["lora_parameters"])
+        initial["tensor_verification"] = load_initial_adapter(model, initial_snapshot, mx, tree_flatten)
     tokenizer.apply_chat_template = functools.partial(tokenizer.apply_chat_template, enable_thinking=False)
     args = SimpleNamespace(**config)
     train_set, valid_set, test_set = load_dataset(args, tokenizer)
@@ -241,7 +380,11 @@ def execute(options) -> dict:
     for name, dataset in zip(("train", "valid", "test"), (train_set, valid_set, test_set), strict=True):
         rows = [json.loads(line) for line in (data_dir / f"{name}.jsonl").read_text().splitlines()]
         splits[name] = preflight_rows(tokenizer, rows, options.max_seq_length, dataset.process)
-    public_config = {k: v for k, v in config.items() if k not in {"model", "data", "adapter_path"}}
+    public_config = {
+        k: v
+        for k, v in config.items()
+        if k not in {"model", "data", "adapter_path"} and not (k == "resume_adapter_file" and v is not None)
+    }
     manifest_path = data_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text())
     receipt = {
@@ -268,14 +411,16 @@ def execute(options) -> dict:
         },
         "training_performed": False,
         "test_evaluation_performed": False,
+        "initialization": initial,
     }
     write_json(run_dir / "preflight.json", receipt)
     if options.stage == "preflight":
         return receipt
 
     if options.stage == "sanity":
-        model.freeze()
-        linear_to_lora_layers(model, config["num_layers"], config["lora_parameters"])
+        if not initial_snapshot:
+            model.freeze()
+            linear_to_lora_layers(model, config["num_layers"], config["lora_parameters"])
         before = dict(tree_flatten(model.trainable_parameters()))
         if not before or any(not key.endswith(("lora_a", "lora_b")) for key in before):
             raise RuntimeError("Unexpected unfrozen parameters")
@@ -349,6 +494,7 @@ def execute(options) -> dict:
             or sanity["data_hashes"] != receipt["data_hashes"]
             or sanity["config"] != public_config
             or sanity["workflow_hashes"] != receipt["workflow_hashes"]
+            or sanity.get("initialization") != initial
         ):
             raise ValueError("Sanity receipt does not match this base/dataset")
 
@@ -364,6 +510,15 @@ def execute(options) -> dict:
                 with (run_dir / "validation.jsonl").open("a") as stream:
                     stream.write(json.dumps(info, allow_nan=False) + "\n")
 
+        if initial_snapshot:
+            # The pinned trainer wraps once, then loads resume_adapter_file and
+            # constructs a fresh Adam optimizer. Give it a clean base after the
+            # independent exact initialization proof above.
+            del model
+            mx.clear_cache()
+            model, _ = load(str(model_dir), tokenizer_config={"trust_remote_code": False})
+            if file_hash(initial_snapshot) != initial["adapter_sha256"]:
+                raise ValueError("Saved initial adapter changed before training")
         train_model(args, model, train_set, valid_set, training_callback=Callback())
         weight = run_dir / "adapter" / "adapters.safetensors"
         arrays = mx.load(str(weight))
@@ -379,6 +534,10 @@ def execute(options) -> dict:
     # Verify no in-place base mutation before declaring either operation done.
     if verify_base(model_dir) != base:
         raise RuntimeError("Base changed during experiment")
+    if initial and verify_initial_adapter(initial_path, initial["adapter_sha256"]) != {
+        key: value for key, value in initial.items() if key != "tensor_verification"
+    }:
+        raise RuntimeError("Initial adapter changed during experiment")
     receipt.update(elapsed_seconds=time.monotonic() - started, peak_memory_bytes=mx.get_peak_memory())
     write_json(run_dir / f"{options.stage}.json", receipt)
     return receipt
@@ -393,6 +552,9 @@ def main(argv=None) -> int:
     parser.add_argument("--iters", type=int, default=200)
     parser.add_argument("--max-seq-length", type=int, default=4096)
     parser.add_argument("--memory-gib", type=int, choices=range(4, 17), default=8)
+    parser.add_argument("--learning-rate", type=float, default=1e-5)
+    parser.add_argument("--init-adapter", help="Trusted local safetensors weights; starts a fresh optimizer")
+    parser.add_argument("--init-adapter-sha256", help="Explicit SHA256 of the trusted initialization weights")
     options = parser.parse_args(argv)
     os.umask(0o077)
     try:

@@ -12,7 +12,9 @@ import argparse
 import fcntl
 import hashlib
 import json
+import math
 import os
+import re
 import signal
 import subprocess
 import tempfile
@@ -97,6 +99,9 @@ def make_config(
     iters: int = 200,
     max_seq_length: int = 4096,
     memory_gib: int = 8,
+    learning_rate: float = 1e-5,
+    init_adapter: str | None = None,
+    init_adapter_sha256: str | None = None,
 ) -> dict:
     for name, value, low, high in (
         ("max_seconds", max_seconds, 1, 21600),
@@ -108,6 +113,12 @@ def make_config(
             raise ValueError(f"Invalid bounded job option: {name}")
     if iters % 4:
         raise ValueError("Iterations must contain complete accumulation groups")
+    if (
+        type(learning_rate) not in (int, float)
+        or not math.isfinite(learning_rate)
+        or not 0 < learning_rate <= 0.001
+    ):
+        raise ValueError("Learning rate must be finite and bounded")
     interpreter = Path(python).expanduser().absolute()
     model_dir, data_dir, output = (Path(value).expanduser().resolve() for value in (model, data, run_dir))
     if not interpreter.is_file() or not os.access(interpreter, os.X_OK):
@@ -123,7 +134,7 @@ def make_config(
         or data_dir in output.parents
     ):
         raise ValueError("Run directory must be separate from model and data")
-    return {
+    result = {
         "python": str(interpreter),
         "model": str(model_dir),
         "data": str(data_dir),
@@ -133,6 +144,34 @@ def make_config(
         "max_seq_length": max_seq_length,
         "memory_gib": memory_gib,
     }
+    # Omit defaults so old default job identities remain stable.
+    if learning_rate != 1e-5:
+        result["learning_rate"] = learning_rate
+    if init_adapter is not None or init_adapter_sha256 is not None:
+        if (
+            init_adapter is None
+            or not isinstance(init_adapter_sha256, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", init_adapter_sha256)
+        ):
+            raise ValueError("Initial adapter requires its explicit SHA256")
+        initial = Path(init_adapter).expanduser().resolve()
+        if (
+            not initial.is_file()
+            or initial.suffix != ".safetensors"
+            or not 0 < initial.stat().st_size <= 32 * 1024**2
+        ):
+            raise ValueError("Initial adapter must be a bounded local safetensors file")
+        with initial.open("rb") as stream:
+            content = stream.read(32 * 1024**2 + 1)
+        if len(content) > 32 * 1024**2:
+            raise ValueError("Initial adapter exceeds its byte bound")
+        digest = hashlib.sha256(content).hexdigest()
+        if digest != init_adapter_sha256:
+            raise ValueError("Initial adapter checksum differs")
+        if output.is_relative_to(initial.parent) or initial.is_relative_to(output):
+            raise ValueError("Keep the new run separate from its initial adapter")
+        result.update(init_adapter=str(initial), init_adapter_sha256=init_adapter_sha256)
+    return result
 
 
 def job_status(run_dir: str | Path) -> dict:
@@ -230,7 +269,7 @@ def start_job(config: dict) -> dict:
 
 
 def _stage_command(config: dict, stage: str) -> list[str]:
-    return [
+    command = [
         config["python"],
         "-m",
         "training.train",
@@ -249,6 +288,16 @@ def _stage_command(config: dict, stage: str) -> list[str]:
         "--memory-gib",
         str(config["memory_gib"]),
     ]
+    if "learning_rate" in config:
+        command += ["--learning-rate", str(config["learning_rate"])]
+    if "init_adapter" in config:
+        command += [
+            "--init-adapter",
+            config["init_adapter"],
+            "--init-adapter-sha256",
+            config["init_adapter_sha256"],
+        ]
+    return command
 
 
 def _require_group_absent(process: subprocess.Popen, error: Exception) -> None:
@@ -412,6 +461,9 @@ def main(argv=None) -> int:
     start.add_argument("--iters", type=int, default=200)
     start.add_argument("--max-seq-length", type=int, default=4096)
     start.add_argument("--memory-gib", type=int, default=8)
+    start.add_argument("--learning-rate", type=float, default=1e-5)
+    start.add_argument("--init-adapter")
+    start.add_argument("--init-adapter-sha256")
     status = commands.add_parser("status", help="Read durable state without loading a model")
     status.add_argument("--run-dir", required=True)
     worker = commands.add_parser("_run", help=argparse.SUPPRESS)

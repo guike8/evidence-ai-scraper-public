@@ -140,3 +140,177 @@ def test_false_commit_metadata_cannot_claim_the_pinned_revision(pinned_package):
     distribution.direct = json.dumps({"vcs_info": {"commit_id": "0" * 40}})
     with pytest.raises(ValueError, match="pinned training commit"):
         train.verify_training_runtime()
+
+
+@pytest.fixture
+def initial_adapter(tmp_path):
+    path = tmp_path / "prior-run" / "adapter" / "adapters.safetensors"
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"bounded test weights")
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    (path.parent / "adapter_config.json").write_text(
+        json.dumps({"fine_tune_type": "lora", "num_layers": 8, "lora_parameters": train.LORA_PARAMETERS})
+    )
+    (path.parent.parent / "train.json").write_text(
+        json.dumps(
+            {
+                "adapter_sha256": digest,
+                "base": {
+                    "repo_id": train.BASE_ID,
+                    "revision": train.BASE_REVISION,
+                    "files": {"model.safetensors": train.BASE_WEIGHT_SHA256},
+                },
+            }
+        )
+    )
+    return path, digest
+
+
+def test_warm_start_requires_exact_weights_config_and_pinned_base_receipt(initial_adapter):
+    path, digest = initial_adapter
+    identity = train.verify_initial_adapter(path, digest)
+    assert identity["adapter_sha256"] == digest and not identity["optimizer_state_loaded"]
+    assert str(path.parent) not in json.dumps(identity)
+    config_path = path.parent / "adapter_config.json"
+    config = json.loads(config_path.read_text())
+    config["lora_parameters"]["rank"] = 16
+    config_path.write_text(json.dumps(config))
+    with pytest.raises(ValueError, match="configuration"):
+        train.verify_initial_adapter(path, digest)
+
+
+def test_initial_adapter_rejects_changed_weights_or_base(initial_adapter):
+    path, digest = initial_adapter
+    with pytest.raises(ValueError, match="checksum"):
+        train.verify_initial_adapter(path, "0" * 64)
+    receipt_path = path.parent.parent / "train.json"
+    receipt = json.loads(receipt_path.read_text())
+    receipt["base"]["files"]["model.safetensors"] = "0" * 64
+    receipt_path.write_text(json.dumps(receipt))
+    with pytest.raises(ValueError, match="different base"):
+        train.verify_initial_adapter(path, digest)
+
+
+@pytest.mark.parametrize(
+    "path,digest", [(None, "a" * 64), ("adapter.safetensors", None), ("file", "invalid")]
+)
+def test_initial_adapter_is_an_explicit_checksum_pair(path, digest):
+    with pytest.raises(ValueError, match="explicit SHA256"):
+        train.verify_initial_adapter(path, digest)
+
+
+def test_initial_adapter_requires_bounded_metadata_and_a_training_receipt(initial_adapter):
+    path, digest = initial_adapter
+    receipt_path = path.parent.parent / "train.json"
+    receipt_path.unlink()
+    with pytest.raises(ValueError, match="training receipt"):
+        train.verify_initial_adapter(path, digest)
+    (path.parent / "adapter_config.json").write_bytes(b" " * 65537)
+    with pytest.raises(ValueError, match="byte bound"):
+        train.verify_initial_adapter(path, digest)
+
+
+def test_private_initialization_snapshot_never_tracks_later_source_mutations(initial_adapter, tmp_path):
+    path, digest = initial_adapter
+    run = tmp_path / "new-run"
+    run.mkdir()
+    saved = train.snapshot_initial_adapter(path, run, digest)
+    assert saved.read_bytes() == path.read_bytes() and saved.stat().st_mode & 0o777 == 0o400
+    path.write_bytes(b"changed source")
+    assert hashlib.sha256(saved.read_bytes()).hexdigest() == digest
+    with pytest.raises(ValueError, match="checksum"):
+        train.verify_initial_adapter(path, digest)
+    saved.chmod(0o600)
+    saved.write_bytes(b"changed saved weights")
+    with pytest.raises(ValueError, match="between stages"):
+        train.snapshot_initial_adapter(path, run, digest)
+
+
+def test_initialization_metadata_cannot_change_between_preflight_and_sanity(initial_adapter, tmp_path):
+    path, digest = initial_adapter
+    run = tmp_path / "new-run"
+    run.mkdir()
+    identity = train.verify_initial_adapter(path, digest)
+    train.freeze_initialization_identity(run, identity)
+    config_path = path.parent / "adapter_config.json"
+    config = json.loads(config_path.read_text())
+    config["note"] = "Compatible values, different metadata"
+    config_path.write_text(json.dumps(config))
+    changed = train.verify_initial_adapter(path, digest)
+    with pytest.raises(ValueError, match="metadata changed between stages"):
+        train.freeze_initialization_identity(run, changed)
+
+
+class ScalarResult:
+    def __init__(self, value):
+        self.value = value
+
+    def item(self):
+        return self.value
+
+
+class AdapterArray:
+    def __init__(self, value=1, shape=(2, 8), dtype="float32"):
+        self.value, self.shape, self.dtype = value, shape, dtype
+        self.size = 16
+
+
+class AdapterModel:
+    def __init__(self):
+        self.parameters = {"layer.self_attn.q_proj.lora_a": AdapterArray(value=0)}
+
+    def trainable_parameters(self):
+        return self.parameters
+
+    def load_weights(self, pairs, strict):
+        assert strict is False
+        self.parameters.update(pairs)
+
+
+class AdapterMX:
+    def __init__(self, arrays):
+        self.arrays = arrays
+
+    def load(self, path):
+        return self.arrays
+
+    def isfinite(self, array):
+        return ScalarResult(array.value != float("inf"))
+
+    def all(self, result):
+        return result
+
+    def eval(self, values):
+        pass
+
+    def array_equal(self, actual, expected):
+        return ScalarResult(actual.value == expected.value and actual.dtype == expected.dtype)
+
+
+@pytest.mark.parametrize("problem", ["keys", "shape", "dtype", "nonfinite"])
+def test_tensor_initialization_checks_actual_wrapped_model_before_loading(tmp_path, problem):
+    model = AdapterModel()
+    key = next(iter(model.parameters))
+    array = AdapterArray()
+    if problem == "shape":
+        array.shape = (8, 2)
+    elif problem == "dtype":
+        array.dtype = "float16"
+    elif problem == "nonfinite":
+        array.value = float("inf")
+    arrays = {"unexpected.lora_a" if problem == "keys" else key: array}
+    with pytest.raises(ValueError, match="tensor keys, shapes or finite"):
+        train.load_initial_adapter(
+            model, tmp_path / "weights", AdapterMX(arrays), lambda value: value.items()
+        )
+    assert model.parameters[key].value == 0
+
+
+def test_tensor_initialization_proves_exact_reloaded_values(tmp_path):
+    model = AdapterModel()
+    key = next(iter(model.parameters))
+    result = train.load_initial_adapter(
+        model, tmp_path / "weights", AdapterMX({key: AdapterArray(7)}), lambda value: value.items()
+    )
+    assert result == {"tensors": 1, "parameters": 16, "exact": True}
+    assert model.parameters[key].value == 7
