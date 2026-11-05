@@ -6,6 +6,11 @@ change the scraper's default model or start/stop its inference service. Training
 and synthetic validation have run on Apple Silicon; see [measured results](RESULTS.md).
 Representative real-web accuracy remains unverified.
 
+The frozen [experimental MLX adapter](https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-mlx-lora)
+is distributed separately with its model card, measurements and checksums.
+It is MLX-only and has not qualified for general production use; read the
+[held-out evaluation](RESULTS.md#frozen-held-out-comparison) before using it.
+
 The baseline is public, ungated `mlx-community/Qwen3-1.7B-4bit`, pinned at
 `3b1b1768f8f8cf8351c712464f906e86c2b8269e`. Its `model.safetensors` is
 968,080,210 bytes, SHA256

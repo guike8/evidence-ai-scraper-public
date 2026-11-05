@@ -163,6 +163,10 @@ produced 640 tokens. Full unseen grammar-assisted WSP accuracy was not measured.
 
 ## Scope and publication
 
+The frozen [experimental MLX adapter](https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-mlx-lora)
+is available separately with its model card and checksums. It is MLX-only;
+Transformers/PEFT and GGUF compatibility are not established.
+
 The held-out result remains below the full accepted-recall release target.
 No API inference fees were incurred; hardware,
 electricity and download costs were not measured. Real-page retrieval,

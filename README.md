@@ -131,7 +131,7 @@ The [comparison protocol](benchmarks/README.md) separates business accuracy, evi
 
 For optional paid adapters, configure credentials, explicit provider/model identifiers, actual account prices and a spending cap before live calls. See [model capability checks](docs/model-selection.md). Raw Unlocker rendering stays disabled unless its observed redirect destination can be verified.
 
-An optional [Apple Silicon model experiment](training/README.md) provides a grouped synthetic curriculum, isolated QLoRA training, direct weight-space patch tools and base/candidate scoring. Its [measured results](training/RESULTS.md) cover authored synthetic cases; real-web generalization remains unverified. Training dependencies are separate from the scraper runtime, and weights are distributed separately.
+An optional [Apple Silicon model experiment](training/README.md) provides a grouped synthetic curriculum, isolated QLoRA training, direct weight-space patch tools and base/candidate scoring. The [experimental MLX adapter](https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-mlx-lora) accepted 41/108 held-out synthetic cases, with 32.54% accepted required-field recall; see the [measured results](training/RESULTS.md). It is MLX-only, and production use and real-web generalization remain unverified. Training dependencies are separate from the scraper runtime, and weights are distributed separately.
 
 ## License
 
