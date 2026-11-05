@@ -101,6 +101,55 @@ def test_false_zero_and_float_are_distinct_facts():
     assert report["accepted_cases"] == 0
 
 
+def test_accepted_metrics_score_returned_number_without_changing_raw_diagnostics():
+    case = build_case("train", "custom_v1", 0)[1]
+    row = _row(case)
+    number = next(key for key, value in row["candidate"]["data"].items() if type(value) is float)
+    assert row["candidate"]["data"][number] == 0.0
+    row["candidate"]["data"][number] = 0
+    report = _score([case], [row])
+    assert report["accepted_cases"] == 1
+    assert report["raw_facts"]["correct"] == 5
+    assert report["raw_facts"]["wrong_or_unlabeled"] == 1
+    assert report["cases"][0]["wrong_paths"] == [number]
+    assert report["accepted_facts"]["correct"] == 6
+    assert report["accepted_facts"]["wrong_or_unlabeled"] == 0
+    assert report["cases"][0]["accepted_correct"] == 6
+    assert report["cases"][0]["accepted_wrong_paths"] == []
+    groups = [report, *report["by_schema"].values(), *report["by_domain"].values()]
+    for group in groups:
+        assert group["required_facts"]["raw"]["correct"] == 5
+        assert group["required_facts"]["accepted"]["correct"] == 6
+        assert group["required_facts"]["accepted"]["wrong_or_unlabeled"] == 0
+    field = report["by_field"][f"custom_v1:{number}"]
+    assert field["raw_facts"]["correct"] == 0
+    assert field["accepted_facts"]["correct"] == 1
+    assert field["required_facts"]["accepted"]["correct"] == 1
+
+
+@pytest.mark.parametrize("failure", ["evidence", "truncation", "execution"])
+def test_legal_numeric_normalization_cannot_bypass_acceptance_gates(failure):
+    case = build_case("train", "custom_v1", 0)[1]
+    row = _row(case)
+    number = next(key for key, value in row["candidate"]["data"].items() if type(value) is float)
+    row["candidate"]["data"][number] = 0
+    if failure == "evidence":
+        row["candidate"]["evidence"][0]["excerpt"] = "Absent fabricated quote"
+    elif failure == "truncation":
+        row["finish_reason"] = "length"
+    else:
+        row["error_code"] = "INFERENCE_TIMEOUT"
+    report = _score([case], [row])
+    assert report["raw_facts"]["correct"] == 5
+    assert report["accepted_cases"] == 0
+    assert report["accepted_facts"]["predicted"] == 0
+    assert report["accepted_facts"]["correct"] == 0
+    assert report["cases"][0]["accepted_predicted"] == 0
+    for group in [*report["by_schema"].values(), *report["by_domain"].values(), *report["by_field"].values()]:
+        assert group["accepted_facts"]["predicted"] == 0
+        assert group["required_facts"]["accepted"]["correct"] == 0
+
+
 def test_array_members_count_as_leaves_and_invalid_evidence_rejects_record():
     case = _case("page_v1")
     row = _row(case)

@@ -129,3 +129,10 @@ reported denominators. Report raw predictions separately from accepted facts;
 an increase in accepted records is useful only alongside factual precision
 and required-field coverage. See the [training guide](../training/README.md)
 for scoring, checkpoint limits and artifact publication requirements.
+
+Raw fact diagnostics compare the initial JSON values with strict Python types.
+Accepted-fact metrics score the validated business data actually returned by
+the application. For example, a legal JSON number `0` validated as `0.0` is a
+correct accepted numeric value. Failed, truncated and errored records contribute
+no accepted facts. This scoring correction leaves record acceptance unchanged;
+matched old/new comparisons must use the same scorer.

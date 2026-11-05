@@ -315,7 +315,15 @@ def _required(path: str, required: tuple[str, ...]) -> bool:
     return any(path == root or path.startswith(root + ".") for root in required)
 
 
-def _accumulate(group: Counter, expected: set, predicted: set, correct: set, accepted: bool, required):
+def _accumulate(
+    group: Counter,
+    expected: set,
+    predicted: set,
+    correct: set,
+    accepted_predicted: set,
+    accepted_correct: set,
+    required,
+):
     group["case_count"] += 1
     for prefix, select in (
         ("", lambda _: True),
@@ -325,8 +333,8 @@ def _accumulate(group: Counter, expected: set, predicted: set, correct: set, acc
         for name, paths in (("present", expected), ("predicted", predicted), ("correct", correct)):
             count = sum(select(path) for path in paths)
             group[prefix + name] += count
-            if name != "present":
-                group[prefix + "accepted_" + name] += count if accepted else 0
+        for name, paths in (("predicted", accepted_predicted), ("correct", accepted_correct)):
+            group[prefix + "accepted_" + name] += sum(select(path) for path in paths)
 
 
 def _group_metrics(group: Counter) -> dict:
@@ -437,6 +445,16 @@ def score_outputs(cases: list[dict], outputs: list[dict], *, model: dict, infere
         if token_limit or code:
             status = "failed"
         accepted = status in {"success", "partial"}
+        # Score accepted facts from the business object the application actually
+        # returns. Legal Pydantic normalization (for example JSON 0 to float
+        # 0.0) must not become a false factual error. Raw diagnostics above keep
+        # their strict comparison to the unmodified model response.
+        accepted_predicted = populated_fields(assessment.data) if accepted else {}
+        accepted_correct = {
+            path
+            for path, value in accepted_predicted.items()
+            if path in expected and type(value) is type(expected[path]) and value == expected[path]
+        }
         for dimension, key in (
             ("all", "all"),
             ("schema", spec.schema_id),
@@ -447,11 +465,12 @@ def score_outputs(cases: list[dict], outputs: list[dict], *, model: dict, infere
                 set(expected),
                 set(predicted),
                 correct,
-                accepted,
+                set(accepted_predicted),
+                accepted_correct,
                 spec.required_fields,
             )
         field_groups = {}
-        for path in set(expected) | set(predicted):
+        for path in set(expected) | set(predicted) | set(accepted_predicted):
             safe = _safe_path(path, spec)
             field = re.sub(r"(?<=\.)[0-9]+(?=\.|$)", "*", safe)
             field_groups.setdefault(f"{spec.schema_id}:{field}", set()).add(path)
@@ -461,7 +480,8 @@ def score_outputs(cases: list[dict], outputs: list[dict], *, model: dict, infere
                 set(expected) & paths,
                 set(predicted) & paths,
                 correct & paths,
-                accepted,
+                set(accepted_predicted) & paths,
+                accepted_correct & paths,
                 spec.required_fields,
             )
         abstained = 0
@@ -472,8 +492,8 @@ def score_outputs(cases: list[dict], outputs: list[dict], *, model: dict, infere
             {
                 "predicted": len(predicted),
                 "correct": len(correct),
-                "accepted_correct": len(correct) if accepted else 0,
-                "accepted_predicted": len(predicted) if accepted else 0,
+                "accepted_correct": len(accepted_correct),
+                "accepted_predicted": len(accepted_predicted),
                 "valid_json": valid_json,
                 "valid_schema": parsed is not None,
                 "accepted": accepted,
@@ -515,6 +535,11 @@ def score_outputs(cases: list[dict], outputs: list[dict], *, model: dict, infere
                 "correct": len(correct),
                 "wrong_paths": sorted(_safe_path(path, spec) for path in set(predicted) - correct),
                 "missed_paths": sorted(set(expected) - correct),
+                "accepted_predicted": len(accepted_predicted),
+                "accepted_correct": len(accepted_correct),
+                "accepted_wrong_paths": sorted(
+                    _safe_path(path, spec) for path in set(accepted_predicted) - accepted_correct
+                ),
                 "source_supported": len(supported),
                 "correct_with_source_support": len(correct & supported),
                 "authored_reference_matches": len(reference_matches),
@@ -545,6 +570,7 @@ def score_outputs(cases: list[dict], outputs: list[dict], *, model: dict, infere
         "accepted_facts": _metrics(
             totals["present"], totals["accepted_predicted"], totals["accepted_correct"]
         ),
+        "accepted_fact_definition": "Facts in the validated returned business object after execution-error and truncation gates; raw facts retain strict comparison to the original response",
         "required_facts": _group_metrics(grouped["all"]["all"])["required_facts"],
         "optional_facts": _group_metrics(grouped["all"]["all"])["optional_facts"],
         "required_definition": "Populated scalar leaves under trusted registry required fields; null/empty controls are scored as abstention separately",
