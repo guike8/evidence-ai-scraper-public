@@ -28,7 +28,14 @@ async def test_mcp_discovery_is_lazy_and_describes_typed_contract():
 
     server = build_server(must_not_initialize)
     tools = {tool.name: tool for tool in await server.list_tools()}
-    assert set(tools) == {"extract_url", "resume_extraction", "list_schemas"}
+    assert set(tools) == {
+        "extract_url",
+        "resume_extraction",
+        "list_schemas",
+        "crawl_site",
+        "resume_crawl",
+        "crawl_status",
+    }
     assert tools["extract_url"].inputSchema["required"] == ["url"]
     assert tools["extract_url"].inputSchema["properties"]["schema_id"]["default"] == "page_v1"
     assert tools["extract_url"].outputSchema["properties"]["status"]["enum"] == [
@@ -149,7 +156,14 @@ async def test_real_stdio_handshake_discovery_and_safe_tool_call(tmp_path):
         initialized = await session.initialize()
         assert initialized.serverInfo.name == "Evidence AI Scraper"
         listing = await session.list_tools()
-        assert {tool.name for tool in listing.tools} == {"extract_url", "resume_extraction", "list_schemas"}
+        assert {tool.name for tool in listing.tools} == {
+            "extract_url",
+            "resume_extraction",
+            "list_schemas",
+            "crawl_site",
+            "resume_crawl",
+            "crawl_status",
+        }
         result = await session.call_tool("extract_url", {"url": "file:///etc/passwd"})
         assert not result.isError
         payload = result.structuredContent or json.loads(result.content[0].text)

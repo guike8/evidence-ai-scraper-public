@@ -19,9 +19,17 @@ ALLOWED_KEYS = frozenset(
         "HF_MODEL",
         "SCRAPER_INFERENCE_BACKEND",
         "SCRAPER_RETRIEVAL_BACKEND",
+        "SCRAPER_USER_AGENT",
+        "BROWSER_TIMEOUT_SECONDS",
+        "BROWSER_MAX_REQUESTS",
+        "BROWSER_MAX_TOTAL_BYTES",
+        "BROWSER_MAX_ATTEMPTS",
+        "BROWSER_RESOURCE_DOMAINS",
+        "BROWSER_EXECUTABLE_PATH",
         "LOCAL_MODEL",
         "LOCAL_BASE_URL",
         "LOCAL_API_KEY",
+        "LOCAL_SOURCE_BOUND_EVIDENCE",
         "SCRAPER_ALLOWED_DOMAINS",
         "SCRAPER_WAIT_SECONDS",
         "SCRAPER_MAX_SPEND_USD",
@@ -104,9 +112,13 @@ def load_environment(root: Path, config: Path, inherited: dict[str, str] | None 
 
 def status(environment: dict[str, str]) -> dict:
     configured = {key: bool(environment.get(key, "").strip()) for key in sorted(ALLOWED_KEYS)}
-    direct = environment.get("SCRAPER_RETRIEVAL_BACKEND") == "direct"
+    retrieval_backend = environment.get("SCRAPER_RETRIEVAL_BACKEND") or "brightdata"
+    credentialless_retrieval = retrieval_backend in {"direct", "browser", "auto"}
+    browser_runtime_required = retrieval_backend in {"browser", "auto"}
     missing_retrieval = [
-        key for key in (("SCRAPER_ALLOWED_DOMAINS",) if direct else RETRIEVAL_KEYS) if not configured[key]
+        key
+        for key in (("SCRAPER_ALLOWED_DOMAINS",) if credentialless_retrieval else RETRIEVAL_KEYS)
+        if not configured[key]
     ]
     local = environment.get("SCRAPER_INFERENCE_BACKEND") == "local"
     missing_inference = [
@@ -119,7 +131,9 @@ def status(environment: dict[str, str]) -> dict:
         "live_retrieval_configured": not missing_retrieval,
         "live_inference_configured": not missing_inference,
         "inference_backend": "local" if local else "huggingface",
-        "retrieval_backend": "direct" if direct else "brightdata",
+        "retrieval_backend": retrieval_backend,
+        "browser_runtime_required": browser_runtime_required,
+        "browser_runtime_verified": False,
         "missing_for_retrieval": missing_retrieval,
         "missing_for_inference": missing_retrieval + missing_inference,
         "live_verified": False,

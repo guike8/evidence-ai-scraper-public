@@ -6,6 +6,7 @@ import argparse
 import asyncio
 import json
 import math
+import os
 import sys
 import uuid
 from pathlib import Path
@@ -23,6 +24,7 @@ from .schemas import (
     DEFAULT_SCHEMA_ID,
     SCHEMA_ID,
     AppError,
+    BrowserAction,
     CustomField,
     ExtractionRequest,
     ExtractionResult,
@@ -64,16 +66,29 @@ def parser() -> argparse.ArgumentParser:
         "prune",
         "evaluate",
         "benchmark",
+        "crawl",
+        "resume-crawl",
+        "crawl-status",
     ):
         command = commands.add_parser(name)
         command.add_argument("--state-dir", type=Path, default=argparse.SUPPRESS)
         command.add_argument("--output", type=Path, help="Atomically export JSON in addition to stdout")
-        if name in {"extract", "resume", "replay", "probe"}:
+        if name in {"extract", "resume", "replay", "probe", "crawl", "resume-crawl"}:
             command.add_argument(
                 "--source-bound-evidence",
                 action=argparse.BooleanOptionalAction,
                 default=None,
                 help="Constrain local citations to locations present in the saved source",
+            )
+        if name in {"extract", "resume", "replay", "probe", "crawl", "resume-crawl"}:
+            browser = command.add_mutually_exclusive_group()
+            browser.add_argument("--browser", action="store_true", help="Retrieve with anonymous Chromium")
+            browser.add_argument(
+                "--render-fallback", action="store_true", help="Try direct HTTP before JavaScript rendering"
+            )
+        if name in {"extract", "crawl"}:
+            command.add_argument(
+                "--browser-actions", type=Path, help="JSON list of up to 10 caller-authored browser actions"
             )
         if name in {"extract", "replay"}:
             if name == "extract":
@@ -107,7 +122,23 @@ def parser() -> argparse.ArgumentParser:
             command.add_argument("--schema", default=SCHEMA_ID)
         elif name in {"evaluate", "benchmark"}:
             command.add_argument("manifest", type=Path)
-        if name in {"extract", "replay", "schema", "probe"}:
+        elif name == "crawl":
+            command.add_argument("seeds", nargs="+", help="One to ten public seed URLs")
+            command.add_argument("--schema", help="Extraction schema; default page_v1")
+            command.add_argument("--country")
+            command.add_argument("--locale", choices=["en_US", "en_GB", "de_DE", "fr_FR"])
+            command.add_argument("--max-pages", type=int, default=20)
+            command.add_argument("--max-depth", type=int, default=2)
+            command.add_argument("--max-frontier", type=int, default=1000)
+            command.add_argument("--max-links-per-page", type=int, default=500)
+            command.add_argument("--delay-seconds", type=float, default=1.0)
+            command.add_argument("--wait-seconds", type=float, default=180.0)
+            command.add_argument("--scope-domain", action="append", default=[], help="Exact additional host")
+        elif name in {"resume-crawl", "crawl-status"}:
+            command.add_argument("crawl_id")
+            if name == "resume-crawl":
+                command.add_argument("--wait-seconds", type=float)
+        if name in {"extract", "replay", "schema", "probe", "crawl"}:
             command.add_argument("--fields", help="Custom fields: headline,year:integer,tags:string_list")
             command.add_argument(
                 "--fields-file", type=Path, help="JSON array of typed custom field descriptors (max 32)"
@@ -118,6 +149,20 @@ def parser() -> argparse.ArgumentParser:
                 help="Task guidance; extracted values still need literal source evidence",
             )
     return app
+
+
+def _browser_actions(args: argparse.Namespace) -> list[BrowserAction]:
+    path = getattr(args, "browser_actions", None)
+    if path is None:
+        return []
+    with path.open("rb") as source:
+        contents = source.read(65_537)
+    if len(contents) > 65_536:
+        raise ScraperError("INVALID_REQUEST", "Browser action file exceeds the byte limit")
+    value = json.loads(contents)
+    if not isinstance(value, list) or len(value) > 10:
+        raise ScraperError("INVALID_REQUEST", "Browser actions must be a JSON list of at most 10 actions")
+    return [BrowserAction.model_validate(item) for item in value]
 
 
 def build_request(
@@ -179,6 +224,7 @@ def _request(args: argparse.Namespace, url: str | None = None) -> ExtractionRequ
         locale=getattr(args, "locale", None),
         fields=fields,
         instruction=getattr(args, "instruction", None),
+        browser_actions=_browser_actions(args),
     )
     spec = get_schema(request)
     # Persist only validated metadata. Error handling must not reread a custom
@@ -193,6 +239,21 @@ def _request(args: argparse.Namespace, url: str | None = None) -> ExtractionRequ
 
 def _settings(args: argparse.Namespace) -> Settings:
     settings = Settings.from_env()
+    if args.command in {"crawl", "resume-crawl", "crawl-status"}:
+        if not os.environ.get("SCRAPER_RETRIEVAL_BACKEND"):
+            settings = settings.model_copy(update={"retrieval_backend": "direct"})
+        if args.command == "crawl" and not os.environ.get("SCRAPER_ALLOWED_DOMAINS"):
+            settings = settings.model_copy(
+                update={
+                    "allowed_domains": sorted(
+                        {urlsplit(seed).hostname or "" for seed in args.seeds} | set(args.scope_domain)
+                    )
+                }
+            )
+    if getattr(args, "browser", False):
+        settings = settings.model_copy(update={"retrieval_backend": "browser"})
+    elif getattr(args, "render_fallback", False):
+        settings = settings.model_copy(update={"retrieval_backend": "auto"})
     if getattr(args, "source_bound_evidence", None) is not None:
         settings = settings.model_copy(update={"local_source_bound_evidence": args.source_bound_evidence})
     if args.state_dir is not None:
@@ -318,6 +379,46 @@ async def _run(args: argparse.Namespace) -> dict:
             "fingerprint": spec.fingerprint,
         }
     settings = _settings(args)
+    if args.command in {"crawl", "resume-crawl", "crawl-status"}:
+        from .crawl import Crawler, CrawlRequest
+
+        if args.command == "crawl":
+            page_request = _request(args, args.seeds[0])
+            if page_request.browser_actions and settings.retrieval_backend not in {"browser", "auto"}:
+                raise ScraperError(
+                    "INVALID_REQUEST", "Browser actions require --browser or --render-fallback"
+                )
+            crawl_request = CrawlRequest(
+                seeds=args.seeds,
+                schema_id=page_request.schema_id,
+                fields=page_request.fields,
+                instruction=page_request.instruction,
+                country=page_request.country,
+                locale=page_request.locale,
+                browser_actions=page_request.browser_actions,
+                max_pages=args.max_pages,
+                max_depth=args.max_depth,
+                max_frontier=args.max_frontier,
+                max_links_per_page=args.max_links_per_page,
+                delay_seconds=args.delay_seconds,
+                wait_seconds=args.wait_seconds,
+                scope_domains=(
+                    sorted({urlsplit(seed).hostname or "" for seed in args.seeds} | set(args.scope_domain))
+                    if args.scope_domain
+                    else []
+                ),
+            )
+        crawler = Crawler(settings)
+        try:
+            if args.command == "crawl":
+                result = await crawler.start(crawl_request)
+            elif args.command == "resume-crawl":
+                result = await crawler.resume(args.crawl_id, wait_seconds=args.wait_seconds)
+            else:
+                result = crawler.status(args.crawl_id)
+            return result.model_dump(mode="json")
+        finally:
+            await crawler.close()
     if args.command == "probe":
         return await _probe(settings, request)
     if args.command == "prune":
@@ -332,6 +433,13 @@ async def _run(args: argparse.Namespace) -> dict:
         return await benchmark_manifest(args.manifest, settings)
 
     from .pipeline import Pipeline, create_pipeline
+
+    if (
+        request is not None
+        and request.browser_actions
+        and settings.retrieval_backend not in {"browser", "auto"}
+    ):
+        raise ScraperError("INVALID_REQUEST", "Browser actions require --browser or --render-fallback")
 
     if args.command == "replay":
         record = _load_record(args.record, request.url, max_bytes=settings.max_response_bytes)
@@ -370,36 +478,46 @@ async def _run(args: argparse.Namespace) -> dict:
         await pipeline.close()
 
 
+def _failure_payload(args: argparse.Namespace, code: str, message: str, *, vendor_details=None) -> dict:
+    if args.command in {"crawl", "resume-crawl", "crawl-status"}:
+        return {
+            "crawl_id": getattr(args, "crawl_id", ""),
+            "status": "failed",
+            "counts": {},
+            "entries": [],
+            "warnings": [],
+            "error": AppError(code=code, message=message).model_dump(mode="json"),
+        }
+    return failure_result(
+        code,
+        message,
+        url=getattr(args, "url", ""),
+        job_id=getattr(args, "job_id", ""),
+        provenance=getattr(args, "_failure_provenance", None),
+        vendor_details=vendor_details,
+    ).model_dump(mode="json")
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     try:
         payload = asyncio.run(_run(args))
     except ScraperError as exc:
         # Known errors already contain stable, sanitized application messages.
-        payload = failure_result(
+        payload = _failure_payload(
+            args,
             exc.error.code,
             exc.error.message,
-            url=getattr(args, "url", ""),
-            job_id=getattr(args, "job_id", ""),
-            provenance=getattr(args, "_failure_provenance", None),
             vendor_details=(
                 exc.error.vendor_details if exc.error.code == "CAPABILITY_PROBE_FAILED" else None
             ),
-        ).model_dump(mode="json")
+        )
         print(f"{exc.error.code}: {exc.error.message}", file=sys.stderr)
     except ValidationError:
-        payload = failure_result(
-            "INVALID_REQUEST",
-            "Invalid request or configuration",
-            provenance=getattr(args, "_failure_provenance", None),
-        ).model_dump(mode="json")
+        payload = _failure_payload(args, "INVALID_REQUEST", "Invalid request or configuration")
         print("INVALID_REQUEST: Invalid request or configuration", file=sys.stderr)
     except (OSError, ValueError, TypeError):
-        payload = failure_result(
-            "LOCAL_ERROR",
-            "Could not read input, configuration or saved state",
-            provenance=getattr(args, "_failure_provenance", None),
-        ).model_dump(mode="json")
+        payload = _failure_payload(args, "LOCAL_ERROR", "Could not read input, configuration or saved state")
         print("LOCAL_ERROR: Could not read input, configuration or saved state", file=sys.stderr)
     except KeyboardInterrupt:
         print("Interrupted; saved pending jobs can be resumed", file=sys.stderr)

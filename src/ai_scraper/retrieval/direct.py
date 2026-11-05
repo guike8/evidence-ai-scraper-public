@@ -126,6 +126,7 @@ class DirectHTTPRetriever:
         max_redirects: int = 5,
         timeout: float = 75.0,
         max_attempts: int = 3,
+        user_agent: str = "EvidenceAIScraper/0.5",
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
         clock: Callable[[], float] = time.monotonic,
     ):
@@ -134,14 +135,25 @@ class DirectHTTPRetriever:
         if not 0 <= max_redirects <= 20 or not 1 <= max_attempts <= 3 or not 0 < timeout <= 300:
             raise ValueError("Redirects, attempts, or timeout exceed supported bounds")
         self.policy = policy
+        if (
+            not user_agent
+            or len(user_agent) > 200
+            or not user_agent.isascii()
+            or any(ord(char) < 32 or ord(char) == 127 for char in user_agent)
+        ):
+            raise ValueError("User agent must be a bounded printable ASCII string")
+        self.user_agent = user_agent
+        self.cache_options = {"user_agent": user_agent}
         self.client = client or httpx.AsyncClient(
             transport=PublicHTTPTransport(policy),
             trust_env=False,
             follow_redirects=False,
             event_hooks={"request": [_strip_credentials]},
+            headers={"User-Agent": user_agent},
         )
         self._owns_client = client is None
         if client is not None:
+            self.client.headers["User-Agent"] = user_agent
             # Custom clients are intended for fixture transports. Strip inherited
             # authentication/cookie headers even if a fixture client has defaults.
             self.client.event_hooks["request"].append(_strip_credentials)

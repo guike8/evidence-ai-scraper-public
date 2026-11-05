@@ -89,6 +89,67 @@ def test_empty_configuration_reports_missing_without_vendor_calls(tmp_path, caps
     assert "BRIGHTDATA_API_KEY" in report["missing_for_retrieval"]
 
 
+@pytest.mark.parametrize("backend", ["direct", "browser", "auto"])
+def test_credentialless_extension_configuration_reports_real_backend_without_runtime_probe(
+    tmp_path, monkeypatch, capsys, backend
+):
+    values = {
+        "SCRAPER_RETRIEVAL_BACKEND": backend,
+        "SCRAPER_ALLOWED_DOMAINS": "example.org",
+        "SCRAPER_USER_AGENT": "FixtureScraper/0.5",
+        "BROWSER_TIMEOUT_SECONDS": "30",
+        "BROWSER_MAX_REQUESTS": "40",
+        "BROWSER_MAX_TOTAL_BYTES": "5000000",
+        "BROWSER_MAX_ATTEMPTS": "1",
+        "BROWSER_RESOURCE_DOMAINS": "cdn.example.org",
+        "BROWSER_EXECUTABLE_PATH": "/private-browser-location/chromium",
+        "LOCAL_SOURCE_BOUND_EVIDENCE": "true",
+    }
+    config_file(tmp_path, values)
+    monkeypatch.setattr(deployment.os, "environ", {})
+    assert deployment.main(["--root", str(tmp_path), "status"]) == 0
+    captured = capsys.readouterr()
+    report = json.loads(captured.out)
+    assert captured.err == ""
+    assert report["retrieval_backend"] == backend
+    assert report["live_retrieval_configured"] is True
+    assert report["missing_for_retrieval"] == []
+    assert report["configured"]["BRIGHTDATA_API_KEY"] is False
+    assert all(report["configured"][key] for key in values)
+    assert report["browser_runtime_required"] is (backend != "direct")
+    assert report["browser_runtime_verified"] is report["live_verified"] is False
+    assert values["BROWSER_EXECUTABLE_PATH"] not in captured.out
+    assert values["SCRAPER_USER_AGENT"] not in captured.out
+
+
+@pytest.mark.parametrize("backend", ["browser", "auto"])
+def test_browser_modes_require_scope_but_no_vendor_credentials(tmp_path, backend):
+    path = config_file(tmp_path, {"SCRAPER_RETRIEVAL_BACKEND": backend})
+    report = deployment.status(deployment.load_environment(tmp_path, path, {}))
+    assert report["retrieval_backend"] == backend
+    assert report["live_retrieval_configured"] is False
+    assert report["missing_for_retrieval"] == ["SCRAPER_ALLOWED_DOMAINS"]
+
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        {"BROWSER_MAX_REQUESTS": "501"},
+        {"BROWSER_TIMEOUT_SECONDS": "nan"},
+        {"LOCAL_SOURCE_BOUND_EVIDENCE": "invalid-private-value"},
+    ],
+)
+def test_extension_settings_use_application_validation_without_value_disclosure(
+    tmp_path, monkeypatch, capsys, values
+):
+    config_file(tmp_path, values)
+    monkeypatch.setattr(deployment.os, "environ", {})
+    assert deployment.main(["--root", str(tmp_path), "status"]) == 1
+    captured = capsys.readouterr()
+    assert captured.err == "DEPLOY_CONFIG_INVALID: Invalid or unavailable private deployment configuration\n"
+    assert captured.out == ""
+
+
 def test_cli_arguments_pass_through_existing_main(tmp_path, monkeypatch):
     config_file(tmp_path, {"HF_PROVIDER": "fixture"})
     calls = []

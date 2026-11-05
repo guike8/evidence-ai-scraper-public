@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 
 from .schemas import StrictModel
 
@@ -22,7 +22,14 @@ class Settings(StrictModel):
     hf_provider: str | None = None
     hf_model: str | None = None
     inference_backend: Literal["huggingface", "local"] = "huggingface"
-    retrieval_backend: Literal["brightdata", "direct"] = "brightdata"
+    retrieval_backend: Literal["brightdata", "direct", "browser", "auto"] = "brightdata"
+    user_agent: str = Field(default="EvidenceAIScraper/0.5", min_length=1, max_length=200)
+    browser_timeout_seconds: float = Field(default=45.0, ge=1, le=120)
+    browser_max_requests: int = Field(default=80, ge=1, le=500)
+    browser_max_total_bytes: int = Field(default=10_000_000, ge=1024, le=100_000_000)
+    browser_max_attempts: int = Field(default=2, ge=1, le=3)
+    browser_resource_domains: list[str] = Field(default_factory=list)
+    browser_executable_path: str | None = Field(default=None, max_length=4000)
     local_model: str | None = None
     local_base_url: str = "http://127.0.0.1:8000/v1"
     local_api_key: SecretStr | None = None
@@ -43,6 +50,15 @@ class Settings(StrictModel):
     firecrawl_record_usd: float | None = Field(default=None, ge=0)
     retention_days: int = Field(default=30, ge=1)
 
+    @field_validator("user_agent")
+    @classmethod
+    def safe_user_agent(cls, value: str) -> str:
+        if not value.isascii() or any(ord(char) < 32 or ord(char) == 127 for char in value):
+            raise ValueError("User agent must be printable ASCII without control characters")
+        if not value.strip():
+            raise ValueError("User agent cannot be blank")
+        return value
+
     @classmethod
     def from_env(cls):
         fields = {
@@ -54,6 +70,16 @@ class Settings(StrictModel):
             "HF_MODEL": ("hf_model", str),
             "SCRAPER_INFERENCE_BACKEND": ("inference_backend", str),
             "SCRAPER_RETRIEVAL_BACKEND": ("retrieval_backend", str),
+            "SCRAPER_USER_AGENT": ("user_agent", str),
+            "BROWSER_TIMEOUT_SECONDS": ("browser_timeout_seconds", float),
+            "BROWSER_MAX_REQUESTS": ("browser_max_requests", int),
+            "BROWSER_MAX_TOTAL_BYTES": ("browser_max_total_bytes", int),
+            "BROWSER_MAX_ATTEMPTS": ("browser_max_attempts", int),
+            "BROWSER_RESOURCE_DOMAINS": (
+                "browser_resource_domains",
+                lambda s: [x.strip().lower() for x in s.split(",") if x.strip()],
+            ),
+            "BROWSER_EXECUTABLE_PATH": ("browser_executable_path", str),
             "LOCAL_MODEL": ("local_model", str),
             "LOCAL_BASE_URL": ("local_base_url", str),
             "LOCAL_API_KEY": ("local_api_key", SecretStr),

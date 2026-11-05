@@ -331,8 +331,31 @@ class CustomField(StrictModel):
         return value
 
 
+class BrowserAction(StrictModel):
+    """A bounded caller-authored action; page content never supplies actions."""
+
+    kind: Literal["click", "wait_for", "scroll"]
+    selector: str | None = Field(default=None, min_length=1, max_length=500)
+    timeout_ms: int = Field(default=5000, ge=1, le=10000)
+    pixels: int = Field(default=600, ge=-4000, le=4000)
+
+    @model_validator(mode="after")
+    def check_action(self):
+        if self.kind in {"click", "wait_for"}:
+            if self.selector is None or not self.selector.strip():
+                raise ValueError("Click and wait actions require a CSS selector")
+            if any(ord(char) < 32 for char in self.selector):
+                raise ValueError("Browser selectors cannot contain control characters")
+        elif self.selector is not None:
+            raise ValueError("Scroll actions do not accept a selector")
+        return self
+
+
 class ExtractionRequest(StrictModel):
     url: str
+    browser_actions: list[BrowserAction] = Field(
+        default_factory=list, max_length=10, exclude_if=lambda actions: not actions
+    )
     schema_id: str = SCHEMA_ID
     country: str | None = None
     freshness_seconds: int = Field(default=3600, ge=0)

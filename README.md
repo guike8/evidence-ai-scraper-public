@@ -47,6 +47,30 @@ Install and start the model server separately. The local adapter targets [oMLX](
 
 `LOCAL_BASE_URL` must be loopback HTTP(S). No cloud inference account or scraping API key is needed for the direct/local profile. Set exact comma-separated target hosts; `SCRAPER_ALLOWED_DOMAINS='*'` permits public hosts more broadly while retaining IP, port and redirect checks.
 
+## Crawl and render public pages
+
+Start from public seed URLs with explicit page and depth limits:
+
+```sh
+uv run ai-scraper crawl https://example.org/ \
+  --max-pages 5 --max-depth 1 --wait-seconds 60 --output crawl.json
+uv run ai-scraper crawl-status CRAWL_ID
+uv run ai-scraper resume-crawl CRAWL_ID --wait-seconds 60 --output crawl.json
+```
+
+Crawling defaults to direct HTTP and exact seed hosts when no backend or domain allowlist is configured. It respects robots rules and host pacing, saves its frontier and per-page jobs, and resumes pending work. Use `--schema` or `--fields` to apply one extraction contract to every page. The summary links to each page's saved extraction result.
+
+For JavaScript pages, install the optional browser dependency and Chromium:
+
+```sh
+uv sync --extra browser
+uv run playwright install chromium
+uv run ai-scraper extract https://example.org/app/ --browser --output page.json
+uv run ai-scraper crawl https://example.org/app/ --render-fallback --max-pages 5
+```
+
+`--browser` renders every page; `--render-fallback` tries direct HTTP first. Anonymous browser contexts support bounded caller-authored click, selector-wait and scroll plans. Request, time and byte limits apply. See [crawling, browser actions and recovery](docs/extensions.md) for scope controls, browser settings and matching configuration on resume.
+
 ## Choose the output
 
 CLI and MCP default to `page_v1`: literal text blocks, metadata, headings, links and tables. Presets include `article`, `org`, `person`, `job`, `event`, `listing` and `product`.
@@ -115,11 +139,11 @@ asyncio.run(main())
 
 Select the schema explicitly in new library integrations; the library request constructor retains its product default for compatibility. Retrieval, inference and validation are independently replaceable.
 
-Start the stdio MCP server with `uv run ai-scraper-mcp`. It exposes `list_schemas`, `extract_url` and `resume_extraction`. See [MCP configuration](docs/universal.md#mcp) and the [portable deployment guide](docs/deployment.md).
+Start the stdio MCP server with `uv run ai-scraper-mcp`. It exposes `list_schemas`, `extract_url`, `resume_extraction`, `crawl_site`, `resume_crawl` and `crawl_status`. Tool discovery starts no retrieval, model or browser clients. See [MCP configuration](docs/universal.md#mcp), [crawl tools](docs/extensions.md#mcp) and the [portable deployment guide](docs/deployment.md).
 
 ## Scope, testing and comparison
 
-The initial scope is known public HTML/text URLs. JavaScript/browser interaction, login, challenge handling, recursive discovery and PDF/OCR need additional adapters. Direct retrieval rejects credential-bearing URLs, private/local destinations, unsafe ports and redirects to disallowed destinations. Native connections pin an approved public IP and preserve TLS hostname verification.
+The supported scope is public HTML/text URLs, bounded link discovery and optional anonymous JavaScript rendering. Login, form submission, challenge handling and PDF/OCR need additional adapters. Retrieval rejects credential-bearing URLs, private/local destinations, unsafe ports and redirects to disallowed destinations. Native connections pin an approved public IP and preserve TLS hostname verification.
 
 ```sh
 uv run pytest -q

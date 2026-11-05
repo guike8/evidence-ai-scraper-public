@@ -111,6 +111,7 @@ class JobStore:
                             "record",
                             "snapshot_id",
                             "retrieval_method",
+                            "retrieval_warnings",
                             "snapshot_retrieved_at",
                             "render_record",
                             "render_method",
@@ -147,6 +148,7 @@ class JobStore:
             key: parent[key]
             for key in (
                 "record",
+                "retrieval_warnings",
                 "snapshot_id",
                 "retrieval_method",
                 "snapshot_retrieved_at",
@@ -281,16 +283,55 @@ class JobStore:
         count = 0
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
-            rows = db.execute("SELECT id, body FROM jobs WHERE updated<?", (cutoff,)).fetchall()
+            rows = db.execute("SELECT id FROM jobs WHERE updated<?", (cutoff,)).fetchall()
+            tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            protected_crawl_jobs: set[str] = set()
+            if {"crawl_runs", "crawl_entries"} <= tables:
+                # Remove only terminal, expired crawl reports. Pending crawls
+                # retain every bound job so resuming cannot lose paid work.
+                old_crawls = db.execute(
+                    "SELECT id, body FROM crawl_runs WHERE updated<?", (cutoff,)
+                ).fetchall()
+                for crawl_id, crawl_body in old_crawls:
+                    crawl = json.loads(crawl_body)
+                    if crawl.get("status") not in {"success", "partial", "failed"}:
+                        continue
+                    if (
+                        "crawl_leases" in tables
+                        and db.execute(
+                            "SELECT 1 FROM crawl_leases WHERE crawl_id=? AND expires>?",
+                            (crawl_id, time.time()),
+                        ).fetchone()
+                    ):
+                        continue
+                    db.execute("DELETE FROM crawl_entries WHERE crawl_id=?", (crawl_id,))
+                    if "crawl_leases" in tables:
+                        db.execute("DELETE FROM crawl_leases WHERE crawl_id=?", (crawl_id,))
+                    db.execute("DELETE FROM crawl_runs WHERE id=?", (crawl_id,))
+                protected_crawl_jobs = {
+                    row[0]
+                    for row in db.execute(
+                        "SELECT DISTINCT job_id FROM crawl_entries WHERE job_id IS NOT NULL"
+                    )
+                }
             # A waiting extraction must still be able to resume its original
             # retrieval even when that root job is older than retention.
-            protected_parents = {
-                job["retrieval_parent_id"]
-                for (body,) in db.execute("SELECT body FROM jobs").fetchall()
-                if (job := json.loads(body)).get("retrieval_parent_id")
-                and job["state"] not in {"complete", "failed"}
-            }
-            for job_id, body in rows:
+            protected_parents = set(protected_crawl_jobs)
+            parents = {}
+            for job_id, body in db.execute("SELECT id, body FROM jobs"):
+                job = json.loads(body)
+                if job.get("retrieval_parent_id"):
+                    parents[job_id] = job["retrieval_parent_id"]
+                    if job["state"] not in {"complete", "failed"}:
+                        protected_parents.add(job["retrieval_parent_id"])
+            frontier = list(protected_parents)
+            while frontier:
+                parent = parents.get(frontier.pop())
+                if parent and parent not in protected_parents:
+                    protected_parents.add(parent)
+                    frontier.append(parent)
+            for (job_id,) in rows:
+                body = db.execute("SELECT body FROM jobs WHERE id=?", (job_id,)).fetchone()[0]
                 job = json.loads(body)
                 if job_id in protected_parents:
                     continue

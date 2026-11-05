@@ -106,7 +106,9 @@ class Pipeline:
         )
 
     def _reserve_retrieval(self, job, *, rendering=False):
-        if not self.live or (not rendering and self.settings.retrieval_backend == "direct"):
+        if not self.live or (
+            not rendering and self.settings.retrieval_backend in {"direct", "browser", "auto"}
+        ):
             return
         price = self.settings.render_record_usd if rendering else self.settings.retrieval_record_usd
         if price is None:
@@ -145,12 +147,14 @@ class Pipeline:
         )
 
     def _cost(self, usage: Usage, method: str | None):
-        if self.settings.retrieval_backend == "direct" and getattr(self.inference, "provider", None) in {
+        if self.settings.retrieval_backend in {"direct", "browser", "auto"} and getattr(
+            self.inference, "provider", None
+        ) in {
             None,
             "local",
         }:
             usage.cost_estimate_usd = 0.0
-            usage.pricing_basis = "Direct public HTTP and local inference: no vendor charge; excludes hardware, energy and connectivity"
+            usage.pricing_basis = "Public HTTP/browser retrieval and local inference: no vendor charge; excludes hardware, energy and connectivity"
             return
         if not self.live:
             if getattr(self.inference, "provider", None) == "local":
@@ -181,32 +185,36 @@ class Pipeline:
                 "configured account rates; excludes storage/operations; reservations are conservative"
             )
 
-    async def extract_url(self, request: ExtractionRequest) -> ExtractionResult:
-        try:
-            get_schema(request)
-        except ScraperError as exc:
-            return ExtractionResult(
-                job_id=uuid.uuid4().hex,
-                status="failed",
-                provenance=self._provenance(request),
-                error=exc.error,
-            )
-        try:
-            await self.policy.check(request.url)
-        except ScraperError as exc:
-            return ExtractionResult(
-                job_id=uuid.uuid4().hex,
-                status="failed",
-                provenance=self._provenance(request),
-                error=exc.error,
-            )
-        # Rendering reuses the fetched source and must not split pending Fetch
-        # identities when only its optional configuration changes.
+    async def prepare_job(self, request: ExtractionRequest) -> str:
+        """Commit a resumable local job before any HTTP/model work starts.
+
+        Crawlers persist this ID in their frontier before calling ``resume``.
+        Repeating preparation recovers the same eligible underlying job.
+        """
+        get_schema(request)
+        await self.policy.check(request.url)
+        if request.browser_actions and not getattr(self.retriever, "supports_browser_actions", False):
+            raise ScraperError("INVALID_REQUEST", "Browser actions require browser or auto retrieval")
         default_method = "direct_http" if self.settings.retrieval_backend == "direct" else "brightdata_fetch"
         method = getattr(self.retriever, "retrieval_method", default_method)
         options = {**getattr(self.retriever, "cache_options", {}), "method": method}
-        job = self.store.get_or_create(request, options)
-        return await self._run(job)
+        configure = getattr(self.retriever, "cache_options_for_request", None)
+        if configure is not None:
+            options.update(configure(request))
+            options["method"] = method
+        return self.store.get_or_create(request, options)["id"]
+
+    async def extract_url(self, request: ExtractionRequest) -> ExtractionResult:
+        try:
+            job_id = await self.prepare_job(request)
+        except ScraperError as exc:
+            return ExtractionResult(
+                job_id=uuid.uuid4().hex,
+                status="failed",
+                provenance=self._provenance(request),
+                error=exc.error,
+            )
+        return await self._run(self.store.get(job_id))
 
     async def resume(self, job_id: str, snapshot_id: str | None = None) -> ExtractionResult:
         job = self.store.get(job_id)
@@ -286,6 +294,7 @@ class Pipeline:
         # and releases its lease. Refresh only after ownership is established:
         # using that stale 'new' body could otherwise POST the same URL again.
         job = self.store.get(job_id)
+        warnings = list(job.get("retrieval_warnings", []))
         usage = Usage(**job.get("usage", {}))
         usage.cache_hit = False
         snapshot_path = job.get("snapshot_path")
@@ -500,6 +509,7 @@ class Pipeline:
                         snapshot_id=job.get("snapshot_id"),
                         retrieval_method=job.get("retrieval_method", "brightdata_fetch"),
                         attempts=job.get("attempts", 0),
+                        warnings=list(job.get("retrieval_warnings", [])),
                     )
                     usage.cache_hit = True
                 else:
@@ -513,6 +523,7 @@ class Pipeline:
                     outcome = await self.retriever.retrieve(
                         request, job, checkpoint, self.settings.wait_seconds
                     )
+                    checkpoint({"retrieval_warnings": list(outcome.warnings)})
                 usage.retrieval_attempts = max(outcome.attempts, job.get("attempts", 0))
                 warnings.extend(outcome.warnings)
                 if outcome.status != "ready":
@@ -747,14 +758,20 @@ class Pipeline:
                 self.store.cache_put(
                     extraction_key, {"candidate": candidate.model_dump(), "origin": "deterministic"}
                 )
+            result_warnings = list(dict.fromkeys(warnings + assessment.warnings))
+            result_status = assessment.status
+            if result_status == "success" and any(
+                item.startswith("incomplete_source:") for item in result_warnings
+            ):
+                result_status = "partial"
             result = ExtractionResult(
                 job_id=job_id,
-                status=assessment.status,
+                status=result_status,
                 data=assessment.data
                 if spec.schema_id == SCHEMA_ID or isinstance(assessment.data, dict)
                 else assessment.data.model_dump(mode="json"),
                 missing_fields=assessment.missing_fields,
-                warnings=list(dict.fromkeys(warnings + assessment.warnings)),
+                warnings=result_warnings,
                 evidence=assessment.evidence,
                 provenance=self._provenance(request, snapshot, snapshot_path),
                 usage=usage,
@@ -794,12 +811,35 @@ class Pipeline:
 def create_pipeline(settings: Settings | None = None) -> Pipeline:
     settings = settings or Settings.from_env()
     retriever = inference = renderer = None
-    if settings.retrieval_backend == "direct":
+    if settings.retrieval_backend in {"direct", "browser", "auto"}:
         from .retrieval.direct import DirectHTTPRetriever
 
-        retriever = DirectHTTPRetriever(
-            URLPolicy(settings.allowed_domains), max_response_bytes=settings.max_response_bytes
-        )
+        policy = URLPolicy(settings.allowed_domains)
+        if settings.retrieval_backend in {"direct", "auto"}:
+            retriever = DirectHTTPRetriever(
+                policy,
+                max_response_bytes=settings.max_response_bytes,
+                user_agent=settings.user_agent,
+            )
+        if settings.retrieval_backend in {"browser", "auto"}:
+            from .retrieval.browser import BrowserRetriever, DirectThenBrowserRetriever
+
+            browser = BrowserRetriever(
+                policy,
+                max_response_bytes=settings.max_response_bytes,
+                max_total_bytes=settings.browser_max_total_bytes,
+                max_requests=settings.browser_max_requests,
+                timeout=settings.browser_timeout_seconds,
+                max_attempts=settings.browser_max_attempts,
+                user_agent=settings.user_agent,
+                resource_domains=settings.browser_resource_domains,
+                executable_path=settings.browser_executable_path,
+            )
+            retriever = (
+                browser
+                if settings.retrieval_backend == "browser"
+                else DirectThenBrowserRetriever(retriever, browser)
+            )
     elif settings.brightdata_api_key:
         from .retrieval.brightdata import BrightDataRetriever
 

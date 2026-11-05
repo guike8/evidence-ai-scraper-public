@@ -90,7 +90,7 @@ Start the local stdio server with `uv run ai-scraper-mcp`. For an MCP client, us
 }
 ```
 
-Configure and test the local model server separately. Client configuration does not start or download a model. The tools are `list_schemas`, `extract_url` and `resume_extraction`, with `page_v1` as the extraction default. Discovery itself makes no retrieval or model call. For remote stdio, see the [portable deployment guide](deployment.md).
+Configure and test the local model server separately. Client configuration does not start or download a model. The tools are `list_schemas`, `extract_url`, `resume_extraction`, `crawl_site`, `resume_crawl` and `crawl_status`, with `page_v1` as the extraction default. Discovery itself starts no retrieval, model or browser clients. See [crawl tools and browser actions](extensions.md#mcp) and the [portable deployment guide](deployment.md) for remote stdio.
 
 For example, call `extract_url` with:
 
@@ -119,6 +119,6 @@ General inference can deduplicate identical textual representations and use a de
 
 The credentialless local profile uses direct retrieval and optional local inference. `SCRAPER_ALLOWED_DOMAINS=*` permits any supported public host, with the same DNS/IP/port checks on every redirect. Private/local destinations, unsafe ports and credential-bearing URLs remain rejected. Native direct connections pin a verified public IP and preserve TLS SNI/hostname verification to prevent a DNS-rebinding gap. Exact hostnames can replace `*` to narrow scope.
 
-This universal contract interface does not make every format or access path supported. The initial scope remains known public HTML/text pages. JavaScript/browser interaction, authenticated sessions, challenges, recursive discovery and binary/PDF/OCR inputs need additional adapters. The scraper fails explicitly on unsupported or oversized content. Local inference needs no API account; new public URLs still need a working internet connection.
+This universal contract interface does not make every format or access path supported. Public HTML/text pages support bounded link discovery and optional anonymous JavaScript rendering with caller-authored click, selector-wait and scroll actions; see [crawling and browser limits](extensions.md). Authenticated sessions, form submission, challenges and binary/PDF/OCR inputs need additional adapters. The scraper fails explicitly on unsupported or oversized content. Local inference needs no API account; new public URLs still need a working internet connection.
 
 The legacy library constructor default remains `product_v1`. New library calls can use `ExtractionRequest(url=..., schema_id="page_v1")` or the shared `ai_scraper.cli.build_request` helper for the CLI/MCP routing behavior.
