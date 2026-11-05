@@ -315,9 +315,11 @@ class Pipeline:
             nonlocal source_view_summary
             if (
                 inference is None
-                or spec.schema_id == SCHEMA_ID
-                or not getattr(inference, "source_view_version", None)
                 or not hasattr(inference, "prepare_source")
+                or (
+                    not getattr(inference, "citation_policy_version", None)
+                    and (spec.schema_id == SCHEMA_ID or not getattr(inference, "source_view_version", None))
+                )
             ):
                 return
             try:
@@ -649,6 +651,8 @@ class Pipeline:
                 cache_contract.update(schema_fingerprint=spec.fingerprint, instruction=request.instruction)
             if spec.schema_id != SCHEMA_ID and getattr(inference, "source_view_version", None):
                 cache_contract["source_view_version"] = inference.source_view_version
+            if getattr(inference, "citation_policy_version", None):
+                cache_contract["citation_policy_version"] = inference.citation_policy_version
             extraction_key = digest(cache_contract)
             cached = self.store.cache_get(extraction_key)
             if cached:
@@ -814,6 +818,7 @@ def create_pipeline(settings: Settings | None = None) -> Pipeline:
             timeout=settings.hf_timeout,
             max_tokens=settings.max_output_tokens,
             max_source_chars=settings.max_source_chars,
+            source_bound_evidence=settings.local_source_bound_evidence,
         )
     elif settings.hf_provider and settings.hf_model and settings.hf_token:
         from .extraction.huggingface import HuggingFaceExtractor

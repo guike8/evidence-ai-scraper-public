@@ -313,9 +313,10 @@ def test_one_sided_grammar_metadata_rejected_even_when_value_is_null(inputs, fie
         release.prepare_release(**inputs)
 
 
-def test_identical_grammar_controls_are_preserved_in_metrics_card_and_release_state(inputs):
+@pytest.mark.parametrize("variant", ["exclusive_evidence_v1", "source_bound_evidence_v1"])
+def test_identical_grammar_controls_are_preserved_in_metrics_card_and_release_state(inputs, variant):
     schema = {
-        "schema_variant": "exclusive_evidence_v1",
+        "schema_variant": variant,
         "schema_guard_sha256": "a" * 64,
         "provider_schemas_hash": "b" * 64,
     }

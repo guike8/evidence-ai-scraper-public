@@ -491,7 +491,11 @@ def _schema_metadata(value: dict) -> dict:
     result = {key: value[key] for key in SCHEMA_KEYS if key in value}
     for key, item in result.items():
         if key == "schema_variant":
-            if not isinstance(item, str) or item not in {"original", "exclusive_evidence_v1"}:
+            if not isinstance(item, str) or item not in {
+                "original",
+                "exclusive_evidence_v1",
+                "source_bound_evidence_v1",
+            }:
                 raise ValueError("Invalid public schema variant identifier")
         elif item is not None and (not isinstance(item, str) or not _SHA.fullmatch(item)):
             raise ValueError("Invalid schema grammar fingerprint")

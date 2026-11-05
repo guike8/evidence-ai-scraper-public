@@ -68,6 +68,13 @@ def parser() -> argparse.ArgumentParser:
         command = commands.add_parser(name)
         command.add_argument("--state-dir", type=Path, default=argparse.SUPPRESS)
         command.add_argument("--output", type=Path, help="Atomically export JSON in addition to stdout")
+        if name in {"extract", "resume", "replay", "probe"}:
+            command.add_argument(
+                "--source-bound-evidence",
+                action=argparse.BooleanOptionalAction,
+                default=None,
+                help="Constrain local citations to locations present in the saved source",
+            )
         if name in {"extract", "replay"}:
             if name == "extract":
                 command.add_argument("url")
@@ -186,6 +193,8 @@ def _request(args: argparse.Namespace, url: str | None = None) -> ExtractionRequ
 
 def _settings(args: argparse.Namespace) -> Settings:
     settings = Settings.from_env()
+    if getattr(args, "source_bound_evidence", None) is not None:
+        settings = settings.model_copy(update={"local_source_bound_evidence": args.source_bound_evidence})
     if args.state_dir is not None:
         settings = settings.model_copy(update={"state_dir": args.state_dir})
     return settings

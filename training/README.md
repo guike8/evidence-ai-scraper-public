@@ -18,6 +18,13 @@ The baseline is public, ungated `mlx-community/Qwen3-1.7B-4bit`, pinned at
 The MLX conversion's historical upstream revision is not documented by its
 publisher. The model is Apache-2.0; repository source code remains MIT.
 
+The optional [citation curriculum and local grammar guide](../docs/citation-training.md)
+adds an authored 1,800/144/108 corpus with absent JSON-LD, varied section
+presentation and missing-field controls. It also documents the separate
+`source_bound_evidence=True` inference policy. Keep weight improvements and
+grammar changes separate in comparisons; the original v1 generator remains
+available unchanged.
+
 ## Prepare on an Apple Silicon Mac
 
 Use Python 3.12 and a private experiment directory outside the source checkout.

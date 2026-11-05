@@ -70,6 +70,8 @@ Every populated business leaf requires a verified excerpt in a saved section or 
 
 General inference saves a source-view descriptor with original evidence IDs. Identical text representations can collapse; oversized page/article tasks can use a declared main/article scope. Structured data, metadata and the complete snapshot remain retained. Custom tasks keep full-page coverage and fail explicitly when they cannot fit the configured context budget.
 
+Local inference can optionally restrict generated references to locations present in the supplied source with `--source-bound-evidence` or `LOCAL_SOURCE_BOUND_EVIDENCE=true`. Exact quotes, field support and completeness still pass the same validators. See the [citation grammar and training guide](docs/citation-training.md) for limits, library usage and the separate citation curriculum.
+
 | Status | Meaning | CLI exit |
 | --- | --- | ---: |
 | `success` | Schema, required fields and evidence checks passed. | 0 |

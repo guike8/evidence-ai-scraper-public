@@ -7,6 +7,13 @@ from pydantic import Field, SecretStr
 from .schemas import StrictModel
 
 
+def _boolean(value: str) -> bool:
+    normalized = value.strip().lower()
+    if normalized not in {"true", "false", "1", "0"}:
+        raise ValueError("Boolean settings must be true, false, 1 or 0")
+    return normalized in {"true", "1"}
+
+
 class Settings(StrictModel):
     state_dir: Path = Path(".scraper")
     brightdata_api_key: SecretStr | None = None
@@ -19,6 +26,7 @@ class Settings(StrictModel):
     local_model: str | None = None
     local_base_url: str = "http://127.0.0.1:8000/v1"
     local_api_key: SecretStr | None = None
+    local_source_bound_evidence: bool = False
     allowed_domains: list[str] = Field(default_factory=list)
     wait_seconds: float = Field(default=180.0, ge=0, le=1800)
     hf_timeout: float = Field(default=60.0, gt=0, le=300)
@@ -49,6 +57,7 @@ class Settings(StrictModel):
             "LOCAL_MODEL": ("local_model", str),
             "LOCAL_BASE_URL": ("local_base_url", str),
             "LOCAL_API_KEY": ("local_api_key", SecretStr),
+            "LOCAL_SOURCE_BOUND_EVIDENCE": ("local_source_bound_evidence", _boolean),
             "SCRAPER_ALLOWED_DOMAINS": (
                 "allowed_domains",
                 lambda s: [x.strip().lower() for x in s.split(",") if x.strip()],
