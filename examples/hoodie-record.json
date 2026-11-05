@@ -1,0 +1,21 @@
+{
+  "input": {
+    "url": "https://apparel.test/products/hoodie"
+  },
+  "page_html": "<html><h1 class=\"product_title\">Abominable Hoodie</h1><p class=\"price\">69.00 USD</p></html>",
+  "ld_json": [
+    {
+      "@type": "Product",
+      "name": "Abominable Hoodie",
+      "sku": "MH09",
+      "category": "Hoodies",
+      "image": "https://images.apparel.test/mh09.jpg",
+      "description": "A warm cotton hoodie.",
+      "offers": {
+        "@type": "Offer",
+        "price": "69.00",
+        "priceCurrency": "USD"
+      }
+    }
+  ]
+}

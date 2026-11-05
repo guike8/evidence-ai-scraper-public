@@ -1,0 +1,1099 @@
+{
+  "format": "snapshot-receipt-v1",
+  "corpus_id": "synthetic-universal-v1",
+  "manifest_hash": "00c2ff9c7e9048d2be82a07057f84192559b6814ba2722ec08541f49cbbf86dd",
+  "harness_hash": "5534e1339e06d628488f4568ec86aadfaef4262027ded09244f28c8335d24de3",
+  "checked_at": "2026-11-05T18:33:18.509255+00:00",
+  "metadata": {
+    "candidate": "evidence-public",
+    "version": "0.3.0",
+    "implementation_hash": "02fbab22fbe164398d621606b9928d14b785c95505fc218639692410c05880f0",
+    "mode": "deterministic_offline",
+    "track": "identical_snapshot",
+    "runtime": "Python 3.12.13",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "model": null,
+    "provider": null,
+    "cache_state": "cold",
+    "deadline_seconds": 180,
+    "deadline_enforcement": "cooperative timeout plus post-completion CPU deadline assessment",
+    "network_calls": 0
+  },
+  "total_wall_latency_ms": 615.9287500195205,
+  "results": [
+    {
+      "case_id": "page-basic",
+      "source_hash": "0ce13fd288a559412d14617166ce47716694423053f8680bc6e7246db77a6971",
+      "request_hash": "7cd684f4274b6e6ca5231f4adeccea7c374ad4f7654f973ea2e1bfc45c9eec9f",
+      "status": "success",
+      "data": {
+        "title": "Research note",
+        "text": [
+          "Research note",
+          "All measurements are public."
+        ],
+        "headings": [
+          "Research note"
+        ],
+        "links": [],
+        "tables": [],
+        "description": null,
+        "author": null,
+        "published_at": null,
+        "language": null
+      },
+      "evidence": {
+        "title": {
+          "field_path": "title",
+          "section_id": "s0001",
+          "excerpt": "Research note",
+          "json_pointer": null
+        },
+        "text.0": {
+          "field_path": "text.0",
+          "section_id": "s0001",
+          "excerpt": "Research note",
+          "json_pointer": null
+        },
+        "text.1": {
+          "field_path": "text.1",
+          "section_id": "s0003",
+          "excerpt": "All measurements are public.",
+          "json_pointer": null
+        },
+        "headings.0": {
+          "field_path": "headings.0",
+          "section_id": "s0001",
+          "excerpt": "Research note",
+          "json_pointer": null
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 20.008750027045608,
+      "component_latency_ms": {
+        "pipeline_reported": 7.984000025317073
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "page-table",
+      "source_hash": "a1d934d111524344a2bbe4027159063bd37f6faf44715541ee3faa64cda7d604",
+      "request_hash": "6db94db0e85913c9ca146bae52dcf52776e5a2bb4b6fa5180af73bed52e77343",
+      "status": "success",
+      "data": {
+        "title": "Observations",
+        "text": [
+          "Observations",
+          "Station",
+          "Count",
+          "Alpha",
+          "7",
+          "Beta"
+        ],
+        "headings": [
+          "Observations"
+        ],
+        "links": [],
+        "tables": [
+          {
+            "headers": [
+              "Station",
+              "Count"
+            ],
+            "rows": [
+              [
+                "Alpha",
+                "7"
+              ],
+              [
+                "Beta",
+                ""
+              ]
+            ]
+          }
+        ],
+        "description": null,
+        "author": null,
+        "published_at": null,
+        "language": null
+      },
+      "evidence": {
+        "title": {
+          "field_path": "title",
+          "section_id": "s0001",
+          "excerpt": "Observations",
+          "json_pointer": null
+        },
+        "text.0": {
+          "field_path": "text.0",
+          "section_id": "s0001",
+          "excerpt": "Observations",
+          "json_pointer": null
+        },
+        "text.1": {
+          "field_path": "text.1",
+          "section_id": "s0003",
+          "excerpt": "Station",
+          "json_pointer": null
+        },
+        "text.2": {
+          "field_path": "text.2",
+          "section_id": "s0004",
+          "excerpt": "Count",
+          "json_pointer": null
+        },
+        "text.3": {
+          "field_path": "text.3",
+          "section_id": "s0005",
+          "excerpt": "Alpha",
+          "json_pointer": null
+        },
+        "text.4": {
+          "field_path": "text.4",
+          "section_id": "s0006",
+          "excerpt": "7",
+          "json_pointer": null
+        },
+        "text.5": {
+          "field_path": "text.5",
+          "section_id": "s0007",
+          "excerpt": "Beta",
+          "json_pointer": null
+        },
+        "headings.0": {
+          "field_path": "headings.0",
+          "section_id": "s0001",
+          "excerpt": "Observations",
+          "json_pointer": null
+        },
+        "tables.0.headers.0": {
+          "field_path": "tables.0.headers.0",
+          "section_id": "s0003",
+          "excerpt": "Station",
+          "json_pointer": null
+        },
+        "tables.0.headers.1": {
+          "field_path": "tables.0.headers.1",
+          "section_id": "s0004",
+          "excerpt": "Count",
+          "json_pointer": null
+        },
+        "tables.0.rows.0.0": {
+          "field_path": "tables.0.rows.0.0",
+          "section_id": "s0005",
+          "excerpt": "Alpha",
+          "json_pointer": null
+        },
+        "tables.0.rows.0.1": {
+          "field_path": "tables.0.rows.0.1",
+          "section_id": "s0006",
+          "excerpt": "7",
+          "json_pointer": null
+        },
+        "tables.0.rows.1.0": {
+          "field_path": "tables.0.rows.1.0",
+          "section_id": "s0007",
+          "excerpt": "Beta",
+          "json_pointer": null
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 22.02420902904123,
+      "component_latency_ms": {
+        "pipeline_reported": 11.131249950267375
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "page-link",
+      "source_hash": "fac93041f9a3474521213b6f7d02626ccd8d653f28e078de1bd94f311db068ba",
+      "request_hash": "b03551af6d9a3af4ff2da3dfff994ec9e2a366af23e787b0e56e9211fc65f774",
+      "status": "success",
+      "data": {
+        "title": "Reference",
+        "text": [
+          "Reference",
+          "Open handbook.",
+          "Guide"
+        ],
+        "headings": [
+          "Reference"
+        ],
+        "links": [
+          {
+            "label": "Guide",
+            "url": "https://page-link.example.test/guide"
+          }
+        ],
+        "tables": [],
+        "description": null,
+        "author": null,
+        "published_at": null,
+        "language": null
+      },
+      "evidence": {
+        "title": {
+          "field_path": "title",
+          "section_id": "s0002",
+          "excerpt": "Reference",
+          "json_pointer": null
+        },
+        "text.0": {
+          "field_path": "text.0",
+          "section_id": "s0002",
+          "excerpt": "Reference",
+          "json_pointer": null
+        },
+        "text.1": {
+          "field_path": "text.1",
+          "section_id": "s0004",
+          "excerpt": "Open handbook.",
+          "json_pointer": null
+        },
+        "text.2": {
+          "field_path": "text.2",
+          "section_id": "s0005",
+          "excerpt": "Guide",
+          "json_pointer": null
+        },
+        "headings.0": {
+          "field_path": "headings.0",
+          "section_id": "s0002",
+          "excerpt": "Reference",
+          "json_pointer": null
+        },
+        "links.0.label": {
+          "field_path": "links.0.label",
+          "section_id": "s0005",
+          "excerpt": "Guide",
+          "json_pointer": null
+        },
+        "links.0.url": {
+          "field_path": "links.0.url",
+          "section_id": "s0001",
+          "excerpt": "/guide",
+          "json_pointer": null
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 15.89358295314014,
+      "component_latency_ms": {
+        "pipeline_reported": 9.436749969609082
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "article-meta",
+      "source_hash": "fdc2e345ed1f7cb68803b1f6b573b1a9b70bbc741dfbfc9f3b745a6b15da8dcf",
+      "request_hash": "693201472e198206c78874d8615a37ef452a66f1b721846cc5cd12d523cf34e4",
+      "status": "success",
+      "data": {
+        "title": "Field notes",
+        "author": "Jane Example",
+        "published_at": "2026-01-03",
+        "description": null,
+        "text": [
+          "Field notes",
+          "Measurements remain public."
+        ]
+      },
+      "evidence": {
+        "title": {
+          "field_path": "title",
+          "section_id": "s0003",
+          "excerpt": "Field notes",
+          "json_pointer": null
+        },
+        "author": {
+          "field_path": "author",
+          "section_id": "s0001",
+          "excerpt": "Jane Example",
+          "json_pointer": null
+        },
+        "published_at": {
+          "field_path": "published_at",
+          "section_id": "s0002",
+          "excerpt": "2026-01-03",
+          "json_pointer": null
+        },
+        "text.0": {
+          "field_path": "text.0",
+          "section_id": "s0003",
+          "excerpt": "Field notes",
+          "json_pointer": null
+        },
+        "text.1": {
+          "field_path": "text.1",
+          "section_id": "s0005",
+          "excerpt": "Measurements remain public.",
+          "json_pointer": null
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 9.366917074657977,
+      "component_latency_ms": {
+        "pipeline_reported": 4.826707998290658
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "organization-contact",
+      "source_hash": "d4e200b1da59d9c5535a072a23442bf2fe8d95f7cb603fc1fd38b72947e11562",
+      "request_hash": "aaa179595d5516f43c5c568dfae80a46cd41186af07f50ab7a151f47dd3ed63b",
+      "status": "success",
+      "data": {
+        "name": "Harbor Lab",
+        "description": "A public research lab.",
+        "website": "https://harbor.example.test/",
+        "emails": [
+          "hello@harbor.example.test"
+        ],
+        "phone_numbers": [
+          "+1 555 0100"
+        ],
+        "addresses": [
+          "10 Example Road"
+        ]
+      },
+      "evidence": {
+        "name": {
+          "field_path": "name",
+          "section_id": null,
+          "excerpt": "Harbor Lab",
+          "json_pointer": "/0/name"
+        },
+        "description": {
+          "field_path": "description",
+          "section_id": null,
+          "excerpt": "A public research lab.",
+          "json_pointer": "/0/description"
+        },
+        "website": {
+          "field_path": "website",
+          "section_id": null,
+          "excerpt": "https://harbor.example.test/",
+          "json_pointer": "/0/url"
+        },
+        "emails.0": {
+          "field_path": "emails.0",
+          "section_id": null,
+          "excerpt": "hello@harbor.example.test",
+          "json_pointer": "/0/email"
+        },
+        "phone_numbers.0": {
+          "field_path": "phone_numbers.0",
+          "section_id": null,
+          "excerpt": "+1 555 0100",
+          "json_pointer": "/0/telephone"
+        },
+        "addresses.0": {
+          "field_path": "addresses.0",
+          "section_id": null,
+          "excerpt": "10 Example Road",
+          "json_pointer": "/0/address/streetAddress"
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 14.953042031265795,
+      "component_latency_ms": {
+        "pipeline_reported": 7.716791937127709
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "person-profile",
+      "source_hash": "60ca582a1d6e5067a3bcd6eb0b1f07e96cf318155d0ae05d4cda747ce7761712",
+      "request_hash": "936be0e7e223a805ba9d4ad62340fe4edaf6f910aa76f3cbb5fc32aa743aa196",
+      "status": "success",
+      "data": {
+        "name": "Ada Example",
+        "role": "Engineer",
+        "organization": "Harbor Lab",
+        "biography": "Builds public tools.",
+        "website": "https://people.example.test/ada",
+        "emails": [
+          "ada@people.example.test"
+        ]
+      },
+      "evidence": {
+        "name": {
+          "field_path": "name",
+          "section_id": null,
+          "excerpt": "Ada Example",
+          "json_pointer": "/0/name"
+        },
+        "role": {
+          "field_path": "role",
+          "section_id": null,
+          "excerpt": "Engineer",
+          "json_pointer": "/0/jobTitle"
+        },
+        "organization": {
+          "field_path": "organization",
+          "section_id": null,
+          "excerpt": "Harbor Lab",
+          "json_pointer": "/0/worksFor/name"
+        },
+        "biography": {
+          "field_path": "biography",
+          "section_id": null,
+          "excerpt": "Builds public tools.",
+          "json_pointer": "/0/description"
+        },
+        "website": {
+          "field_path": "website",
+          "section_id": null,
+          "excerpt": "https://people.example.test/ada",
+          "json_pointer": "/0/url"
+        },
+        "emails.0": {
+          "field_path": "emails.0",
+          "section_id": null,
+          "excerpt": "ada@people.example.test",
+          "json_pointer": "/0/email"
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 7.866290980018675,
+      "component_latency_ms": {
+        "pipeline_reported": 3.689292003400624
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "job-posting",
+      "source_hash": "c21bc3162fc8908c844d0d3c36710e282a49081bc61aeca41d011e7873a1b327",
+      "request_hash": "dcaeec45e718105ac0a07c7d9a226b19b876a87d59c1839079353530a35247b5",
+      "status": "success",
+      "data": {
+        "title": "Research Engineer",
+        "organization": "Harbor Lab",
+        "location": "Remote",
+        "employment_type": "FULL_TIME",
+        "salary_text": "USD 70000–90000",
+        "description": "Build useful tools."
+      },
+      "evidence": {
+        "title": {
+          "field_path": "title",
+          "section_id": "s0001",
+          "excerpt": "Research Engineer",
+          "json_pointer": null
+        },
+        "organization": {
+          "field_path": "organization",
+          "section_id": null,
+          "excerpt": "Harbor Lab",
+          "json_pointer": "/0/hiringOrganization/name"
+        },
+        "location": {
+          "field_path": "location",
+          "section_id": null,
+          "excerpt": "Remote",
+          "json_pointer": "/0/jobLocation"
+        },
+        "employment_type": {
+          "field_path": "employment_type",
+          "section_id": null,
+          "excerpt": "FULL_TIME",
+          "json_pointer": "/0/employmentType"
+        },
+        "salary_text": {
+          "field_path": "salary_text",
+          "section_id": null,
+          "excerpt": "USD 70000–90000",
+          "json_pointer": "/0/baseSalary"
+        },
+        "description": {
+          "field_path": "description",
+          "section_id": null,
+          "excerpt": "Build useful tools.",
+          "json_pointer": "/0/description"
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 21.325374953448772,
+      "component_latency_ms": {
+        "pipeline_reported": 16.28320896998048
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "event-details",
+      "source_hash": "0a938bcfbfe911c1627308a9c555cb1a234f7918345121d41e362f74deb07f41",
+      "request_hash": "47e7a0f98aca9c2480d317be479954ae79f942f637a7089ae20ac41480afc816",
+      "status": "success",
+      "data": {
+        "name": "Open Workshop",
+        "start_date": "2026-04-01 09:00",
+        "end_date": "2026-04-01 17:00",
+        "location": "Example Hall",
+        "organizer": "Harbor Lab",
+        "description": "A public workshop."
+      },
+      "evidence": {
+        "name": {
+          "field_path": "name",
+          "section_id": null,
+          "excerpt": "Open Workshop",
+          "json_pointer": "/0/name"
+        },
+        "start_date": {
+          "field_path": "start_date",
+          "section_id": null,
+          "excerpt": "2026-04-01 09:00",
+          "json_pointer": "/0/startDate"
+        },
+        "end_date": {
+          "field_path": "end_date",
+          "section_id": null,
+          "excerpt": "2026-04-01 17:00",
+          "json_pointer": "/0/endDate"
+        },
+        "location": {
+          "field_path": "location",
+          "section_id": null,
+          "excerpt": "Example Hall",
+          "json_pointer": "/0/location/name"
+        },
+        "organizer": {
+          "field_path": "organizer",
+          "section_id": null,
+          "excerpt": "Harbor Lab",
+          "json_pointer": "/0/organizer/name"
+        },
+        "description": {
+          "field_path": "description",
+          "section_id": null,
+          "excerpt": "A public workshop.",
+          "json_pointer": "/0/description"
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 19.548041047528386,
+      "component_latency_ms": {
+        "pipeline_reported": 10.26749995071441
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "listing-items",
+      "source_hash": "ce6f22f1c41b5557f0a55d213b40007257c02e70d6dfd6a5e377bd299b7a82b6",
+      "request_hash": "0f8956b8333108b7983bdb1400d55dfd599b3e90edcf15e7345dadccae75b67b",
+      "status": "success",
+      "data": {
+        "title": "Public directory",
+        "description": null,
+        "items": [
+          {
+            "name": "First lab",
+            "url": "https://labs.example.test/one",
+            "description": "Open data lab."
+          },
+          {
+            "name": "Second lab",
+            "url": "https://labs.example.test/two",
+            "description": null
+          }
+        ]
+      },
+      "evidence": {
+        "title": {
+          "field_path": "title",
+          "section_id": "s0001",
+          "excerpt": "Public directory",
+          "json_pointer": null
+        },
+        "items.0.name": {
+          "field_path": "items.0.name",
+          "section_id": null,
+          "excerpt": "First lab",
+          "json_pointer": "/0/itemListElement/0/name"
+        },
+        "items.0.url": {
+          "field_path": "items.0.url",
+          "section_id": null,
+          "excerpt": "https://labs.example.test/one",
+          "json_pointer": "/0/itemListElement/0/url"
+        },
+        "items.0.description": {
+          "field_path": "items.0.description",
+          "section_id": null,
+          "excerpt": "Open data lab.",
+          "json_pointer": "/0/itemListElement/0/description"
+        },
+        "items.1.name": {
+          "field_path": "items.1.name",
+          "section_id": null,
+          "excerpt": "Second lab",
+          "json_pointer": "/0/itemListElement/1/name"
+        },
+        "items.1.url": {
+          "field_path": "items.1.url",
+          "section_id": null,
+          "excerpt": "https://labs.example.test/two",
+          "json_pointer": "/0/itemListElement/1/url"
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 16.708999988622963,
+      "component_latency_ms": {
+        "pipeline_reported": 7.323915953747928
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "organization-absent",
+      "source_hash": "d75fba7fdc24275022236335692dd8107e521ecda89fb3005d000c65b4ae83fa",
+      "request_hash": "de64f53e11f2a1079436acec19058625731b958dd41d6ad8a3b55fe099ade6c8",
+      "status": "success",
+      "data": {
+        "name": "Quiet Lab",
+        "description": null,
+        "website": null,
+        "emails": [],
+        "phone_numbers": [],
+        "addresses": []
+      },
+      "evidence": {
+        "name": {
+          "field_path": "name",
+          "section_id": null,
+          "excerpt": "Quiet Lab",
+          "json_pointer": "/0/name"
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 15.352459042333066,
+      "component_latency_ms": {
+        "pipeline_reported": 9.791624965146184
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "organization-ambiguous",
+      "source_hash": "36f01c564a61018af99f72cd3053a24684227c849a3c4a25a8c9b60630ff1610",
+      "request_hash": "f340deabece37c73cc22d4171db2a730e4f4d47eaae90df8e4646b26f02a8684",
+      "status": "failed",
+      "data": null,
+      "evidence": {},
+      "error": {
+        "code": "INVALID_EXTRACTION",
+        "message": "Local extraction, evidence, or critical completeness checks failed",
+        "vendor_details": {
+          "validation_errors": [
+            "completeness: critical fields missing"
+          ]
+        },
+        "retryable": false
+      },
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 13.534332974813879,
+      "component_latency_ms": {
+        "pipeline_reported": 5.2564580691978335
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "article-conflict",
+      "source_hash": "273d5cbd5d767fc3cff5d579cc982df37cbd572b8ced43724a6f89c6acaee09b",
+      "request_hash": "b44537d1c79ee85014863b12d64f5da8447fbedcdd41abb1bc4274a0d65b189f",
+      "status": "failed",
+      "data": null,
+      "evidence": {},
+      "error": {
+        "code": "INVALID_EXTRACTION",
+        "message": "Local extraction, evidence, or critical completeness checks failed",
+        "vendor_details": {
+          "validation_errors": [
+            "completeness: critical fields missing"
+          ]
+        },
+        "retryable": false
+      },
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 16.036458080634475,
+      "component_latency_ms": {
+        "pipeline_reported": 10.693583055399358
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "page-navigation-1000",
+      "source_hash": "f1450054ab30c32a723c1f1031de0d5fd1d4987f273aeb8cbff5a3a28eb64bf3",
+      "request_hash": "f677121cd188af86f08d2c2e791728f8d4827c2dd5f892009628b88e6b55fc4f",
+      "status": "success",
+      "data": {
+        "title": "Research brief",
+        "text": [
+          "Volunteer count: 37."
+        ],
+        "headings": [],
+        "links": [],
+        "tables": [],
+        "description": null,
+        "author": null,
+        "published_at": null,
+        "language": null
+      },
+      "evidence": {
+        "title": {
+          "field_path": "title",
+          "section_id": "s0001",
+          "excerpt": "Research brief",
+          "json_pointer": null
+        },
+        "text.0": {
+          "field_path": "text.0",
+          "section_id": "s1002",
+          "excerpt": "Volunteer count: 37.",
+          "json_pointer": null
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 65.13174995779991,
+      "component_latency_ms": {
+        "pipeline_reported": 58.9157089125365
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "page-navigation-2100",
+      "source_hash": "f55a24ee53666e8d48f4c094726e89b1f65628e141f56c2bb6deef553bc75b86",
+      "request_hash": "687d82594ed36bbc107b54930ad892e28bb175950573da266032b367241b1677",
+      "status": "success",
+      "data": {
+        "title": "Research brief",
+        "text": [
+          "Volunteer count: 37."
+        ],
+        "headings": [],
+        "links": [],
+        "tables": [],
+        "description": null,
+        "author": null,
+        "published_at": null,
+        "language": null
+      },
+      "evidence": {
+        "title": {
+          "field_path": "title",
+          "section_id": "s0001",
+          "excerpt": "Research brief",
+          "json_pointer": null
+        },
+        "text.0": {
+          "field_path": "text.0",
+          "section_id": "s2102",
+          "excerpt": "Volunteer count: 37.",
+          "json_pointer": null
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 194.59720805753022,
+      "component_latency_ms": {
+        "pipeline_reported": 177.68166598398238
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "page-challenge",
+      "source_hash": "3fe0f574547737eeeab50af114887a4cd6fa81ee685d015a84f6e6e5a7f6a1a1",
+      "request_hash": "3155e4bd424abd3354c5c45a7c92f276fb6609f4c00f70547e82aa767baf4403",
+      "status": "failed",
+      "data": null,
+      "evidence": {},
+      "error": {
+        "code": "CONTENT_CHALLENGE",
+        "message": "Retrieved source needs rendering, interaction, or challenge handling",
+        "vendor_details": null,
+        "retryable": false
+      },
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 9.984917007386684,
+      "component_latency_ms": {
+        "pipeline_reported": 4.348000045865774
+      },
+      "retrieval_usable": false
+    },
+    {
+      "case_id": "page-javascript-shell",
+      "source_hash": "c25fe8df5d2361a626fa8f9f8e8ed4fdbdae09cb33c5605c7c3ebcc5ee667e27",
+      "request_hash": "62e510d24c2ae1d5807b34dbafbb895db3b78d2a89c2d676458861fbb817e47d",
+      "status": "failed",
+      "data": null,
+      "evidence": {},
+      "error": {
+        "code": "CONTENT_JS_SHELL",
+        "message": "Retrieved source needs rendering, interaction, or challenge handling",
+        "vendor_details": null,
+        "retryable": false
+      },
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 20.70241596084088,
+      "component_latency_ms": {
+        "pipeline_reported": 14.348416938446462
+      },
+      "retrieval_usable": false
+    },
+    {
+      "case_id": "custom-zero-false",
+      "source_hash": "584e71b622e4bc276651f42428ec44a3a581102a96a29621677ebc33f69c3b6d",
+      "request_hash": "ca0b319c68456b2a08ee4d3a145d323cb3961e69083c628e9a246567205c57e7",
+      "status": "partial",
+      "data": {
+        "volunteer_count": null,
+        "open_to_public": null
+      },
+      "evidence": {},
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 13.85954103898257,
+      "component_latency_ms": {
+        "pipeline_reported": 6.874750019051135
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "product-hoodie",
+      "source_hash": "c522ee9eaf6f979f559468550dfadb3e44a9b69e9e061d9571481f0bb37821dc",
+      "request_hash": "e0f358be9c665856d642b371b62c99c5b13253d0701b17e02198c9c842477ef2",
+      "status": "success",
+      "data": {
+        "name": "Abominable Hoodie",
+        "price_text": "69.00 USD",
+        "price": "69.00",
+        "currency": "USD",
+        "sku": "MH09",
+        "category": {
+          "name": "Hoodies",
+          "url": null
+        },
+        "images": [
+          "https://images.apparel.test/mh09.jpg"
+        ],
+        "short_description": null,
+        "long_description": "A warm cotton hoodie.",
+        "additional_info": null
+      },
+      "evidence": {
+        "name": {
+          "field_path": "name",
+          "section_id": "s0001",
+          "excerpt": "Abominable Hoodie",
+          "json_pointer": null
+        },
+        "price_text": {
+          "field_path": "price_text",
+          "section_id": "s0002",
+          "excerpt": "69.00 USD",
+          "json_pointer": null
+        },
+        "price": {
+          "field_path": "price",
+          "section_id": "s0002",
+          "excerpt": "69.00 USD",
+          "json_pointer": null
+        },
+        "currency": {
+          "field_path": "currency",
+          "section_id": "s0002",
+          "excerpt": "69.00 USD",
+          "json_pointer": null
+        },
+        "sku": {
+          "field_path": "sku",
+          "section_id": null,
+          "excerpt": "MH09",
+          "json_pointer": "/0/sku"
+        },
+        "category.name": {
+          "field_path": "category.name",
+          "section_id": null,
+          "excerpt": "Hoodies",
+          "json_pointer": "/0/category"
+        },
+        "images.0": {
+          "field_path": "images.0",
+          "section_id": null,
+          "excerpt": "https://images.apparel.test/mh09.jpg",
+          "json_pointer": "/0/image"
+        },
+        "long_description": {
+          "field_path": "long_description",
+          "section_id": null,
+          "excerpt": "A warm cotton hoodie.",
+          "json_pointer": "/0/description"
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 11.713083018548787,
+      "component_latency_ms": {
+        "pipeline_reported": 6.483249948360026
+      },
+      "retrieval_usable": true
+    },
+    {
+      "case_id": "product-graph",
+      "source_hash": "c7bf007b01f6ec97fb1896873d0b09a9d9e3834570ac51486be7c46fb9fe40f0",
+      "request_hash": "99e32aad116e3e429095b7a5e4b6345d7ead8316285995cc3dc6728671e8e941",
+      "status": "success",
+      "data": {
+        "name": "USB Hub",
+        "price_text": "29.00",
+        "price": "29.00",
+        "currency": "USD",
+        "sku": null,
+        "category": null,
+        "images": [],
+        "short_description": null,
+        "long_description": null,
+        "additional_info": null
+      },
+      "evidence": {
+        "name": {
+          "field_path": "name",
+          "section_id": null,
+          "excerpt": "USB Hub",
+          "json_pointer": "/0/@graph/1/name"
+        },
+        "price_text": {
+          "field_path": "price_text",
+          "section_id": null,
+          "excerpt": "29.00",
+          "json_pointer": "/0/@graph/1/offers/price"
+        },
+        "price": {
+          "field_path": "price",
+          "section_id": null,
+          "excerpt": "29.00",
+          "json_pointer": "/0/@graph/1/offers/price"
+        },
+        "currency": {
+          "field_path": "currency",
+          "section_id": null,
+          "excerpt": "USD",
+          "json_pointer": "/0/@graph/1/offers/priceCurrency"
+        }
+      },
+      "error": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "inference_attempts": 0,
+        "retrieval_attempts": 0
+      },
+      "wall_latency_ms": 7.897000061348081,
+      "component_latency_ms": {
+        "pipeline_reported": 3.930417005904019
+      },
+      "retrieval_usable": true
+    }
+  ]
+}

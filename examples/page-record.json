@@ -1,0 +1,7 @@
+{
+  "input": {
+    "url": "https://example.test/field-notes"
+  },
+  "final_url": "https://example.test/field-notes",
+  "page_html": "<!doctype html><html lang=\"en\"><head><title>Field notes</title><meta name=\"description\" content=\"Public observations from an authored example.\"><meta name=\"language\" content=\"en\"></head><body><nav><a href=\"/archive\">Archive</a></nav><main><h1>Field notes</h1><p>Open daily from 10:00 to 18:00.</p><h2>Observations</h2><p>All station measurements are public.</p><a href=\"/methods\">Measurement methods</a><table><tr><th>Station</th><th>Count</th></tr><tr><td>Alpha</td><td>7</td></tr><tr><td>Beta</td><td>12</td></tr></table></main></body></html>"
+}

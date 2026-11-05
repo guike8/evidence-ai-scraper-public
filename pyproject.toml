@@ -1,0 +1,68 @@
+[project]
+name = "evidence-ai-scraper"
+version = "0.3.0"
+description = "Resumable public webpage retrieval and evidence-checked structured extraction"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+dependencies = [
+  "beautifulsoup4>=4.13,<5",
+  "httpx>=0.28,<1",
+  "httpcore>=1.0.9,<1.1",
+  "huggingface-hub>=1.0,<2",
+  "pydantic>=2.12,<3",
+  "mcp>=1.20,<2",
+]
+
+[project.scripts]
+ai-scraper = "ai_scraper.cli:main"
+ai-scraper-mcp = "ai_scraper.mcp_server:main"
+
+[project.urls]
+Repository = "https://github.com/guike8/evidence-ai-scraper-public"
+Documentation = "https://github.com/guike8/evidence-ai-scraper-public#readme"
+Issues = "https://github.com/guike8/evidence-ai-scraper-public/issues"
+
+[dependency-groups]
+dev = ["pytest>=8.4,<10", "pytest-asyncio>=1.2,<2", "ruff>=0.14,<1"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ai_scraper"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src/**", "/tests/**", "/benchmarks/**", "/docs/**", "/deploy/**",
+  "/examples/**", "/scripts/**", "/README.md", "/LICENSE", "/SECURITY.md",
+  "/pyproject.toml", "/uv.lock", "/.python-version", "/.gitignore", "/.gitattributes",
+]
+
+[tool.hatch.build.targets.sdist.force-include]
+".env.example" = ".env.example"
+
+[tool.hatch.build]
+exclude = [
+  "/.git/**", "/.venv/**", "/.scraper/**", "/work/**", "/dist/**",
+  "/state/**", "/snapshots/**", "/source-views/**", "/reports/**", "/logs/**",
+  "/models/**", "/model-server/**", "/secrets/**", "/.ssh/**",
+  "/config.json", "/config-*.json", "/.netrc", "/.pypirc", "/.npmrc",
+  "/credentials.json", "/secrets.json", "**/.cache/**",
+  "**/.env", "**/.env.*", "**/.envrc", "**/__pycache__/**", "**/*.pyc",
+  "**/*.sqlite3", "**/*.sqlite3-*", "**/*.db", "**/*.log", "**/*.log.*",
+  "**/*.pem", "**/*.key", "**/*.p12", "**/*.pfx", "**/id_rsa*", "**/id_ed25519*",
+  "**/*.safetensors", "**/*.gguf", "**/*.ggml", "**/*.ckpt", "**/*.onnx",
+  "**/*.pt", "**/*.pth", "**/*.bin", "**/.DS_Store",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 110

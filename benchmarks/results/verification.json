@@ -1,0 +1,12 @@
+{
+  "scope": "recorded context-update fixture checks before public packaging",
+  "tests": {
+    "passed": 519,
+    "failed": 0
+  },
+  "ruff_check": "passed",
+  "ruff_format": "passed",
+  "security_review": "Static and fixture review of source-context changes found no actionable regression.",
+  "small_model_tested": false,
+  "limitations": "Representative live-web accuracy and the optional small-model candidate remain unmeasured."
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "name": "name",
+    "type": "string",
+    "description": "The organization's name exactly as displayed on the supplied page.",
+    "required": true,
+    "critical": true
+  },
+  {
+    "name": "contact",
+    "type": "string",
+    "description": "A publicly displayed contact email or phone number; preserve its text.",
+    "required": false,
+    "critical": false
+  },
+  {
+    "name": "employee_count",
+    "type": "integer",
+    "description": "An explicitly stated exact employee count; omit ranges and do not estimate.",
+    "required": false,
+    "critical": false
+  },
+  {
+    "name": "tags",
+    "type": "string_list",
+    "description": "Category labels literally displayed by the page, without generated classifications.",
+    "required": false,
+    "critical": false
+  }
+]

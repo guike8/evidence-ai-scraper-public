@@ -1,0 +1,17 @@
+{
+  "status": "not_evaluated",
+  "candidate": {
+    "repository": "scrapegraphai/sgai-qwen3-1.7b",
+    "revision": "fadf46f3e11cf650f281019fa39211acf058681c",
+    "source_url": "https://huggingface.co/scrapegraphai/sgai-qwen3-1.7b/tree/fadf46f3e11cf650f281019fa39211acf058681c",
+    "model_card_license": "apache-2.0",
+    "gated": false,
+    "source_weight_bytes": 3441185608,
+    "source_weight_sha256": "4379a963a1fcb8eb436fabb2f15ed00fd05dc841163462041e9b445bbce27ea4",
+    "converted_weight_bytes": null,
+    "schema_probe_passed": null,
+    "business_accuracy": null,
+    "latency": null
+  },
+  "note": "Exploratory candidate only. No conversion, schema-probe, accuracy or latency result is established; no model weights are bundled."
+}

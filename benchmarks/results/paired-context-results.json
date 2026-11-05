@@ -1,0 +1,1299 @@
+{
+  "format": "snapshot-comparison-report-v1",
+  "corpus_id": "synthetic-universal-v1",
+  "manifest_hash": "00c2ff9c7e9048d2be82a07057f84192559b6814ba2722ec08541f49cbbf86dd",
+  "limitations": "Reviewed authored fixtures; this is not a representative live-web or model-accuracy benchmark",
+  "candidates": [
+    {
+      "candidate": {
+        "candidate": "baseline",
+        "version": "39b7797",
+        "implementation_hash": "790a3f77b8c390323ceb8fc572783d7a9cbde441bd277734648140f01ad204d3",
+        "mode": "deterministic_offline",
+        "track": "identical_snapshot",
+        "runtime": "Python 3.12.13",
+        "hardware": {
+          "system": "Darwin",
+          "machine": "arm64"
+        },
+        "model": null,
+        "provider": null,
+        "cache_state": "cold",
+        "deadline_seconds": 180,
+        "deadline_enforcement": "cooperative timeout plus post-completion CPU deadline assessment",
+        "network_calls": 0
+      },
+      "corpus_id": "synthetic-universal-v1",
+      "case_count": 19,
+      "all": {
+        "present": 80,
+        "predicted": 74,
+        "correct": 74,
+        "false_positive": 0,
+        "missed": 6,
+        "precision": 1.0,
+        "recall": 0.925,
+        "f1": 0.961038961038961
+      },
+      "required": {
+        "present": 39,
+        "predicted": 34,
+        "correct": 34,
+        "false_positive": 0,
+        "missed": 5,
+        "precision": 1.0,
+        "recall": 0.8717948717948718,
+        "f1": 0.9315068493150684
+      },
+      "optional": {
+        "present": 41,
+        "predicted": 40,
+        "correct": 40,
+        "false_positive": 0,
+        "missed": 1,
+        "precision": 1.0,
+        "recall": 0.975609756097561,
+        "f1": 0.9876543209876543
+      },
+      "by_schema": {
+        "page_v1": {
+          "present": 28,
+          "predicted": 26,
+          "correct": 26,
+          "false_positive": 0,
+          "missed": 2,
+          "precision": 1.0,
+          "recall": 0.9285714285714286,
+          "f1": 0.9629629629629629
+        },
+        "article_v1": {
+          "present": 7,
+          "predicted": 5,
+          "correct": 5,
+          "false_positive": 0,
+          "missed": 2,
+          "precision": 1.0,
+          "recall": 0.7142857142857143,
+          "f1": 0.8333333333333334
+        },
+        "organization_v1": {
+          "present": 7,
+          "predicted": 7,
+          "correct": 7,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "person_v1": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "job_v1": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "event_v1": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "listing_v1": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "custom_v1": {
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 2,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "product_v1": {
+          "present": 12,
+          "predicted": 12,
+          "correct": 12,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "by_domain": {
+        "page-basic.example.test": {
+          "present": 4,
+          "predicted": 4,
+          "correct": 4,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "page-table.example.test": {
+          "present": 13,
+          "predicted": 13,
+          "correct": 13,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "page-link.example.test": {
+          "present": 7,
+          "predicted": 7,
+          "correct": 7,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "article-meta.example.test": {
+          "present": 5,
+          "predicted": 5,
+          "correct": 5,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "organization-contact.example.test": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "person-profile.example.test": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "job-posting.example.test": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "event-details.example.test": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "listing-items.example.test": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "organization-absent.example.test": {
+          "present": 1,
+          "predicted": 1,
+          "correct": 1,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "organization-ambiguous.example.test": {
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "article-conflict.example.test": {
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 2,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "page-navigation-1000.example.test": {
+          "present": 2,
+          "predicted": 2,
+          "correct": 2,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "page-navigation-2100.example.test": {
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 2,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "page-challenge.example.test": {
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "page-javascript-shell.example.test": {
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "custom-zero-false.example.test": {
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 2,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "apparel.test": {
+          "present": 8,
+          "predicted": 8,
+          "correct": 8,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "electronics.test": {
+          "present": 4,
+          "predicted": 4,
+          "correct": 4,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "statuses": {
+        "success": 13,
+        "failed": 5,
+        "partial": 1
+      },
+      "expected_status_matches": 17,
+      "missing_receipts": [],
+      "unsupported_populated_facts": 0,
+      "unsupported_definition": "Populated predictions differing from complete reviewed scalar labels; not a universal truth claim",
+      "evidence": {
+        "accepted_records": 14,
+        "verified_populated_fields": 74,
+        "populated_fields": 74,
+        "coverage": 1.0,
+        "method": "Production schema/completeness/identity/exact-source validator, independent of label scoring"
+      },
+      "retrieval_coverage": {
+        "reported_usable": 17,
+        "reported_unusable": 2,
+        "unknown": 0,
+        "total": 19
+      },
+      "wall_latency": {
+        "samples": 19,
+        "p50_ms": 6.481499993242323,
+        "p95_ms": 87.15150004718453
+      },
+      "unknown_completion_timing": [],
+      "component_latency": {
+        "pipeline_reported": {
+          "samples": 19,
+          "p50_ms": 3.4480419708415866,
+          "p95_ms": 83.3460841095075
+        }
+      },
+      "usage": {
+        "input_tokens": {
+          "measured_cases": 19,
+          "total": 0
+        },
+        "output_tokens": {
+          "measured_cases": 19,
+          "total": 0
+        },
+        "inference_attempts": {
+          "measured_cases": 19,
+          "total": 0
+        },
+        "retrieval_attempts": {
+          "measured_cases": 19,
+          "total": 0
+        }
+      },
+      "cases": [
+        {
+          "case_id": "page-basic",
+          "schema_id": "page_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 4,
+          "predicted": 4,
+          "correct": 4,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 4
+        },
+        {
+          "case_id": "page-table",
+          "schema_id": "page_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 13,
+          "predicted": 13,
+          "correct": 13,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 13
+        },
+        {
+          "case_id": "page-link",
+          "schema_id": "page_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 7,
+          "predicted": 7,
+          "correct": 7,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 7
+        },
+        {
+          "case_id": "article-meta",
+          "schema_id": "article_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 5,
+          "predicted": 5,
+          "correct": 5,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 5
+        },
+        {
+          "case_id": "organization-contact",
+          "schema_id": "organization_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 6
+        },
+        {
+          "case_id": "person-profile",
+          "schema_id": "person_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 6
+        },
+        {
+          "case_id": "job-posting",
+          "schema_id": "job_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 6
+        },
+        {
+          "case_id": "event-details",
+          "schema_id": "event_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 6
+        },
+        {
+          "case_id": "listing-items",
+          "schema_id": "listing_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 6
+        },
+        {
+          "case_id": "organization-absent",
+          "schema_id": "organization_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 1,
+          "predicted": 1,
+          "correct": 1,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 1
+        },
+        {
+          "case_id": "organization-ambiguous",
+          "schema_id": "organization_v1",
+          "status": "failed",
+          "deadline_exceeded": false,
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": false,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "article-conflict",
+          "schema_id": "article_v1",
+          "status": "failed",
+          "deadline_exceeded": false,
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [
+            "text.0",
+            "text.1"
+          ],
+          "evidence_gate_passed": false,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "page-navigation-1000",
+          "schema_id": "page_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 2,
+          "predicted": 2,
+          "correct": 2,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 2
+        },
+        {
+          "case_id": "page-navigation-2100",
+          "schema_id": "page_v1",
+          "status": "failed",
+          "deadline_exceeded": false,
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [
+            "text.0",
+            "title"
+          ],
+          "evidence_gate_passed": false,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "page-challenge",
+          "schema_id": "page_v1",
+          "status": "failed",
+          "deadline_exceeded": false,
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": false,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "page-javascript-shell",
+          "schema_id": "page_v1",
+          "status": "failed",
+          "deadline_exceeded": false,
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": false,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "custom-zero-false",
+          "schema_id": "custom_v1",
+          "status": "partial",
+          "deadline_exceeded": false,
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [
+            "open_to_public",
+            "volunteer_count"
+          ],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "product-hoodie",
+          "schema_id": "product_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 8,
+          "predicted": 8,
+          "correct": 8,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 8
+        },
+        {
+          "case_id": "product-graph",
+          "schema_id": "product_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 4,
+          "predicted": 4,
+          "correct": 4,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 4
+        }
+      ]
+    },
+    {
+      "candidate": {
+        "candidate": "evidence-public",
+        "version": "0.3.0",
+        "implementation_hash": "02fbab22fbe164398d621606b9928d14b785c95505fc218639692410c05880f0",
+        "mode": "deterministic_offline",
+        "track": "identical_snapshot",
+        "runtime": "Python 3.12.13",
+        "hardware": {
+          "system": "Darwin",
+          "machine": "arm64"
+        },
+        "model": null,
+        "provider": null,
+        "cache_state": "cold",
+        "deadline_seconds": 180,
+        "deadline_enforcement": "cooperative timeout plus post-completion CPU deadline assessment",
+        "network_calls": 0
+      },
+      "corpus_id": "synthetic-universal-v1",
+      "case_count": 19,
+      "all": {
+        "present": 80,
+        "predicted": 76,
+        "correct": 76,
+        "false_positive": 0,
+        "missed": 4,
+        "precision": 1.0,
+        "recall": 0.95,
+        "f1": 0.9743589743589743
+      },
+      "required": {
+        "present": 39,
+        "predicted": 35,
+        "correct": 35,
+        "false_positive": 0,
+        "missed": 4,
+        "precision": 1.0,
+        "recall": 0.8974358974358975,
+        "f1": 0.9459459459459459
+      },
+      "optional": {
+        "present": 41,
+        "predicted": 41,
+        "correct": 41,
+        "false_positive": 0,
+        "missed": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "by_schema": {
+        "page_v1": {
+          "present": 28,
+          "predicted": 28,
+          "correct": 28,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "article_v1": {
+          "present": 7,
+          "predicted": 5,
+          "correct": 5,
+          "false_positive": 0,
+          "missed": 2,
+          "precision": 1.0,
+          "recall": 0.7142857142857143,
+          "f1": 0.8333333333333334
+        },
+        "organization_v1": {
+          "present": 7,
+          "predicted": 7,
+          "correct": 7,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "person_v1": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "job_v1": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "event_v1": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "listing_v1": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "custom_v1": {
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 2,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "product_v1": {
+          "present": 12,
+          "predicted": 12,
+          "correct": 12,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "by_domain": {
+        "page-basic.example.test": {
+          "present": 4,
+          "predicted": 4,
+          "correct": 4,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "page-table.example.test": {
+          "present": 13,
+          "predicted": 13,
+          "correct": 13,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "page-link.example.test": {
+          "present": 7,
+          "predicted": 7,
+          "correct": 7,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "article-meta.example.test": {
+          "present": 5,
+          "predicted": 5,
+          "correct": 5,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "organization-contact.example.test": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "person-profile.example.test": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "job-posting.example.test": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "event-details.example.test": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "listing-items.example.test": {
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "organization-absent.example.test": {
+          "present": 1,
+          "predicted": 1,
+          "correct": 1,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "organization-ambiguous.example.test": {
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "article-conflict.example.test": {
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 2,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "page-navigation-1000.example.test": {
+          "present": 2,
+          "predicted": 2,
+          "correct": 2,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "page-navigation-2100.example.test": {
+          "present": 2,
+          "predicted": 2,
+          "correct": 2,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "page-challenge.example.test": {
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "page-javascript-shell.example.test": {
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "custom-zero-false.example.test": {
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "false_positive": 0,
+          "missed": 2,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "apparel.test": {
+          "present": 8,
+          "predicted": 8,
+          "correct": 8,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "electronics.test": {
+          "present": 4,
+          "predicted": 4,
+          "correct": 4,
+          "false_positive": 0,
+          "missed": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "statuses": {
+        "success": 14,
+        "failed": 4,
+        "partial": 1
+      },
+      "expected_status_matches": 18,
+      "missing_receipts": [],
+      "unsupported_populated_facts": 0,
+      "unsupported_definition": "Populated predictions differing from complete reviewed scalar labels; not a universal truth claim",
+      "evidence": {
+        "accepted_records": 15,
+        "verified_populated_fields": 76,
+        "populated_fields": 76,
+        "coverage": 1.0,
+        "method": "Production schema/completeness/identity/exact-source validator, independent of label scoring"
+      },
+      "retrieval_coverage": {
+        "reported_usable": 17,
+        "reported_unusable": 2,
+        "unknown": 0,
+        "total": 19
+      },
+      "wall_latency": {
+        "samples": 19,
+        "p50_ms": 15.89358295314014,
+        "p95_ms": 194.59720805753022
+      },
+      "unknown_completion_timing": [],
+      "component_latency": {
+        "pipeline_reported": {
+          "samples": 19,
+          "p50_ms": 7.984000025317073,
+          "p95_ms": 177.68166598398238
+        }
+      },
+      "usage": {
+        "input_tokens": {
+          "measured_cases": 19,
+          "total": 0
+        },
+        "output_tokens": {
+          "measured_cases": 19,
+          "total": 0
+        },
+        "inference_attempts": {
+          "measured_cases": 19,
+          "total": 0
+        },
+        "retrieval_attempts": {
+          "measured_cases": 19,
+          "total": 0
+        }
+      },
+      "cases": [
+        {
+          "case_id": "page-basic",
+          "schema_id": "page_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 4,
+          "predicted": 4,
+          "correct": 4,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 4
+        },
+        {
+          "case_id": "page-table",
+          "schema_id": "page_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 13,
+          "predicted": 13,
+          "correct": 13,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 13
+        },
+        {
+          "case_id": "page-link",
+          "schema_id": "page_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 7,
+          "predicted": 7,
+          "correct": 7,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 7
+        },
+        {
+          "case_id": "article-meta",
+          "schema_id": "article_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 5,
+          "predicted": 5,
+          "correct": 5,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 5
+        },
+        {
+          "case_id": "organization-contact",
+          "schema_id": "organization_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 6
+        },
+        {
+          "case_id": "person-profile",
+          "schema_id": "person_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 6
+        },
+        {
+          "case_id": "job-posting",
+          "schema_id": "job_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 6
+        },
+        {
+          "case_id": "event-details",
+          "schema_id": "event_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 6
+        },
+        {
+          "case_id": "listing-items",
+          "schema_id": "listing_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 6,
+          "predicted": 6,
+          "correct": 6,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 6
+        },
+        {
+          "case_id": "organization-absent",
+          "schema_id": "organization_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 1,
+          "predicted": 1,
+          "correct": 1,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 1
+        },
+        {
+          "case_id": "organization-ambiguous",
+          "schema_id": "organization_v1",
+          "status": "failed",
+          "deadline_exceeded": false,
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": false,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "article-conflict",
+          "schema_id": "article_v1",
+          "status": "failed",
+          "deadline_exceeded": false,
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [
+            "text.0",
+            "text.1"
+          ],
+          "evidence_gate_passed": false,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "page-navigation-1000",
+          "schema_id": "page_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 2,
+          "predicted": 2,
+          "correct": 2,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 2
+        },
+        {
+          "case_id": "page-navigation-2100",
+          "schema_id": "page_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 2,
+          "predicted": 2,
+          "correct": 2,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 2
+        },
+        {
+          "case_id": "page-challenge",
+          "schema_id": "page_v1",
+          "status": "failed",
+          "deadline_exceeded": false,
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": false,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "page-javascript-shell",
+          "schema_id": "page_v1",
+          "status": "failed",
+          "deadline_exceeded": false,
+          "present": 0,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": false,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "custom-zero-false",
+          "schema_id": "custom_v1",
+          "status": "partial",
+          "deadline_exceeded": false,
+          "present": 2,
+          "predicted": 0,
+          "correct": 0,
+          "label_mismatches": [],
+          "missed_paths": [
+            "open_to_public",
+            "volunteer_count"
+          ],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 0
+        },
+        {
+          "case_id": "product-hoodie",
+          "schema_id": "product_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 8,
+          "predicted": 8,
+          "correct": 8,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 8
+        },
+        {
+          "case_id": "product-graph",
+          "schema_id": "product_v1",
+          "status": "success",
+          "deadline_exceeded": false,
+          "present": 4,
+          "predicted": 4,
+          "correct": 4,
+          "label_mismatches": [],
+          "missed_paths": [],
+          "evidence_gate_passed": true,
+          "verified_populated_fields": 4
+        }
+      ]
+    }
+  ]
+}

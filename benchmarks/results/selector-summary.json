@@ -1,0 +1,199 @@
+{
+  "format": "selector-component-comparison-v1",
+  "track": "offline_predefined_css_component",
+  "corpus_id": "synthetic-selector-components-v1",
+  "corpus_hash": "c2b15afd9a105ec29bb7a30fcfd920c97096b64c43bc93f242b640af41b5fc4b",
+  "selector_schema_hash": "3e4bb526739bc4e1849172180aef10e06dbdd55aeca3eb985a5759cb93afbfde",
+  "hardware": {
+    "system": "Darwin",
+    "machine": "arm64"
+  },
+  "execution": "Final candidate processes were launched sequentially; 3 warmups and 25 timed samples per case. Other machine load was not isolated.",
+  "scope": "Parser/selector components only. No full scraper, network, browser, model, business validation or source evidence comparison.",
+  "candidates": [
+    {
+      "candidate": "beautifulsoup",
+      "package": "beautifulsoup4",
+      "version": "4.15.0",
+      "runtime": "Python 3.12.13",
+      "configuration": {
+        "parser": "html.parser"
+      },
+      "all_outputs_correct": true,
+      "import_and_setup_ms": 27.1248749922961,
+      "peak_process_rss_bytes": 49840128,
+      "blocked_python_network_attempts": 0
+    },
+    {
+      "candidate": "scrapling",
+      "package": "scrapling",
+      "version": "0.5.1",
+      "runtime": "Python 3.12.13",
+      "configuration": {
+        "adaptive": false,
+        "auto_save": false
+      },
+      "all_outputs_correct": true,
+      "import_and_setup_ms": 32.37970802001655,
+      "peak_process_rss_bytes": 37994496,
+      "blocked_python_network_attempts": 0
+    },
+    {
+      "candidate": "crawl4ai",
+      "package": "crawl4ai",
+      "version": "0.9.5",
+      "runtime": "Python 3.12.13",
+      "configuration": {
+        "strategy": "JsonLxmlExtractionStrategy",
+        "use_caching": false
+      },
+      "all_outputs_correct": true,
+      "import_and_setup_ms": 375.9374999208376,
+      "peak_process_rss_bytes": 108052480,
+      "blocked_python_network_attempts": 0
+    }
+  ],
+  "cases": [
+    {
+      "id": "small",
+      "input_bytes": 217,
+      "all_outputs_identical_and_correct": true,
+      "timings": {
+        "beautifulsoup": {
+          "p50_ms": 0.11266698129475117,
+          "p95_ms": 0.16541697550565004,
+          "samples": 25
+        },
+        "scrapling": {
+          "p50_ms": 0.03350002225488424,
+          "p95_ms": 0.03762508276849985,
+          "samples": 25
+        },
+        "crawl4ai": {
+          "p50_ms": 0.02704199869185686,
+          "p95_ms": 0.029999995604157448,
+          "samples": 25
+        }
+      }
+    },
+    {
+      "id": "navigation-1000",
+      "input_bytes": 44118,
+      "all_outputs_identical_and_correct": true,
+      "timings": {
+        "beautifulsoup": {
+          "p50_ms": 5.605375044979155,
+          "p95_ms": 8.981624967418611,
+          "samples": 25
+        },
+        "scrapling": {
+          "p50_ms": 0.21220894996076822,
+          "p95_ms": 0.2167500788345933,
+          "samples": 25
+        },
+        "crawl4ai": {
+          "p50_ms": 0.19195897039026022,
+          "p95_ms": 0.19354198593646288,
+          "samples": 25
+        }
+      }
+    },
+    {
+      "id": "navigation-2100",
+      "input_bytes": 93618,
+      "all_outputs_identical_and_correct": true,
+      "timings": {
+        "beautifulsoup": {
+          "p50_ms": 11.44404208753258,
+          "p95_ms": 18.04762496612966,
+          "samples": 25
+        },
+        "scrapling": {
+          "p50_ms": 0.4123750841245055,
+          "p95_ms": 0.447999918833375,
+          "samples": 25
+        },
+        "crawl4ai": {
+          "p50_ms": 0.376041978597641,
+          "p95_ms": 0.39249996189028025,
+          "samples": 25
+        }
+      }
+    },
+    {
+      "id": "nested-inline-64",
+      "input_bytes": 1049,
+      "all_outputs_identical_and_correct": true,
+      "timings": {
+        "beautifulsoup": {
+          "p50_ms": 0.46862498857080936,
+          "p95_ms": 0.5541669670492411,
+          "samples": 25
+        },
+        "scrapling": {
+          "p50_ms": 0.04499999340623617,
+          "p95_ms": 0.05012506153434515,
+          "samples": 25
+        },
+        "crawl4ai": {
+          "p50_ms": 0.0391670037060976,
+          "p95_ms": 0.03970903344452381,
+          "samples": 25
+        }
+      }
+    },
+    {
+      "id": "table-20x10",
+      "input_bytes": 2990,
+      "all_outputs_identical_and_correct": true,
+      "timings": {
+        "beautifulsoup": {
+          "p50_ms": 1.5834170626476407,
+          "p95_ms": 1.9960419740527868,
+          "samples": 25
+        },
+        "scrapling": {
+          "p50_ms": 0.4047919064760208,
+          "p95_ms": 0.43575000017881393,
+          "samples": 25
+        },
+        "crawl4ai": {
+          "p50_ms": 0.5160829750820994,
+          "p95_ms": 0.5505839362740517,
+          "samples": 25
+        }
+      }
+    },
+    {
+      "id": "links-100",
+      "input_bytes": 3475,
+      "all_outputs_identical_and_correct": true,
+      "timings": {
+        "beautifulsoup": {
+          "p50_ms": 0.888915965333581,
+          "p95_ms": 1.273707952350378,
+          "samples": 25
+        },
+        "scrapling": {
+          "p50_ms": 0.27658301405608654,
+          "p95_ms": 0.28391601517796516,
+          "samples": 25
+        },
+        "crawl4ai": {
+          "p50_ms": 0.31304103322327137,
+          "p95_ms": 0.33933401573449373,
+          "samples": 25
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Authored synthetic HTML with one explicit main element and manually predefined selectors.",
+    "Components only: no fetching, JavaScript, browser, model, business validation or evidence verification.",
+    "Warm timings include reparsing and selection; imports and backend construction are measured separately.",
+    "Python socket entry points are blocked; this is not OS-level network isolation.",
+    "Process RSS includes backend imports and all previous cases; no isolated per-case RSS is claimed.",
+    "Library imports are fresh-process measurements with OS filesystem caches uncontrolled.",
+    "RSS is whole-process peak and includes imports and previous cases."
+  ]
+}
