@@ -63,13 +63,14 @@ def test_all_families_bind_quotes_and_locators_without_mutating_business_contrac
     included = source()
     included_before = copy.deepcopy(included)
     bound = bind_source_quote_evidence(schema, included)
+    path = next(iter(spec.data_model.model_fields))
     assert schema == before and included == included_before
     Draft202012Validator.check_schema(bound.schema)
     validator = Draft202012Validator(bound.schema)
-    assert validator.is_valid(payload(spec, [item()]))
-    assert validator.is_valid(payload(spec, [item("Structured Folio", None, "/0/name")]))
-    assert validator.is_valid(payload(spec, [item("37", "s0007", path="count")]))
-    assert validator.is_valid(payload(spec, [item("true", None, "/0/active", path="active")]))
+    assert validator.is_valid(payload(spec, [item(path=path)]))
+    assert validator.is_valid(payload(spec, [item("Structured Folio", None, "/0/name", path=path)]))
+    assert validator.is_valid(payload(spec, [item("37", "s0007", path=path)]))
+    assert validator.is_valid(payload(spec, [item("true", None, "/0/active", path=path)]))
     for bad in (
         item(section="s0007"),
         item(section="s0999"),
@@ -78,6 +79,7 @@ def test_all_families_bind_quotes_and_locators_without_mutating_business_contrac
         item(pointer="/0/name"),
         item(section=None),
     ):
+        bad["field_path"] = path
         assert not validator.is_valid(payload(spec, [bad]))
     restored = copy.deepcopy(bound.schema)
     restored["$defs"]["EvidenceCandidate"] = before["$defs"]["EvidenceCandidate"]
@@ -316,3 +318,169 @@ def test_receipt_is_deterministic_private_and_caller_owned():
     assert "Folio" not in json.dumps(receipt)
     receipt["coverage"] = "changed"
     assert first.metadata()["coverage"] == "complete"
+
+
+@pytest.mark.parametrize(
+    ("family", "paths"),
+    [
+        (
+            "product_v1",
+            [
+                "name",
+                "price_text",
+                "price",
+                "currency",
+                "sku",
+                "category.name",
+                "category.url",
+                "images.0",
+                "short_description",
+                "long_description",
+                "additional_info.size.27",
+                "additional_info.color.12345678901234567890",
+            ],
+        ),
+        (
+            "page_v1",
+            [
+                "title",
+                "text.0",
+                "headings.9",
+                "links.2.label",
+                "links.2.url",
+                "tables.3.headers.0",
+                "tables.4.rows.5.6",
+                "description",
+                "author",
+                "published_at",
+                "language",
+            ],
+        ),
+        ("article_v1", ["title", "author", "published_at", "description", "text.83"]),
+        (
+            "organization_v1",
+            ["name", "description", "website", "emails.0", "phone_numbers.12", "addresses.9"],
+        ),
+        ("person_v1", ["name", "role", "organization", "biography", "website", "emails.7"]),
+        ("job_v1", ["title", "organization", "location", "employment_type", "salary_text", "description"]),
+        ("event_v1", ["name", "start_date", "end_date", "location", "organizer", "description"]),
+        (
+            "listing_v1",
+            ["title", "description", "items.0.name", "items.53.url", "items.9876543210.description"],
+        ),
+        ("custom_v1", ["count"]),
+    ],
+)
+def test_every_registered_business_leaf_path_is_allowed_without_arbitrary_array_index_limits(family, paths):
+    schema, spec = compiled(family)
+    bound = bind_source_quote_evidence(schema, source())
+    validator = Draft202012Validator(bound.schema)
+    for path in paths:
+        assert validator.is_valid(payload(spec, [item(path=path)])), path
+        assert not validator.is_valid(payload(spec, [item(path="data." + path)]))
+    assert bound.metadata()["field_path_leaf_pattern_count"] == len(paths)
+    assert len(bound.metadata()["field_path_pattern_sha256"]) == 64
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "nonexistent",
+        "data.title",
+        "links",
+        "tables",
+        "links.01.url",
+        "links.-1.url",
+        "links.+1.url",
+        "links.1e3.url",
+        "links.2.nonexistent",
+        "links.0.url.extra",
+        "tables.0.rows.00.1",
+        "tables.0.rows.1",
+        "tables.00.headers.0",
+        "tables.1.rows.1.-2",
+        "text.0.0",
+        "title.0",
+    ],
+)
+def test_nonexistent_nonleaf_and_noncanonical_array_paths_are_rejected(path):
+    schema, spec = compiled("page_v1")
+    bound = bind_source_quote_evidence(schema, source())
+    assert not Draft202012Validator(bound.schema).is_valid(payload(spec, [item(path=path)]))
+
+
+def test_custom_scalar_names_and_string_list_paths_come_from_the_actual_contract():
+    request = ExtractionRequest(
+        url="https://quote.test/",
+        schema_id="custom_v1",
+        fields=[
+            {"name": "a_b_3", "type": "number"},
+            {"name": "active", "type": "boolean"},
+            {"name": "labels", "type": "string_list"},
+        ],
+    )
+    spec = get_schema(request)
+    schema = compile_provider_schema(spec.candidate_model.model_json_schema())
+    bound = bind_source_quote_evidence(schema, source())
+    validator = Draft202012Validator(bound.schema)
+    for path in ["a_b_3", "active", "labels.0", "labels.100000000000000000000"]:
+        assert validator.is_valid(payload(spec, [item(path=path)]))
+    for path in ["count", "labels", "labels.01", "data.active", "a_b_3.0"]:
+        assert not validator.is_valid(payload(spec, [item(path=path)]))
+
+
+def test_existing_field_path_pattern_must_be_provably_identical_and_other_constraints_survive():
+    schema, spec = compiled()
+    pattern = bind_source_quote_evidence(schema, source()).schema["$defs"]["EvidenceCandidate"]["anyOf"][0][
+        "properties"
+    ]["field_path"]["pattern"]
+    field = schema["$defs"]["EvidenceCandidate"]["properties"]["field_path"]
+    field.update(pattern=pattern, enum=["name"], maxLength=20)
+    bound = bind_source_quote_evidence(schema, source())
+    assert Draft202012Validator(bound.schema).is_valid(payload(spec, [item()]))
+    assert not Draft202012Validator(bound.schema).is_valid(payload(spec, [item(path="sku")]))
+    for branch in bound.schema["$defs"]["EvidenceCandidate"]["anyOf"]:
+        assert branch["properties"]["field_path"]["maxLength"] == 20
+        assert branch["properties"]["field_path"]["enum"] == ["name"]
+    field["pattern"] = "^name$"
+    with pytest.raises(SourceQuoteSchemaError, match="Cannot safely intersect"):
+        bind_source_quote_evidence(schema, source())
+
+
+@pytest.mark.parametrize(
+    "mutation", ["missing", "dynamic", "missing_ref", "remote_ref", "cycle", "tuple", "dot_name"]
+)
+def test_unsupported_or_recursive_business_shapes_fail_closed(mutation):
+    schema, _ = compiled()
+    if mutation == "missing":
+        schema["properties"].pop("data")
+    elif mutation == "dynamic":
+        schema["$defs"]["ProductV1"]["additionalProperties"] = True
+    elif mutation == "missing_ref":
+        schema["properties"]["data"] = {"$ref": "#/$defs/Missing"}
+    elif mutation == "remote_ref":
+        schema["properties"]["data"] = {"$ref": "https://quote.test/schema"}
+    elif mutation == "cycle":
+        schema["$defs"]["ProductV1"]["properties"]["again"] = {"$ref": "#/$defs/ProductV1"}
+    elif mutation == "tuple":
+        schema["$defs"]["ProductV1"]["properties"]["images"]["items"] = [{"type": "string"}]
+    else:
+        schema["$defs"]["ProductV1"]["properties"]["ambiguous.name"] = {"type": "string"}
+    with pytest.raises(SourceQuoteSchemaError):
+        bind_source_quote_evidence(schema, source())
+
+
+def test_business_path_depth_node_leaf_and_pattern_byte_budgets_are_enforced(monkeypatch):
+    from ai_scraper.extraction import source_quote_schema as module
+
+    schema, _ = compiled("page_v1")
+    for constant in [
+        "MAX_FIELD_PATH_DEPTH",
+        "MAX_FIELD_PATH_NODES",
+        "MAX_FIELD_PATH_LEAVES",
+        "MAX_FIELD_PATH_PATTERN_BYTES",
+    ]:
+        with monkeypatch.context() as patch:
+            patch.setattr(module, constant, 1)
+            with pytest.raises(SourceQuoteSchemaError, match="budget"):
+                bind_source_quote_evidence(schema, source())

@@ -19,16 +19,25 @@ from typing import Any
 
 from .evidence_schema import constrain_evidence_references, source_evidence_catalog
 
-SOURCE_QUOTE_SCHEMA_VERSION = "source-quotes-excerpt-first-v1"
+SOURCE_QUOTE_SCHEMA_VERSION = "source-quotes-excerpt-first-v2"
 MAX_QUOTE_CHARS = 512
 MAX_QUOTE_BRANCHES = 512
 MAX_SCHEMA_BYTES = 1_000_000
 MAX_SOURCE_TEXT_BYTES = 2_000_000
+MAX_FIELD_PATH_NODES = 4096
+MAX_FIELD_PATH_DEPTH = 32
+MAX_FIELD_PATH_LEAVES = 1024
+MAX_FIELD_PATH_PATTERN_BYTES = 65536
 _DEFINITION = "EvidenceCandidate"
 _REFERENCE = "#/$defs/" + _DEFINITION
 _ORDER = ("field_path", "excerpt", "section_id", "json_pointer")
 _FIELDS = frozenset(_ORDER)
 _NUMBER = re.compile(r"-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?\Z")
+_ARRAY_INDEX = r"(?:0|[1-9][0-9]*)"
+_ANNOTATIONS = frozenset({"description", "title", "default", "examples", "$comment"})
+_UNSUPPORTED_SHAPES = frozenset(
+    {"allOf", "oneOf", "not", "if", "then", "else", "patternProperties", "prefixItems", "$dynamicRef"}
+)
 
 
 class SourceQuoteSchemaError(ValueError):
@@ -94,6 +103,96 @@ def _canonical_branches(schema: dict[str, Any]) -> tuple[dict[str, Any], dict[st
             raise SourceQuoteSchemaError("Malformed source quote reference exclusivity")
         forms[form] = branch
     return result, forms
+
+
+def _business_field_paths(schema: dict[str, Any]) -> tuple[str, int]:
+    """Derive canonical populated-leaf paths from trusted fixed data schemas.
+
+    Array indexes are unbounded nonnegative integers without leading zeroes.
+    Recursive/dynamic objects and ambiguous property names cannot be expressed
+    safely by this protocol, so they are rejected rather than narrowed.
+    """
+    try:
+        data = schema["properties"]["data"]
+    except (KeyError, TypeError):
+        raise SourceQuoteSchemaError("Source quotes require the trusted business data schema") from None
+    leaves: dict[str, None] = {}
+    nodes = 0
+    pattern_bytes = len("^(?:)$")
+
+    def visit(node: Any, prefix: tuple[str, ...], refs: tuple[str, ...], depth: int) -> None:
+        nonlocal nodes, pattern_bytes
+        nodes += 1
+        if nodes > MAX_FIELD_PATH_NODES or depth > MAX_FIELD_PATH_DEPTH:
+            raise SourceQuoteSchemaError("Business field path traversal budget exceeded")
+        if not isinstance(node, dict) or _UNSUPPORTED_SHAPES.intersection(node):
+            raise SourceQuoteSchemaError("Unsupported trusted business field shape")
+        if "$ref" in node:
+            reference = node["$ref"]
+            if (
+                not isinstance(reference, str)
+                or not reference.startswith("#/$defs/")
+                or set(node) - {"$ref"} - _ANNOTATIONS
+                or reference in refs
+            ):
+                raise SourceQuoteSchemaError("Unsupported or recursive business field reference")
+            encoded_name = reference[len("#/$defs/") :]
+            if not encoded_name or "/" in encoded_name or re.search(r"~(?![01])", encoded_name):
+                raise SourceQuoteSchemaError("Malformed business field reference")
+            name = encoded_name.replace("~1", "/").replace("~0", "~")
+            try:
+                definition = schema["$defs"][name]
+            except (KeyError, TypeError):
+                raise SourceQuoteSchemaError("Unknown business field reference") from None
+            visit(definition, prefix, refs + (reference,), depth + 1)
+            return
+        if "anyOf" in node:
+            alternatives = node["anyOf"]
+            if not isinstance(alternatives, list) or not alternatives or set(node) - {"anyOf"} - _ANNOTATIONS:
+                raise SourceQuoteSchemaError("Unsupported trusted business field union")
+            for alternative in alternatives:
+                visit(alternative, prefix, refs, depth + 1)
+            return
+        kind = node.get("type")
+        if kind == "null":
+            return
+        if kind == "object":
+            properties = node.get("properties")
+            if not isinstance(properties, dict) or node.get("additionalProperties") is not False:
+                raise SourceQuoteSchemaError("Business field paths require fixed objects")
+            for name, child in properties.items():
+                if (
+                    not isinstance(name, str)
+                    or not name
+                    or "." in name
+                    or any(ord(char) < 32 for char in name)
+                ):
+                    raise SourceQuoteSchemaError("Ambiguous business field path property")
+                visit(child, prefix + (re.escape(name),), refs, depth + 1)
+            return
+        if kind == "array":
+            if not prefix or not isinstance(node.get("items"), dict):
+                raise SourceQuoteSchemaError("Business field paths require typed array items")
+            visit(node["items"], prefix + (_ARRAY_INDEX,), refs, depth + 1)
+            return
+        if kind not in {"string", "integer", "number", "boolean"} or not prefix:
+            raise SourceQuoteSchemaError("Unsupported trusted business field leaf")
+        path = r"\.".join(prefix)
+        if path not in leaves:
+            pattern_bytes += len(path.encode()) + bool(leaves)
+            if pattern_bytes > MAX_FIELD_PATH_PATTERN_BYTES:
+                raise SourceQuoteSchemaError("Business field path pattern byte budget exceeded")
+            leaves[path] = None
+        if len(leaves) > MAX_FIELD_PATH_LEAVES:
+            raise SourceQuoteSchemaError("Business field path leaf budget exceeded")
+
+    visit(data, (), (), 0)
+    if not leaves:
+        raise SourceQuoteSchemaError("Business data schema has no supported scalar leaves")
+    pattern = "^(?:" + "|".join(leaves) + ")$"
+    if len(pattern.encode()) > MAX_FIELD_PATH_PATTERN_BYTES:
+        raise SourceQuoteSchemaError("Business field path pattern byte budget exceeded")
+    return pattern, len(leaves)
 
 
 def _literal_allowed(schema: dict[str, Any], value: str | None) -> bool:
@@ -168,6 +267,16 @@ def bind_source_quote_evidence(
     if len(_encoded(compiled_schema)) > max_schema_bytes:
         raise SourceQuoteSchemaError("Source quote schema byte budget exceeded")
     result, forms = _canonical_branches(compiled_schema)
+    path_pattern, path_count = _business_field_paths(result)
+    for form in forms.values():
+        field_path = form["properties"]["field_path"]
+        existing_pattern = field_path.get("pattern")
+        if existing_pattern is not None and existing_pattern != path_pattern:
+            # Regex conjunction requires constructs unsupported by the shared
+            # grammar subset. Preserve existing constraints by rejecting an
+            # unproved intersection, never overwriting the original pattern.
+            raise SourceQuoteSchemaError("Cannot safely intersect the existing business field path pattern")
+        field_path["pattern"] = path_pattern
     try:
         catalog = source_evidence_catalog(source)
     except (TypeError, ValueError, RecursionError, UnicodeError):
@@ -179,6 +288,8 @@ def bind_source_quote_evidence(
         "max_schema_bytes": max_schema_bytes,
         "section_id_count": len(catalog.section_ids),
         "json_pointer_count": len(catalog.json_pointers),
+        "field_path_pattern_sha256": hashlib.sha256(path_pattern.encode()).hexdigest(),
+        "field_path_leaf_pattern_count": path_count,
         "section_quote_count": 0,
         "scalar_suffix_quote_count": 0,
         "attribute_suffix_quote_count": 0,
