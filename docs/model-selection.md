@@ -20,6 +20,8 @@ uv run ai-scraper probe --schema custom_v1 \
 
 The local adapter targets [oMLX](https://github.com/jundot/omlx). It sends both the standard JSON-schema response format and oMLX's `structured_outputs` configuration, disables tools and thinking, and rejects a reported downgrade to unenforced output. `LOCAL_BASE_URL` must use loopback HTTP(S). Model weights are not bundled, downloaded or selected by the library. Other endpoints need independent compatibility testing even if they implement an OpenAI-style API.
 
+Local schemas express the two evidence forms as fixed-object `anyOf` branches: a section identifier with a null JSON pointer, or a JSON pointer with a null section identifier. All nine schema families passed compilation and example matching with XGrammar 0.2.8; live local requests also enforced the exclusive forms. Local validation still rejects nonexistent references, invented quotes, unsupported values and incomplete evidence. Hosted adapters retain their separately tested provider schema.
+
 The default `probe` exercises the nested product contract. `--schema` selects a different preset; custom descriptors select a request-specific contract. The synthetic probe checks grammar-compatible output, known expected values and the production evidence validator. Save provider/model identity, schema hash, runtime versions, token counts and latency with each result.
 
 A passing probe establishes one request at one configuration. Evaluate representative pages, absent facts, conflicting entities, long input, malformed evidence, duplicate answers and embedded instructions before choosing a model for a task. Measure required-field precision/recall and unsupported populated values as well as speed; failures and timeouts remain in recall denominators.

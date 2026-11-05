@@ -18,6 +18,7 @@ import httpx
 from ..contracts import InferenceResponse, ScraperError
 from ..retrieval.brightdata import bounded_request
 from ..schemas import ExtractionCandidate, SourceSnapshot
+from .evidence_schema import constrain_evidence_references
 from .huggingface import HuggingFaceExtractor, schema_fingerprint
 
 if TYPE_CHECKING:
@@ -168,12 +169,16 @@ class LocalExtractor(HuggingFaceExtractor):
         )
         # xgrammar supports decimal regex constraints that the conservative HF
         # provider subset omits. Derive this constraint from the trusted model.
-        self.schema = _local_schema_constraints(self.schema, ExtractionCandidate)
+        self.schema = constrain_evidence_references(
+            _local_schema_constraints(self.schema, ExtractionCandidate)
+        )
         self.schema_fingerprint = schema_fingerprint(self.schema)
 
     def for_request(self, request: ExtractionRequest, spec: SchemaSpec) -> LocalExtractor:
         scoped = super().for_request(request, spec)
-        scoped.schema = _local_schema_constraints(scoped.schema, spec.candidate_model)
+        scoped.schema = constrain_evidence_references(
+            _local_schema_constraints(scoped.schema, spec.candidate_model)
+        )
         scoped.schema_fingerprint = schema_fingerprint(scoped.schema)
         # The transport may be shared safely, but the shim's last_error belongs
         # to one request. An error for one schema must not taint another call.

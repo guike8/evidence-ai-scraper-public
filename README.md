@@ -121,8 +121,8 @@ The initial scope is known public HTML/text URLs. JavaScript/browser interaction
 
 ```sh
 uv run pytest -q
-uv run ruff check src tests deploy benchmarks
-uv run ruff format --check src tests deploy benchmarks
+uv run ruff check src tests deploy benchmarks training
+uv run ruff format --check src tests deploy benchmarks training
 uv run python -m ai_scraper.competition run benchmarks/fixtures.json \
   --candidate local-fixtures --candidate-version YOUR_COMMIT --output comparison.json
 ```
@@ -130,6 +130,8 @@ uv run python -m ai_scraper.competition run benchmarks/fixtures.json \
 The [comparison protocol](benchmarks/README.md) separates business accuracy, evidence validation, source-context fit and parser components. Its authored fixtures and component timings do not establish representative web accuracy or an overall lead. The [competitive review](docs/competitive-review.md) records measured scope and remaining gaps.
 
 For optional paid adapters, configure credentials, explicit provider/model identifiers, actual account prices and a spending cap before live calls. See [model capability checks](docs/model-selection.md). Raw Unlocker rendering stays disabled unless its observed redirect destination can be verified.
+
+An optional [Apple Silicon model experiment](training/README.md) provides a grouped synthetic curriculum, isolated QLoRA training, direct weight-space patch tools and base/candidate scoring. Its [measured results](training/RESULTS.md) cover authored synthetic cases; real-web generalization remains unverified. Training dependencies are separate from the scraper runtime, and weights are distributed separately.
 
 ## License
 

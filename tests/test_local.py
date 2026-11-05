@@ -9,6 +9,7 @@ import httpx
 import pytest
 
 from ai_scraper.contracts import ScraperError
+from ai_scraper.extraction.evidence_schema import constrain_evidence_references
 from ai_scraper.extraction.huggingface import compile_provider_schema
 from ai_scraper.extraction.local import LocalExtractor, validate_local_endpoint
 from ai_scraper.schemas import ExtractionCandidate, SourceSection, SourceSnapshot
@@ -82,6 +83,7 @@ async def test_actual_schema_request_loopback_no_tools_and_zero_external_fee():
     expected_schema["$defs"]["ProductV1"]["properties"]["price"] = ExtractionCandidate.model_json_schema()[
         "$defs"
     ]["ProductV1"]["properties"]["price"]
+    expected_schema = constrain_evidence_references(expected_schema)
     assert payload["response_format"]["json_schema"]["schema"] == expected_schema
     assert payload["structured_outputs"] == {"json_schema": expected_schema}
     assert payload["tool_choice"] == "none" and "tools" not in payload
