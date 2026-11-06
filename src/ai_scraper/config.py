@@ -133,6 +133,8 @@ class Settings(StrictModel):
             "FIRECRAWL_RECORD_USD": ("firecrawl_record_usd", float),
             "SCRAPER_RETENTION_DAYS": ("retention_days", int),
             "HF_TIMEOUT_SECONDS": ("hf_timeout", float),
+            "SCRAPER_MAX_SOURCE_CHARS": ("max_source_chars", int),
+            "SCRAPER_MAX_OUTPUT_TOKENS": ("max_output_tokens", int),
             "SCRAPER_MAX_RESPONSE_BYTES": ("max_response_bytes", int),
             "SCRAPER_MAX_SNAPSHOT_BYTES": ("max_snapshot_bytes", int),
         }
