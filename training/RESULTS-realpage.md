@@ -70,3 +70,25 @@ The actual pinned Firecrawl cleaning/Markdown component prepared 48/48 saved HTM
 - V6 comparison plan: `f57ab6e0cb25fe4ad9d64d25103570b6b7224be5f848d44f476cb1f65a270c6a`.
 
 The JSON summary retains whitelisted data/source/weight/freeze/receipt identities and stage measurements. Raw source passages, task prompts, completions, private paths and credentials are excluded. There is no matched benchmark establishing superiority over Firecrawl or hosted extraction systems.
+
+## Packaged Studio CLI and MCP checks
+
+The portable adapter was also tested through a separate installed 0.8 CLI and
+MCP research profile. A caller-authored observatory example passed with two
+local model calls, one saved snapshot, two evidence bindings, matching stdout/JSON
+export and six discovered MCP tools. Its `partial` status records source-view
+omissions. Loaded-weight receipts confirmed 704 unchanged base tensors, 32 exact
+adapter tensors and 16 invoked wrappers. The owned loopback server stopped after
+the check; the existing default service stayed unchanged.
+
+A second functional check used the first IANA TRAIN case in frozen file order,
+selected before site-test outcomes. It failed after the bounded repair: two
+attempts / four local calls, with `GROUNDING_REJECTED` reporting missing critical
+business fields. Independent CPU reconstruction confirmed identical requests,
+saved source, source windows and initial business prompts, with all three reviewed
+facts visible. This is a model failure on a TRAIN page, not a new generalization
+score or an intentionally omitted training target. It is retained as a practical
+limitation; no labels, test scores or weights were changed in response.
+
+These packaged checks are separate from the frozen no-repair comparison above.
+They reinforce the experimental, non-default status of this adapter.
