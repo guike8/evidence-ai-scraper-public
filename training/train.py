@@ -35,6 +35,8 @@ LORA_PARAMETERS = {
     "dropout": 0.0,
     "keys": ["self_attn.q_proj", "self_attn.v_proj"],
 }
+DEFAULT_TARGET_FORMAT = "citation_envelope_v1"
+TARGET_FORMATS = (DEFAULT_TARGET_FORMAT, "realpage_grounded_v1")
 
 
 def file_hash(path: Path) -> str:
@@ -247,22 +249,47 @@ def _summary(values: list[int]) -> dict:
     }
 
 
-def preflight_rows(tokenizer, rows: list[dict], max_seq_length: int, processor=None) -> dict:
+def preflight_rows(
+    tokenizer,
+    rows: list[dict],
+    max_seq_length: int,
+    processor=None,
+    *,
+    target_format: str = DEFAULT_TARGET_FORMAT,
+) -> dict:
     """Reject masked-prefix drift and truncation before any gradient operation.
 
     ``processor`` can be ChatDataset.process to verify the installed trainer's
     output against an independently rendered no-thinking generation prefix.
     """
+    if target_format not in TARGET_FORMATS:
+        raise ValueError("Unsupported training target format")
     if not rows:
         raise ValueError("Empty training split")
     lengths, prompts, completions = [], [], []
+    tasks = {"business": 0, "grounding": 0}
     for index, row in enumerate(rows):
         messages = row.get("messages", [])
         if not messages or messages[-1].get("role") != "assistant" or "tools" in row:
             raise ValueError(f"Invalid no-tools chat row {index}")
-        target = json.loads(messages[-1]["content"])
-        if not isinstance(target, dict) or set(target) != {"data", "evidence", "warnings"}:
-            raise ValueError(f"Unexpected training target keys in row {index}")
+        if target_format == DEFAULT_TARGET_FORMAT:
+            target = json.loads(messages[-1]["content"])
+            if (
+                "grounded" in row
+                or not isinstance(target, dict)
+                or set(target) != {"data", "evidence", "warnings"}
+            ):
+                raise ValueError(f"Unexpected training target keys in row {index}")
+        else:
+            # The compiler reconstructs the exact production task and schema
+            # from bounded request/source metadata; a row cannot supply its own
+            # arbitrary schema or train application-assigned provenance.
+            from training.realpage_dataset import validate_training_row
+
+            task = validate_training_row(row)
+            if task not in tasks:
+                raise ValueError(f"Unexpected real-page task in row {index}")
+            tasks[task] += 1
         prefix = tokenizer.apply_chat_template(
             messages[:-1], add_generation_prompt=True, enable_thinking=False, return_dict=False
         )
@@ -278,7 +305,7 @@ def preflight_rows(tokenizer, rows: list[dict], max_seq_length: int, processor=N
         lengths.append(len(actual))
         prompts.append(offset)
         completions.append(len(actual) - offset)
-    return {
+    report = {
         "rows": len(rows),
         "full_tokens": _summary(lengths),
         "prompt_tokens": _summary(prompts),
@@ -287,6 +314,28 @@ def preflight_rows(tokenizer, rows: list[dict], max_seq_length: int, processor=N
         "mask_prompt": True,
         "truncated_rows": 0,
     }
+    if target_format != DEFAULT_TARGET_FORMAT:
+        report.update(target_format=target_format, task_counts=tasks)
+    return report
+
+
+def workflow_hashes(target_format: str = DEFAULT_TARGET_FORMAT) -> dict[str, str]:
+    """Bind opt-in curriculum and production prompts without changing old keys."""
+    if target_format not in TARGET_FORMATS:
+        raise ValueError("Unsupported training target format")
+    directory = Path(__file__).parent
+    result = {
+        name: file_hash(directory / name)
+        for name in ("__init__.py", "train.py", "dataset.py", "job.py", "requirements.lock")
+    }
+    if target_format != DEFAULT_TARGET_FORMAT:
+        result["realpage_dataset.py"] = file_hash(directory / "realpage_dataset.py")
+        for relative in (
+            "src/ai_scraper/extraction/grounded.py",
+            "src/ai_scraper/extraction/grounded_view.py",
+        ):
+            result[relative] = file_hash(directory.parent / relative)
+    return result
 
 
 def make_config(model_dir: Path, data_dir: Path, run_dir: Path, options) -> dict:
@@ -323,6 +372,18 @@ def make_config(model_dir: Path, data_dir: Path, run_dir: Path, options) -> dict
 
 
 def execute(options) -> dict:
+    target_format = getattr(options, "target_format", DEFAULT_TARGET_FORMAT)
+    if target_format not in TARGET_FORMATS:
+        raise ValueError("Unsupported training target format")
+    manifest_path = Path(options.data) / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    declared_format = manifest.get("target_format") if isinstance(manifest, dict) else None
+    compatible_formats = (
+        (None, DEFAULT_TARGET_FORMAT) if target_format == DEFAULT_TARGET_FORMAT else (target_format,)
+    )
+    if not isinstance(manifest, dict) or declared_format not in compatible_formats:
+        raise ValueError("Dataset manifest does not match the selected training target format")
+
     import mlx.core as mx
     import mlx.optimizers as optim
     import numpy as np
@@ -379,14 +440,14 @@ def execute(options) -> dict:
     # Test token boundaries are checked without computing any test loss/score.
     for name, dataset in zip(("train", "valid", "test"), (train_set, valid_set, test_set), strict=True):
         rows = [json.loads(line) for line in (data_dir / f"{name}.jsonl").read_text().splitlines()]
-        splits[name] = preflight_rows(tokenizer, rows, options.max_seq_length, dataset.process)
+        splits[name] = preflight_rows(
+            tokenizer, rows, options.max_seq_length, dataset.process, target_format=target_format
+        )
     public_config = {
         k: v
         for k, v in config.items()
         if k not in {"model", "data", "adapter_path"} and not (k == "resume_adapter_file" and v is not None)
     }
-    manifest_path = data_dir / "manifest.json"
-    manifest = json.loads(manifest_path.read_text())
     receipt = {
         "format": "mlx-scraper-training-v1",
         "stage": options.stage,
@@ -405,14 +466,13 @@ def execute(options) -> dict:
         "data_hashes": {f"{name}.jsonl": file_hash(data_dir / f"{name}.jsonl") for name in splits},
         "dataset_fingerprint": manifest["dataset_fingerprint"],
         "data_manifest_sha256": file_hash(manifest_path),
-        "workflow_hashes": {
-            name: file_hash(Path(__file__).parent / name)
-            for name in ("__init__.py", "train.py", "dataset.py", "job.py", "requirements.lock")
-        },
+        "workflow_hashes": workflow_hashes(target_format),
         "training_performed": False,
         "test_evaluation_performed": False,
         "initialization": initial,
     }
+    if target_format != DEFAULT_TARGET_FORMAT:
+        receipt["target_format"] = target_format
     write_json(run_dir / "preflight.json", receipt)
     if options.stage == "preflight":
         return receipt
@@ -495,6 +555,7 @@ def execute(options) -> dict:
             or sanity["config"] != public_config
             or sanity["workflow_hashes"] != receipt["workflow_hashes"]
             or sanity.get("initialization") != initial
+            or sanity.get("target_format") != receipt.get("target_format")
         ):
             raise ValueError("Sanity receipt does not match this base/dataset")
 
@@ -555,6 +616,7 @@ def main(argv=None) -> int:
     parser.add_argument("--learning-rate", type=float, default=1e-5)
     parser.add_argument("--init-adapter", help="Trusted local safetensors weights; starts a fresh optimizer")
     parser.add_argument("--init-adapter-sha256", help="Explicit SHA256 of the trusted initialization weights")
+    parser.add_argument("--target-format", choices=TARGET_FORMATS, default=DEFAULT_TARGET_FORMAT)
     options = parser.parse_args(argv)
     os.umask(0o077)
     try:

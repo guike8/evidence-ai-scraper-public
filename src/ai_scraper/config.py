@@ -38,6 +38,7 @@ class Settings(StrictModel):
     local_api_key: SecretStr | None = None
     local_source_bound_evidence: bool = False
     local_source_quote_evidence: bool = False
+    local_two_stage_grounding: bool = False
     allowed_domains: list[str] = Field(default_factory=list)
     wait_seconds: float = Field(default=180.0, ge=0, le=1800)
     hf_timeout: float = Field(default=60.0, gt=0, le=300)
@@ -65,7 +66,16 @@ class Settings(StrictModel):
 
     @model_validator(mode="after")
     def exclusive_local_citations(self):
-        if self.local_source_bound_evidence and self.local_source_quote_evidence:
+        if (
+            sum(
+                (
+                    self.local_source_bound_evidence,
+                    self.local_source_quote_evidence,
+                    self.local_two_stage_grounding,
+                )
+            )
+            > 1
+        ):
             raise ValueError("Local citation modes are mutually exclusive")
         return self
 
@@ -108,6 +118,7 @@ class Settings(StrictModel):
             "LOCAL_API_KEY": ("local_api_key", SecretStr),
             "LOCAL_SOURCE_BOUND_EVIDENCE": ("local_source_bound_evidence", _boolean),
             "LOCAL_SOURCE_QUOTE_EVIDENCE": ("local_source_quote_evidence", _boolean),
+            "LOCAL_TWO_STAGE_GROUNDING": ("local_two_stage_grounding", _boolean),
             "SCRAPER_ALLOWED_DOMAINS": (
                 "allowed_domains",
                 lambda s: [x.strip().lower() for x in s.split(",") if x.strip()],

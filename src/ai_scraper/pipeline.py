@@ -295,7 +295,7 @@ class Pipeline:
         used_inference = False
         source_view_summary = None
         owner = uuid.uuid4().hex
-        ttl = max(900, self.settings.wait_seconds + 2 * self.settings.hf_timeout + 180)
+        ttl = max(900, self.settings.wait_seconds + 4 * self.settings.hf_timeout + 180)
         if not self.store.acquire(job_id, owner, ttl):
             return ExtractionResult(
                 job_id=job_id,
@@ -320,6 +320,8 @@ class Pipeline:
 
         def finish(result):
             result.provenance.inference_source = source_view_summary
+            if used_inference and getattr(inference, "completions_per_attempt", 1) > 1:
+                result.provenance.prompt_version = inference.citation_policy_version
             if not used_inference:
                 result.provenance.provider = None
                 result.provenance.model = None
@@ -396,6 +398,13 @@ class Pipeline:
                     ):
                         raise ScraperError("SOURCE_VIEW_INVALID", "Inference source sections are invalid")
                     path = self.store.save_source_view(job_id, descriptor)
+                    if (
+                        descriptor["coverage"] != "full"
+                        and getattr(inference, "completions_per_attempt", 1) > 1
+                    ):
+                        warning = "incomplete_source: two-stage extraction used a recorded source window; full-page coverage is not established"
+                        if warning not in warnings:
+                            warnings.append(warning)
                     source_view_summary = SourceViewSummary(
                         selection_version=descriptor["selection_version"],
                         selection_hash=descriptor["selection_hash"],
@@ -706,7 +715,15 @@ class Pipeline:
                     attempts += 1
                     self._reserve_inference(job_id, attempts, extraction_key, inference)
                     counts[extraction_key] = attempts
-                    checkpoint({"inference_attempts": attempts, "inference_counts": counts})
+                    reserved = dict(job.get("inference_call_reservations", {}))
+                    reserved[extraction_key] = attempts * getattr(inference, "completions_per_attempt", 1)
+                    checkpoint(
+                        {
+                            "inference_attempts": attempts,
+                            "inference_counts": counts,
+                            "inference_call_reservations": reserved,
+                        }
+                    )
                     self.store.renew(job_id, owner, ttl)
                     usage.inference_attempts += 1
                     try:
@@ -733,6 +750,7 @@ class Pipeline:
                         assessment.errors = [exc.error.code + ": " + exc.error.message]
                     usage.input_tokens += int(metrics.get("input_tokens", 0))
                     usage.output_tokens += int(metrics.get("output_tokens", 0))
+                    usage.model_calls += int(metrics.get("model_calls", 1))
                     checkpoint({"usage": usage.model_dump()})
                     if last_error is None and not assessment.errors:
                         break
@@ -740,6 +758,7 @@ class Pipeline:
                         "INVALID_EXTRACTION",
                         "TRUNCATED_OUTPUT",
                         "EMPTY_OUTPUT",
+                        "GROUNDING_REJECTED",
                     }:
                         break
                     feedback = (
@@ -877,7 +896,12 @@ def create_pipeline(settings: Settings | None = None) -> Pipeline:
             raise ScraperError("LOCAL_MODEL_UNCONFIGURED", "Set an explicit LOCAL_MODEL for local inference")
         from .extraction.local import LocalExtractor
 
-        inference = LocalExtractor(
+        extractor_type = LocalExtractor
+        if settings.local_two_stage_grounding:
+            from .extraction.grounded import GroundedLocalExtractor
+
+            extractor_type = GroundedLocalExtractor
+        inference = extractor_type(
             settings.local_model,
             base_url=settings.local_base_url,
             api_key=settings.local_api_key.get_secret_value() if settings.local_api_key else None,

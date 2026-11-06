@@ -437,6 +437,7 @@ class Provenance(StrictModel):
 class Usage(StrictModel):
     retrieval_attempts: int = 0
     inference_attempts: int = 0
+    model_calls: int = Field(default=0, ge=0)
     input_tokens: int = 0
     output_tokens: int = 0
     latency_ms: float = 0.0

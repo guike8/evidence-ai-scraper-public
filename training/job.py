@@ -26,6 +26,8 @@ STAGES = ("preflight", "sanity", "train")
 ACTIVE = {"starting", "running"}
 TERMINAL = {"completed", "failed", "timed_out", "interrupted"}
 REPOSITORY = Path(__file__).resolve().parents[1]
+DEFAULT_TARGET_FORMAT = "citation_envelope_v1"
+TARGET_FORMATS = (DEFAULT_TARGET_FORMAT, "realpage_grounded_v1")
 
 
 def offline_environment() -> dict[str, str]:
@@ -102,7 +104,10 @@ def make_config(
     learning_rate: float = 1e-5,
     init_adapter: str | None = None,
     init_adapter_sha256: str | None = None,
+    target_format: str = DEFAULT_TARGET_FORMAT,
 ) -> dict:
+    if target_format not in TARGET_FORMATS:
+        raise ValueError("Unsupported training target format")
     for name, value, low, high in (
         ("max_seconds", max_seconds, 1, 21600),
         ("iters", iters, 4, 2000),
@@ -145,6 +150,8 @@ def make_config(
         "memory_gib": memory_gib,
     }
     # Omit defaults so old default job identities remain stable.
+    if target_format != DEFAULT_TARGET_FORMAT:
+        result["target_format"] = target_format
     if learning_rate != 1e-5:
         result["learning_rate"] = learning_rate
     if init_adapter is not None or init_adapter_sha256 is not None:
@@ -290,6 +297,8 @@ def _stage_command(config: dict, stage: str) -> list[str]:
     ]
     if "learning_rate" in config:
         command += ["--learning-rate", str(config["learning_rate"])]
+    if "target_format" in config:
+        command += ["--target-format", config["target_format"]]
     if "init_adapter" in config:
         command += [
             "--init-adapter",
@@ -464,6 +473,7 @@ def main(argv=None) -> int:
     start.add_argument("--learning-rate", type=float, default=1e-5)
     start.add_argument("--init-adapter")
     start.add_argument("--init-adapter-sha256")
+    start.add_argument("--target-format", choices=TARGET_FORMATS, default=DEFAULT_TARGET_FORMAT)
     status = commands.add_parser("status", help="Read durable state without loading a model")
     status.add_argument("--run-dir", required=True)
     worker = commands.add_parser("_run", help=argparse.SUPPRESS)

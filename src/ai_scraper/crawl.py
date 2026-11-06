@@ -751,6 +751,10 @@ class Crawler:
         if self.settings.local_source_quote_evidence:
             value["source_quote_evidence"] = True
             value["source_quote_policy_version"] = SOURCE_QUOTE_SCHEMA_VERSION
+        if self.settings.local_two_stage_grounding:
+            from .extraction.grounded import GROUNDED_POLICY_VERSION
+
+            value["two_stage_grounding"] = GROUNDED_POLICY_VERSION
         value["browser_executable_path_hash"] = (
             hashlib.sha256(executable.encode()).hexdigest() if executable else None
         )

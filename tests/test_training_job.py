@@ -463,3 +463,32 @@ def test_warmstart_options_propagate_to_every_stage_and_change_job_identity(tmp_
 def test_invalid_warmstart_options_rejected_before_job_launch(tmp_path, changes):
     with pytest.raises(ValueError):
         config(tmp_path, **changes)
+
+
+def test_realpage_target_format_is_explicit_identity_bound_and_passed_to_all_stages(tmp_path):
+    base = config(tmp_path)
+    explicit_default = job.make_config(**base, target_format=job.DEFAULT_TARGET_FORMAT)
+    assert explicit_default == base
+    assert "target_format" not in base
+    grounded = job.make_config(**base, target_format="realpage_grounded_v1")
+    assert job._identity(grounded) != job._identity(base)
+    for stage in job.STAGES:
+        command = job._stage_command(grounded, stage)
+        assert command[command.index("--target-format") + 1] == "realpage_grounded_v1"
+        assert "--target-format" not in job._stage_command(base, stage)
+    script = tmp_path / "checkout" / "training" / "train.py"
+    script.write_text(
+        "import sys\n"
+        "assert sys.argv[sys.argv.index('--target-format')+1] == 'realpage_grounded_v1'\n"
+        + script.read_text()
+    )
+    job.start_job(grounded)
+    assert wait_done(grounded["run_dir"])["stages_completed"] == list(job.STAGES)
+    with pytest.raises(ValueError, match="another configuration"):
+        job.start_job(base)
+
+
+@pytest.mark.parametrize("target_format", ["unknown", None, True, {"target": "schema"}])
+def test_unknown_target_formats_fail_before_launch(tmp_path, target_format):
+    with pytest.raises(ValueError, match="target format"):
+        config(tmp_path, target_format=target_format)

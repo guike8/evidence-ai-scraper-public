@@ -86,6 +86,12 @@ def parser() -> argparse.ArgumentParser:
                 default=None,
                 help="Experimental local grammar binding literal quotes to saved source locations",
             )
+            command.add_argument(
+                "--two-stage-grounding",
+                action=argparse.BooleanOptionalAction,
+                default=None,
+                help="Extract business JSON, then select saved-source evidence in a second local call",
+            )
         if name in {"extract", "resume", "replay", "probe", "crawl", "resume-crawl"}:
             browser = command.add_mutually_exclusive_group()
             browser.add_argument("--browser", action="store_true", help="Retrieve with anonymous Chromium")
@@ -262,17 +268,25 @@ def _settings(args: argparse.Namespace) -> Settings:
         settings = settings.model_copy(update={"retrieval_backend": "auto"})
     bound_flag = getattr(args, "source_bound_evidence", None)
     quote_flag = getattr(args, "source_quote_evidence", None)
-    if bound_flag is True and quote_flag is True:
+    grounded_flag = getattr(args, "two_stage_grounding", None)
+    if sum(flag is True for flag in (bound_flag, quote_flag, grounded_flag)) > 1:
         raise ScraperError("INVALID_REQUEST", "Local citation modes are mutually exclusive")
     citation_updates = {}
     if bound_flag is not None:
         citation_updates["local_source_bound_evidence"] = bound_flag
         if bound_flag:
             citation_updates["local_source_quote_evidence"] = False
+            citation_updates["local_two_stage_grounding"] = False
     if quote_flag is not None:
         citation_updates["local_source_quote_evidence"] = quote_flag
         if quote_flag:
             citation_updates["local_source_bound_evidence"] = False
+            citation_updates["local_two_stage_grounding"] = False
+    if grounded_flag is not None:
+        citation_updates["local_two_stage_grounding"] = grounded_flag
+        if grounded_flag:
+            citation_updates["local_source_bound_evidence"] = False
+            citation_updates["local_source_quote_evidence"] = False
     if citation_updates:
         settings = settings.model_copy(update=citation_updates)
     if args.state_dir is not None:
