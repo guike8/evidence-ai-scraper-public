@@ -85,6 +85,7 @@ def firecrawl_cache_options(base_url: str, runtime_id: str, trust_service_egress
         "only_main_content": False,
         "max_age": 0,
         "store_in_cache": False,
+        "skip_tls_verification": False,
         "trust_service_egress": True,
     }
 
@@ -288,6 +289,7 @@ class FirecrawlRetriever:
                         "onlyMainContent": False,
                         "maxAge": 0,
                         "storeInCache": False,
+                        "skipTlsVerification": False,
                         "ignoreInvalidURLs": False,
                         "maxConcurrency": 1,
                     },
