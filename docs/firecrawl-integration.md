@@ -66,11 +66,25 @@ digest `sha256:6157ce24e6867f013704c1cf2b752ec1ea7a3f730da09014b511d1049c8651af`
 with build SHA `7666c1f9ae8720a6bba271e0f60b6a217f8a5210` (tag 2.11.162).
 That runtime differs from the source-inspection commit below.
 
+The exact request body also passed the actual image's bundled batch-request
+schema in a networkless test. The adapter explicitly sends
+`skipTlsVerification: false` and `parsers: []`: the tested image otherwise
+defaults to skipping certificate verification and enabling PDF parsing.
+This verifies request-schema compatibility, not a working HTTP API.
+
 A [frozen model/source benchmark](../training/README-firecrawl-baseline.md)
 compares the unmodified model and prior checkpoint over the same saved inputs,
 using the full record and selected Firecrawl Markdown separately. It is our
 extraction contract on a development corpus, with factual and citation scoring.
 It is not a comparison against Firecrawl's native JSON extraction or Spark 2.
+
+The [completed baseline](../training/RESULTS-firecrawl.md) returned 0/12
+accepted cited records in all four model/source arms. A separately frozen
+business-only diagnostic yielded 6/12 exact records and 22/29 correct facts
+for the base model, versus 5/12 and 20/29 for the existing citation fine-tune.
+It produced no citations and changes multiple input/output factors; it is
+exploratory development evidence, not a production result or a causal test
+of citation overhead. No further weights were trained for these measurements.
 
 ## What the current model result means
 

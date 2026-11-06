@@ -11,6 +11,14 @@ synthetic gains do not establish an overall win; its eligible real-page replay
 fails all 13 tasks. See the [model measurements and failures](../training/RESULTS.md).
 The component and fixture measurements below remain separate historical tracks.
 
+The completed [Firecrawl-content development baseline](../training/RESULTS-firecrawl.md)
+uses actual preparation-component output on 12 saved public pages. All four
+model/source controls accepted 0/12 cited records. On a separate business-only
+diagnostic the base model returned 22/29 correct facts and 6/12 exact records,
+while the existing fine-tune returned 20/29 and 5/12. These uncited outputs are
+not accepted application records; the diagnostic changes multiple factors.
+Full Firecrawl API retrieval and native JSON extraction remain unverified.
+
 | Implementation checked | Established strengths | Implication for this project |
 | --- | --- | --- |
 | [Firecrawl](https://docs.firecrawl.dev/contributing/open-source-or-cloud), published release 2.11.0; self-host guide pins 2.11.162 | Browser-backed scraping, local-model self-hosting, schema extraction; current Cloud examples allow starting without an API key. The release also advertises reusable deterministic JSON extractors. | Credentials and deterministic-first extraction are shared capabilities. Cloud and self-hosted features require separate comparisons. |

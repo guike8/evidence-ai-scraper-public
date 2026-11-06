@@ -55,6 +55,10 @@ extraction. It requires no API key and persists asynchronous batch jobs across
 restart. See [configuration, egress boundaries and verification scope](docs/firecrawl-integration.md).
 The full API path still needs live verification; fixture tests and actual
 networkless content-preparation component execution are separate measurements.
+The [12-page development baseline](training/RESULTS-firecrawl.md) reports the
+base model and existing fine-tune separately. Neither produced an accepted
+cited record; the base model performed better on the separate business-only
+diagnostic. No further training was performed for this baseline.
 
 ## Crawl and render public pages
 

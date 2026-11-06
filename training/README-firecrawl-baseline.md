@@ -5,6 +5,12 @@ content. It does not train, retrieve URLs, call Firecrawl's native JSON
 extraction or establish an advantage over Spark 2. Keep the model, input
 preparation and full URL-to-result measurements separate.
 
+See the [recorded development results](RESULTS-firecrawl.md) and
+[machine-readable summary](firecrawl-baseline-metrics.json). Neither model
+accepted a cited record in the four-arm control. A separately frozen,
+post-matrix diagnostic used business-only JSON and raw Markdown; it changes
+several input and output factors and cannot isolate the cost of citations.
+
 Prepare a private labeled case JSONL with `training.evaluate`'s immutable
 request/snapshot/gold format. Gold values and evidence must be independently
 authored and reviewed before inference, then pass the unchanged production
@@ -94,3 +100,22 @@ retrieval and no network. It does not exercise the complete API HTML wrapper or
 OMCE path. A successful component result does not verify service startup,
 asynchronous API behavior or scraping coverage. Full native Firecrawl JSON
 extraction and representative unseen-site evaluation remain separate work.
+
+## Reproduce the business-only diagnostic
+
+The separate historical runner is published with unchanged bytes (SHA256
+`439c1aa26c1a7a7cbcc54bbad0c0b3ad92d9491cdd8b0bca95c840b7f39b204b`).
+Run it as a module from this checkout:
+
+```sh
+python -m benchmarks.firecrawl_business_diagnostic --help
+```
+
+Use the same private reviewed case format and verified loopback model server.
+The CLI requires a model ID, revision, weight checksum and base URL when
+creating `--freeze-candidate`; execution requires `--freeze`, `--freeze-sha`
+and `--outputdir`. Freeze both models before either call. Its exact prompts,
+schemas and inputs are bound separately from the four-arm control. It sends
+raw, unnumbered Markdown and requests only business JSON. It cannot return an
+accepted application record because it supplies no evidence. The historical
+12-page case corpus remains private; the public tests use authored fixtures.

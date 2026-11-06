@@ -1,0 +1,555 @@
+{
+  "format": "sanitized-firecrawl-preparation-baseline-v1",
+  "evaluation_date_utc": "2026-11-06",
+  "conclusion": "No application-contract acceptance or model quality improvement demonstrated.",
+  "training_performed": false,
+  "new_weights_uploaded": false,
+  "api_credentials_used": false,
+  "paid_api_calls": 0,
+  "corpus": {
+    "role": "development_baseline_not_fresh_holdout",
+    "case_count": 12,
+    "previously_captured_urls": 12,
+    "hosts": 10,
+    "positive_scalar_facts": 29,
+    "optional_null_controls": 3,
+    "all_gold_validated_before_inference": true,
+    "all_gold_facts_supported_in_actual_component_markdown": true,
+    "independent_gold_binding_review_completed": true,
+    "inference_calls_before_gold_freeze": 0,
+    "raw_sources_redistributed": false,
+    "case_file_sha256": "68cb32b7b42365dfcb585a64337faf9f4cf5be864ef28c7531b6f41fd4e88859",
+    "provisional_label_plan_sha256": "c255e6baeec774702bc67ef0045db782e513b5f0dd5cc0dfa10f810b237df5c7",
+    "reviewed_label_plan_sha256": "88fa869739c2beb032da8d5dbf532be84ac7f9b3f2d6e05a37f47e86f5d8b729",
+    "pre_inference_gold_corrections": [
+      "Personal-page visible heading corrected instead of document title.",
+      "Organization mission evidence moved out of navigation.",
+      "Consortium founding-year evidence moved to explicit founding clause.",
+      "Foundation-heading evidence moved out of navigation."
+    ],
+    "comparison_to_previous_13_page_replay": "Different tasks and prepared inputs; scores are not directly comparable."
+  },
+  "source_identity": {
+    "application_commit": "468bab67cfe7cf87c45402ece4ab7c6285ac8c66",
+    "application_python_tree_sha256": "87257f3ba57831f0c70eee2bcaf18f74acd21936d6f8bca4456e77ba23f55dc7",
+    "python_source_files_bound": 44,
+    "matrix_plan_sha256": "3b896d5bdf55097ab7a90bc9cf143e3fef06d82c4ead88f50fd93ab4668bf1c7",
+    "business_diagnostic_plan_sha256": "96bc60e29c5b4e103efec57dae5596fe18dce8bc8cdb38a5e2f30e8c729c5cb4",
+    "business_diagnostic_script_sha256": "439c1aa26c1a7a7cbcc54bbad0c0b3ad92d9491cdd8b0bca95c840b7f39b204b",
+    "published_business_runner": "benchmarks/firecrawl_business_diagnostic.py",
+    "frozen_model_source_differs_from_final_adapter_release": true
+  },
+  "firecrawl_preparation": {
+    "track": "captured_html_preparation_component",
+    "image_tag_observed": "2.11.162",
+    "platform": "linux/arm64",
+    "image": "ghcr.io/firecrawl/firecrawl@sha256:6157ce24e6867f013704c1cf2b752ec1ea7a3f730da09014b511d1049c8651af",
+    "api_build_sha": "7666c1f9ae8720a6bba271e0f60b6a217f8a5210",
+    "row_count": 12,
+    "successful_rows": 12,
+    "failed_rows": 0,
+    "parser_warning_count": 0,
+    "parser_error_count": 0,
+    "memory_limit_bytes": 402653184,
+    "network": "none",
+    "read_only_rootfs": true,
+    "output_file_sha256": "b65f0811f0c0075760955d6d347ba8ce72f1a504dc51303cc1b2f52d9b568d9a",
+    "functions": [
+      "transformHtml",
+      "parseMarkdown"
+    ],
+    "native_html_cleaning": true,
+    "only_main_content": false,
+    "full_html_wrapper_or_omce_tested": false,
+    "browser_rendering_tested": false,
+    "url_retrieval_tested": false,
+    "receipt_sha256": "f452f50d657e3542b7bcab2f953d7ea4d2b504f9e67becf057a72b92763e9615"
+  },
+  "actual_image_request_schema_proof": {
+    "track": "networkless_actual_image_zod_request_validation",
+    "receipt_sha256": "420ac0194d82e5ec306ff03508ee0abc5f6c5ef6687d38d62618a55b130f5ff6",
+    "adapter_source_sha256": "3b90c99d692ccd51bd4901bbbf9c2eeb50ab63499a90462ef2e85e491307b230",
+    "schema_export": "batchScrapeRequestSchema",
+    "schema_module_sha256": "a461772f967406b45e2b533faca8f7cefb7411cee45e4b0bdd61155e4bcb0e17",
+    "zod_version": "4.1.12",
+    "unknown_field_rejected": true,
+    "tls_verification_enabled": true,
+    "pdf_parser_disabled": true,
+    "exact_payload_field_count": 9,
+    "exact_payload_fields": [
+      "urls",
+      "formats",
+      "parsers",
+      "onlyMainContent",
+      "maxAge",
+      "storeInCache",
+      "skipTlsVerification",
+      "ignoreInvalidURLs",
+      "maxConcurrency"
+    ],
+    "exact_payload_passed": true,
+    "explicit_skip_tls_verification": false,
+    "explicit_parsers": [],
+    "full_api_or_endpoint_verified": false,
+    "url_retrieval_calls": 0,
+    "model_calls": 0
+  },
+  "full_firecrawl_api": {
+    "status": "stopped_after_resource_limited_startup_failures",
+    "safe_memory_budget_bytes": 2147483648,
+    "submitted_scrape_jobs": 0,
+    "full_api_smoke_verified": false,
+    "async_retrieval_live_verified": false,
+    "unrelated_services_preserved": true,
+    "owned_test_stack_and_empty_volumes_removed": true,
+    "studio_vpn_and_egress_policy_unchanged": true
+  },
+  "models": {
+    "base": {
+      "repo_id": "mlx-community/Qwen3-1.7B-4bit",
+      "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+      "weights_sha256": "0e86d9677e519323849eac1bc272caae88567a481ff188c431f70be543d9995f",
+      "hf_url": "https://huggingface.co/mlx-community/Qwen3-1.7B-4bit/tree/3b1b1768f8f8cf8351c712464f906e86c2b8269e"
+    },
+    "citation": {
+      "repo_id": "guike8/evidence-scraper-qwen3-1.7b-citation-v3-mlx-lora",
+      "revision": "b0b97c7dbfda946e982073984888fe5759351836",
+      "adapter_sha256": "64e66dab7b04a7c8a3e90af136477856ba57de52023b45ab4dabb985deb49f7b",
+      "base_model_arm": "base",
+      "runtime_training": false,
+      "hf_url": "https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-citation-v3-mlx-lora/tree/b0b97c7dbfda946e982073984888fe5759351836"
+    }
+  },
+  "serving_verification": {
+    "backend_versions": {
+      "omlx": "0.7.3rc1",
+      "mlx": "0.32.4",
+      "mlx-lm": "0.32.3.dev8+g0d4d3d04f",
+      "xgrammar": "0.2.8"
+    },
+    "isolated_internal_adapter_hook_used": true,
+    "base_tensor_count": 704,
+    "base_tensors_unchanged_in_both_arms": true,
+    "adapter_tensor_count": 32,
+    "exact_adapter_tensor_reload": true,
+    "active_adapter_module_count": 16,
+    "all_adapter_modules_invoked": true,
+    "existing_model_services_changed": false,
+    "experimental_servers_stopped_after_runs": true
+  },
+  "budgets": {
+    "temperature": 0,
+    "enable_thinking": false,
+    "max_output_tokens": 4096,
+    "max_source_chars": 48000,
+    "request_timeout_seconds": 45,
+    "arm_wall_limit_seconds": 1200,
+    "completions_per_eligible_case": 1,
+    "automatic_retries": 0,
+    "repair_attempts": 0,
+    "schema_constraints": "json_schema",
+    "credentials_required": false
+  },
+  "wrapped_matrix": {
+    "all_four_arms_frozen_before_inference": true,
+    "source_policies": {
+      "full_record": "Existing complete saved-record representation unchanged.",
+      "markdown": "Original numbered Markdown sections only; excludes HTML and JSON-LD, declares excluded IDs; no clipping."
+    },
+    "citation_policy": "Original exclusive section-or-JSON-pointer grammar; no source-bound or quote-bound grammar.",
+    "actual_input_membership_gate": "Any evidence reference outside supplied input rejects the row; raw candidate retained for factual scoring.",
+    "denominator_policy": "All 12 cases retained, including source planning failures, truncations and validation failures.",
+    "raw_fact_definition": "Typed exact scalar-leaf agreement with authored gold in unmodified model candidate; may belong to rejected record.",
+    "accepted_fact_definition": "Facts returned only after application validation and execution/truncation gates.",
+    "arms": [
+      {
+        "model_arm": "base",
+        "source_policy": "full_record",
+        "freeze_sha256": "04696e730613cf46db5e2fc63cf685cf3b75ce2c182850c78d37f449a0b0e55a",
+        "receipt_sha256": "720974fcca5deb0bac199a4c4ad9c827e6774b083a7b1987c921a1280da9d8f2",
+        "source_fit_cases": 10,
+        "source_planning_failures": 2,
+        "case_count": 12,
+        "valid_json_cases": 6,
+        "valid_schema_cases": 5,
+        "accepted_cases": 0,
+        "raw_facts": {
+          "present": 29,
+          "predicted": 14,
+          "correct": 10,
+          "wrong_or_unlabeled": 4,
+          "missed": 19,
+          "precision": 0.7142857142857143,
+          "recall": 0.3448275862068966,
+          "f1": 0.46511627906976744
+        },
+        "accepted_facts": {
+          "present": 29,
+          "predicted": 0,
+          "correct": 0,
+          "wrong_or_unlabeled": 0,
+          "missed": 29,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "abstention": {
+          "labeled_absent_paths": 3,
+          "correct_abstentions": 0,
+          "accuracy": 0.0
+        },
+        "source_evidence": {
+          "populated_fields": 14,
+          "source_supported_fields": 0,
+          "correct_with_source_support": 0,
+          "authored_reference_matches": 0
+        },
+        "diagnostics": {
+          "token_limit_cases": 5,
+          "repetition_heuristic_cases": 1,
+          "statuses": {
+            "failed": 12
+          },
+          "errors": {
+            "TRUNCATED_OUTPUT": 5,
+            "CONTENT_TOO_LARGE": 2
+          }
+        },
+        "input_binding_failure_cases": 0,
+        "latency": {
+          "measured_cases": 12,
+          "p50_ms": 2286.0900000014226,
+          "p95_ms": 23025.62995900371,
+          "unknown_cases": 0
+        },
+        "tokens": {
+          "input_tokens": {
+            "total": 117439,
+            "measured_cases": 10
+          },
+          "output_tokens": {
+            "total": 21809,
+            "measured_cases": 10
+          }
+        }
+      },
+      {
+        "model_arm": "base",
+        "source_policy": "markdown",
+        "freeze_sha256": "ca3acf5dcbae2aacb4d3fa7457a9027d4ab95ab2409fa0dd39b40059f8cebb8e",
+        "receipt_sha256": "5d3d2034f1dd2427ed8f1bdac76062c8cc1778544bbba7e96ca1d36c1cd94fe7",
+        "source_fit_cases": 12,
+        "source_planning_failures": 0,
+        "case_count": 12,
+        "valid_json_cases": 5,
+        "valid_schema_cases": 5,
+        "accepted_cases": 0,
+        "raw_facts": {
+          "present": 29,
+          "predicted": 14,
+          "correct": 8,
+          "wrong_or_unlabeled": 6,
+          "missed": 21,
+          "precision": 0.5714285714285714,
+          "recall": 0.27586206896551724,
+          "f1": 0.37209302325581395
+        },
+        "accepted_facts": {
+          "present": 29,
+          "predicted": 0,
+          "correct": 0,
+          "wrong_or_unlabeled": 0,
+          "missed": 29,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "abstention": {
+          "labeled_absent_paths": 3,
+          "correct_abstentions": 0,
+          "accuracy": 0.0
+        },
+        "source_evidence": {
+          "populated_fields": 14,
+          "source_supported_fields": 0,
+          "correct_with_source_support": 0,
+          "authored_reference_matches": 0
+        },
+        "diagnostics": {
+          "token_limit_cases": 7,
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 12
+          },
+          "errors": {
+            "TRUNCATED_OUTPUT": 7
+          }
+        },
+        "input_binding_failure_cases": 0,
+        "latency": {
+          "measured_cases": 12,
+          "p50_ms": 16902.07625000039,
+          "p95_ms": 20121.159709000494,
+          "unknown_cases": 0
+        },
+        "tokens": {
+          "input_tokens": {
+            "total": 103257,
+            "measured_cases": 12
+          },
+          "output_tokens": {
+            "total": 30248,
+            "measured_cases": 12
+          }
+        }
+      },
+      {
+        "model_arm": "citation",
+        "source_policy": "full_record",
+        "freeze_sha256": "3febc24bee00bff0732aae37d4628c2ac91194f402e0de8f8b5c4be5714f39d5",
+        "receipt_sha256": "ff9d4b25e7ad5defef3f8e74b5a5bf0e26e56e18e31aa0fbc6bd6e9bce5bb01a",
+        "source_fit_cases": 10,
+        "source_planning_failures": 2,
+        "case_count": 12,
+        "valid_json_cases": 7,
+        "valid_schema_cases": 6,
+        "accepted_cases": 0,
+        "raw_facts": {
+          "present": 29,
+          "predicted": 2,
+          "correct": 2,
+          "wrong_or_unlabeled": 0,
+          "missed": 27,
+          "precision": 1.0,
+          "recall": 0.06896551724137931,
+          "f1": 0.12903225806451613
+        },
+        "accepted_facts": {
+          "present": 29,
+          "predicted": 0,
+          "correct": 0,
+          "wrong_or_unlabeled": 0,
+          "missed": 29,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "abstention": {
+          "labeled_absent_paths": 3,
+          "correct_abstentions": 3,
+          "accuracy": 1.0
+        },
+        "source_evidence": {
+          "populated_fields": 2,
+          "source_supported_fields": 0,
+          "correct_with_source_support": 0,
+          "authored_reference_matches": 0
+        },
+        "diagnostics": {
+          "token_limit_cases": 4,
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 12
+          },
+          "errors": {
+            "TRUNCATED_OUTPUT": 4,
+            "CONTENT_TOO_LARGE": 2
+          }
+        },
+        "input_binding_failure_cases": 0,
+        "latency": {
+          "measured_cases": 12,
+          "p50_ms": 1154.288291996636,
+          "p95_ms": 24745.330958001432,
+          "unknown_cases": 0
+        },
+        "tokens": {
+          "input_tokens": {
+            "total": 117439,
+            "measured_cases": 10
+          },
+          "output_tokens": {
+            "total": 16705,
+            "measured_cases": 10
+          }
+        }
+      },
+      {
+        "model_arm": "citation",
+        "source_policy": "markdown",
+        "freeze_sha256": "91c0da9749be2a99f61becc0663e8286ac7214b7c6920225baad6b5c27c39159",
+        "receipt_sha256": "6f3b3f912f504c489b985b0f67d67feb0703ce6ff5ea5af40782941a9dfad96a",
+        "source_fit_cases": 12,
+        "source_planning_failures": 0,
+        "case_count": 12,
+        "valid_json_cases": 8,
+        "valid_schema_cases": 8,
+        "accepted_cases": 0,
+        "raw_facts": {
+          "present": 29,
+          "predicted": 8,
+          "correct": 3,
+          "wrong_or_unlabeled": 5,
+          "missed": 26,
+          "precision": 0.375,
+          "recall": 0.10344827586206896,
+          "f1": 0.16216216216216217
+        },
+        "accepted_facts": {
+          "present": 29,
+          "predicted": 0,
+          "correct": 0,
+          "wrong_or_unlabeled": 0,
+          "missed": 29,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "abstention": {
+          "labeled_absent_paths": 3,
+          "correct_abstentions": 2,
+          "accuracy": 0.6666666666666666
+        },
+        "source_evidence": {
+          "populated_fields": 8,
+          "source_supported_fields": 0,
+          "correct_with_source_support": 0,
+          "authored_reference_matches": 0
+        },
+        "diagnostics": {
+          "token_limit_cases": 4,
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 12
+          },
+          "errors": {
+            "TRUNCATED_OUTPUT": 4,
+            "EVIDENCE_OUTSIDE_INPUT": 1
+          }
+        },
+        "input_binding_failure_cases": 1,
+        "latency": {
+          "measured_cases": 12,
+          "p50_ms": 867.1584999974584,
+          "p95_ms": 22678.810290999536,
+          "unknown_cases": 0
+        },
+        "tokens": {
+          "input_tokens": {
+            "total": 103257,
+            "measured_cases": 12
+          },
+          "output_tokens": {
+            "total": 16917,
+            "measured_cases": 12
+          }
+        }
+      }
+    ]
+  },
+  "business_only_diagnostic": {
+    "role": "post_matrix_exploratory_development_diagnostic",
+    "both_arms_frozen_before_diagnostic_inference": true,
+    "same_cases_as_wrapped_matrix": true,
+    "source_policy": "Raw unnumbered Markdown only; no HTML, JSON-LD or extra metadata.",
+    "output_policy": "Business data schema only; trusted descriptions/request goal have citation clauses removed.",
+    "citations_generated": false,
+    "evidence_auto_grounding": false,
+    "accepted_contract_policy": "Always rejected: no evidence supplied.",
+    "causal_effect_estimate": false,
+    "exact_business_record_definition": "Entire raw JSON business object matches gold including types, keys and nulls; requires no diagnostic execution error.",
+    "arms": [
+      {
+        "model_arm": "base",
+        "freeze_sha256": "9fc0e23bd47dff0a91e4233dfeffd86d879814df11a20406c81f350f920176f4",
+        "receipt_sha256": "14403ce5c3d1ae89155fc2c3ec1b481fe30f5b23a1b25b23e83d47138a345395",
+        "source_fit_cases": 12,
+        "case_count": 12,
+        "schema_valid_business_records": 12,
+        "exact_business_records": 6,
+        "typed_factual": {
+          "present": 29,
+          "predicted": 30,
+          "correct": 22,
+          "wrong_or_unlabeled": 8,
+          "missed": 7,
+          "precision": 0.7333333333333333,
+          "recall": 0.7586206896551724,
+          "f1": 0.7457627118644068
+        },
+        "absent_controls": {
+          "present": 3,
+          "correct_nulls": 2
+        },
+        "accepted_contract_records": 0,
+        "diagnostics": {
+          "token_limit_cases": 0,
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 12
+          },
+          "errors": {
+            "DIAGNOSTIC_NO_EVIDENCE": 12
+          }
+        },
+        "latency": {
+          "measured_cases": 12,
+          "p50_ms": 338.75399999669753,
+          "p95_ms": 3075.8236670008046,
+          "unknown_cases": 0
+        }
+      },
+      {
+        "model_arm": "citation",
+        "freeze_sha256": "89994c80df81371f42c8595fd3987fb4b7f94da0a17695773be50276612e8117",
+        "receipt_sha256": "688dc6af72f1d48a4b8770a8dcfca64ac95763a9b591473b8dad0087c5a61266",
+        "source_fit_cases": 12,
+        "case_count": 12,
+        "schema_valid_business_records": 12,
+        "exact_business_records": 5,
+        "typed_factual": {
+          "present": 29,
+          "predicted": 29,
+          "correct": 20,
+          "wrong_or_unlabeled": 9,
+          "missed": 9,
+          "precision": 0.6896551724137931,
+          "recall": 0.6896551724137931,
+          "f1": 0.6896551724137931
+        },
+        "absent_controls": {
+          "present": 3,
+          "correct_nulls": 3
+        },
+        "accepted_contract_records": 0,
+        "diagnostics": {
+          "token_limit_cases": 0,
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 12
+          },
+          "errors": {
+            "DIAGNOSTIC_NO_EVIDENCE": 12
+          }
+        },
+        "latency": {
+          "measured_cases": 12,
+          "p50_ms": 300.0028749956982,
+          "p95_ms": 3074.8629160007113,
+          "unknown_cases": 0
+        }
+      }
+    ]
+  },
+  "limitations": [
+    "No new training, new weights or verified quality win in this phase.",
+    "Preparation-component replay over earlier captures is not live URL scraping or the full Firecrawl API.",
+    "Our model/scoring pipeline is not Firecrawl native JSON extraction; no superiority claim is supported.",
+    "These 12 narrow development tasks are not an unseen-site or fresh held-out benchmark.",
+    "Business-only prompt, schema and representation changed together after matrix inspection; do not infer a causal citation effect.",
+    "All six runs accepted zero application-contract records.",
+    "Private captures, labels and raw completions are not redistributed.",
+    "Exact historical reproduction requires original corpus and isolated serving profile; public fixtures test mechanics only.",
+    "Latency includes rejected and source-preflight outcomes; it is not accepted-output throughput."
+  ]
+}
