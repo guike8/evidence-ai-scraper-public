@@ -263,6 +263,145 @@ def test_canonical_train_rows_remain_unique_and_reproducible(base, tmp_path):
         assert file_hash(tmp_path / "first" / name) == expected
 
 
+def test_pair_grounding_is_opt_in_and_preserves_default_row_bytes(base, tmp_path):
+    implicit = augmentation.augment_business(base, tmp_path / "implicit")
+    explicit = augmentation.augment_business(base, tmp_path / "explicit", pair_grounding=False)
+    assert implicit["dataset_fingerprint"] == explicit["dataset_fingerprint"]
+    assert "paired_grounding" not in implicit
+    assert (tmp_path / "implicit/train.jsonl").read_bytes() == (
+        tmp_path / "explicit/train.jsonl"
+    ).read_bytes()
+    with pytest.raises(ValueError, match="explicit boolean"):
+        augmentation.augment_business(base, tmp_path / "invalid", pair_grounding="true")
+    assert not (tmp_path / "invalid").exists()
+
+
+def test_pair_grounding_covers_every_business_schema_and_keeps_reserved_bytes(base, tmp_path, monkeypatch):
+    original = evaluate.read_jsonl
+    reads = []
+
+    def train_only(path):
+        reads.append(Path(path).name)
+        assert Path(path).name in {"train.jsonl", "train.cases.jsonl"}
+        return original(path)
+
+    monkeypatch.setattr(evaluate, "read_jsonl", train_only)
+    output = tmp_path / "paired"
+    manifest = augmentation.augment_business(base, output, pair_grounding=True)
+    assert reads == ["train.cases.jsonl", "train.jsonl"]
+    assert manifest["format"] == augmentation.PAIRED_FORMAT
+    assert manifest["row_counts"] == {"train": 12, "valid": 2, "test": 2}
+    assert manifest["derived_business_transformations"]["task_business"] == 6
+    assert manifest["derived_business_transformations"]["task_grounding"] == 6
+    assert manifest["paired_grounding"]["added_rows"] == 5
+    assert manifest["paired_grounding"]["new_business_gold_facts"] == 0
+    assert manifest["prediction_exposure"] == augmentation.EXPOSURE
+    for name in augmentation.FILES - {"train.jsonl"}:
+        assert (output / name).read_bytes() == (base / name).read_bytes()
+    rows = original(output / "train.jsonl")
+    business = [row for row in rows if row["grounded"]["task"] == "business"]
+    grounding = [row for row in rows if row["grounded"]["task"] == "grounding"]
+    for row in business:
+        meta = row["grounded"]
+        target = json.loads(row["messages"][-1]["content"])
+        matches = [
+            candidate
+            for candidate in grounding
+            if candidate["grounded"]["request"] == meta["request"]
+            and candidate["grounded"]["source"] == meta["source"]
+            and candidate["grounded"]["data"] == target
+        ]
+        assert len(matches) == 1
+        paired = matches[0]
+        assert validate_training_row(paired) == "grounding"
+        picks = json.loads(paired["messages"][-1]["content"])["selections"]
+        assert set(picks) == set(populated_fields(target))
+        assert all(identifier is not None for identifier in picks.values())
+        if any(name.startswith("requested_") for name in target):
+            assert all(name.startswith("requested_") for name in picks)
+        if target.get("hidden_note", "not-this-projection") is None and len(target) == 1:
+            assert picks == {}
+    audits = json.loads((output / "derived-business-audit.json").read_text())
+    paired_audits = [audit for audit in audits if audit["kind"] == "paired_positive_grounding"]
+    assert len(paired_audits) == 5
+    assert all(len(audit["business_row_sha256"]) == 64 for audit in paired_audits)
+
+
+def _derived_pair_fixture(*, repeated_list=False):
+    field = "members" if repeated_list else "project_name"
+    request = ExtractionRequest(
+        url="https://train.example/identity",
+        schema_id="custom_v1",
+        fields=[{"name": field, "type": "string_list" if repeated_list else "string"}],
+    )
+    if repeated_list:
+        markdown = "Amber appears in an omitted paragraph. " + "Long archival material. " * 600
+        markdown += "\nMember: Amber"
+        data = {field: ["Amber", "Amber"]}
+    else:
+        markdown = "Navigation mentions Amber Project\n# Amber Project"
+        data = {field: "Amber Project"}
+    snapshot = normalize_record(
+        {"final_url": request.url, "markdown": markdown}, request, retrieval_method="fixture_replay"
+    )
+    sections = [section for section in snapshot.sections if section.representation == "markdown"]
+    assert len(sections) == 2
+    evidence = (
+        [
+            {"field_path": f"{field}.{index}", "section_id": section.id, "excerpt": "Amber"}
+            for index, section in enumerate(sections)
+        ]
+        if repeated_list
+        else [{"field_path": field, "section_id": sections[1].id, "excerpt": "Amber Project"}]
+    )
+    case = {"case_id": "authored-pair", "page_id": "authored-page"}
+    mapping = {field: "requested_" + field}
+    row, audit = augmentation._derive(
+        case, request, snapshot, data, evidence, "full_schema_alias", mapping, 8000
+    )
+    return snapshot, data, evidence, row, audit, sections
+
+
+def test_positive_pair_uses_reviewed_context_instead_of_first_literal_occurrence():
+    snapshot, data, evidence, row, audit, sections = _derived_pair_fixture()
+    paired, _ = augmentation._paired_grounding(row, audit, snapshot, data, evidence)
+    meta = paired["grounded"]
+    request = ExtractionRequest.model_validate(meta["request"])
+    task = build_grounding_task(get_schema(request), meta["data"], meta["source"], request.instruction)
+    candidates = task.candidates["requested_project_name"]
+    assert candidates[0].section_id == sections[0].id
+    identifier = json.loads(paired["messages"][-1]["content"])["selections"]["requested_project_name"]
+    chosen = next(candidate for candidate in candidates if candidate.id == identifier)
+    assert chosen.section_id == sections[1].id
+    assert chosen.id != candidates[0].id
+    forged = [{**evidence[0], "excerpt": "Not present in the reviewed source"}]
+    with pytest.raises(ValueError, match="Reviewed citation"):
+        augmentation._paired_grounding(row, audit, snapshot, data, forged)
+
+
+def test_positive_pair_reindexes_repeated_list_values_from_original_gold_indices():
+    snapshot, data, evidence, row, audit, sections = _derived_pair_fixture(repeated_list=True)
+    assert json.loads(row["messages"][-1]["content"]) == {"requested_members": ["Amber"]}
+    paired, paired_audit = augmentation._paired_grounding(row, audit, snapshot, data, evidence)
+    assert paired_audit["omitted_original_gold_paths"] == ["requested_members.0"]
+    request = ExtractionRequest.model_validate(paired["grounded"]["request"])
+    task = build_grounding_task(
+        get_schema(request),
+        paired["grounded"]["data"],
+        paired["grounded"]["source"],
+        request.instruction,
+    )
+    picks = json.loads(paired["messages"][-1]["content"])["selections"]
+    assert set(picks) == {"requested_members.0"}
+    chosen = next(
+        candidate
+        for candidate in task.candidates["requested_members.0"]
+        if candidate.id == picks["requested_members.0"]
+    )
+    assert chosen.section_id == sections[1].id
+    assert sections[0].id not in task.metadata["included_section_ids"]
+
+
 def missing_curriculum(base, tmp_path, *, only_missing=False):
     cases = evaluate.read_jsonl(base / "train.cases.jsonl")
     case = copy.deepcopy(cases[0])

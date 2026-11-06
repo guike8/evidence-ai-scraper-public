@@ -20,13 +20,18 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from ai_scraper.extraction.generic import populated_fields
-from ai_scraper.extraction.grounded import GROUNDED_POLICY_VERSION, build_grounding_task
+from ai_scraper.extraction.grounded import (
+    GROUNDED_POLICY_VERSION,
+    bind_grounding_selection,
+    build_grounding_task,
+)
 from ai_scraper.extraction.grounded_view import build_grounded_view
 from ai_scraper.registry import get_schema
 from ai_scraper.schemas import ExtractionRequest
 from training import evaluate
 from training.realpage_dataset import (
     TARGET_FORMAT,
+    _gold_selections,
     _negative_rows,
     _training_visible_data,
     _visible_evidence,
@@ -41,6 +46,7 @@ from training.realpage_dataset import (
 from training.train import workflow_hashes
 
 FORMAT = "realpage-v5-derived-business-curriculum-v1"
+PAIRED_FORMAT = "realpage-v6-paired-grounding-curriculum-v1"
 MISSING_FORMAT = "realpage-v5-missing-context-grounding-negatives-v1"
 EXPOSURE = {
     "training_predictions_used_as_gold": False,
@@ -123,6 +129,44 @@ def _derive(case, request, snapshot, data, evidence, kind, mapping, max_source_c
         "source_view": view.as_metadata(),
         "row_sha256": digest(row),
         "provenance": "derived_schema_supervision_over_unchanged_reviewed_TRAIN_facts",
+    }
+
+
+def _paired_grounding(business_row, audit, snapshot, data, evidence):
+    """Pair a derived business task with its exact reviewed visible anchors."""
+    require(validate_training_row(business_row) == "business", "Only business targets may be paired")
+    meta = business_row["grounded"]
+    request = ExtractionRequest.model_validate(meta["request"])
+    spec = get_schema(request)
+    source = meta["source"]
+    mapping = audit["field_mapping"]
+    projected = {mapping[name]: copy.deepcopy(value) for name, value in data.items() if name in mapping}
+    anchors = _remap_evidence(evidence, mapping)
+    visible, omitted = _training_visible_data(projected, anchors, source)
+    require(
+        canonical(visible) == canonical(evaluate._parse(business_row["messages"][-1]["content"])),
+        "Paired grounding must use the exact corresponding business target",
+    )
+    task = build_grounding_task(spec, visible, source, request.instruction, max_source_chars=8000)
+    # Reindex through original gold positions, including repeated list values.
+    visible_anchors = _visible_evidence(projected, anchors, source)
+    selection = _gold_selections(task, visible_anchors)
+    row = make_training_row(request, source, "grounding", selection, data=visible)
+    require(validate_training_row(row) == "grounding", "Paired grounding target must reconstruct exactly")
+    # Like the primary compiler, conditionally omitted critical values remain
+    # valid supervised abstentions; complete gold receives the production gate.
+    if not omitted:
+        bound = bind_grounding_selection(task, selection, snapshot, spec, request.locale)
+        require(canonical(bound["data"]) == canonical(visible), "Grounding binding changed reviewed facts")
+    return row, {
+        **audit,
+        "kind": "paired_positive_grounding",
+        "business_row_sha256": digest(business_row),
+        "row_sha256": digest(row),
+        "grounding_catalog_sha256": task.metadata["catalog_hash"],
+        "selected_anchor_count": len(selection["selections"]),
+        "omitted_original_gold_paths": omitted,
+        "provenance": "paired_grounding_over_exact_reviewed_derived_TRAIN_business_targets",
     }
 
 
@@ -407,6 +451,7 @@ def augment_business(
     negative_review_receipt: Path | None = None,
     missing_context_negatives: Path | None = None,
     missing_context_review: Path | None = None,
+    pair_grounding: bool = False,
     seed: int = 2026110805,
 ):
     os.umask(0o077)
@@ -429,6 +474,7 @@ def augment_business(
         "Missing-context negatives and their review must be supplied together",
     )
     require(type(seed) is int and 0 <= seed < 2**32, "A bounded shuffle seed is required")
+    require(type(pair_grounding) is bool, "Paired grounding must be an explicit boolean")
     manifest_path = base_dir / "manifest.json"
     parent = evaluate._parse(manifest_path.read_text())
     require(
@@ -529,9 +575,15 @@ def augment_business(
                 8000,
             )
             add(row, "single_field_projection", audit)
+            if pair_grounding:
+                paired, paired_audit = _paired_grounding(row, audit, snapshot, data, evidence)
+                add(paired, "paired_positive_grounding", paired_audit)
         aliases = {field.name: PREFIX + field.name for field in request.fields}
         row, audit = _derive(case, request, snapshot, data, evidence, "full_schema_alias", aliases, 8000)
         add(row, "full_schema_alias", audit)
+        if pair_grounding:
+            paired, paired_audit = _paired_grounding(row, audit, snapshot, data, evidence)
+            add(paired, "paired_positive_grounding", paired_audit)
     negative_metadata = None
     negative_audits = []
     if grounding_negatives is not None:
@@ -586,7 +638,7 @@ def augment_business(
         )
     manifest = {
         **parent,
-        "format": FORMAT,
+        "format": PAIRED_FORMAT if pair_grounding else FORMAT,
         "parent_dataset_fingerprint": parent["dataset_fingerprint"],
         "parent_manifest_sha256": file_hash(manifest_path),
         "parent_split_hashes": parent["files"],
@@ -610,6 +662,15 @@ def augment_business(
         "builder_training_calls": 0,
         "curriculum_provenance": "TRAIN-only field projections and aliases over the same reviewed real-page facts; not new pages or independent labels.",
     }
+    if pair_grounding:
+        manifest["paired_grounding"] = {
+            "enabled": True,
+            "policy": "Every derived business target is paired with exact reviewed visible grounding anchors",
+            "design_provenance": "Validation-informed response to v5 grounding rejection regression; no site-test predictions seen during design",
+            "added_rows": counts["added_paired_positive_grounding"],
+            "deduplicated_rows": counts["deduplicated_paired_positive_grounding"],
+            "new_business_gold_facts": 0,
+        }
     manifest.pop("model_calls_before_freeze", None)
     manifest["dataset_fingerprint"] = digest(
         {
@@ -621,6 +682,7 @@ def augment_business(
             "supplemental_grounding_negatives": negative_metadata,
             "missing_context_grounding_negatives": missing_metadata,
             "prediction_exposure": dict(EXPOSURE),
+            **({"paired_grounding": manifest["paired_grounding"]} if pair_grounding else {}),
         }
     )
     (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
@@ -635,6 +697,11 @@ def main(argv=None):
     parser.add_argument("--negative-review-receipt", type=Path)
     parser.add_argument("--missing-context-negatives", type=Path)
     parser.add_argument("--missing-context-review", type=Path)
+    parser.add_argument(
+        "--pair-grounding",
+        action="store_true",
+        help="Pair derived business tasks with reviewed positive grounding",
+    )
     parser.add_argument("--seed", type=int, default=2026110805)
     args = parser.parse_args(argv)
     manifest = augment_business(
@@ -644,6 +711,7 @@ def main(argv=None):
         negative_review_receipt=args.negative_review_receipt,
         missing_context_negatives=args.missing_context_negatives,
         missing_context_review=args.missing_context_review,
+        pair_grounding=args.pair_grounding,
         seed=args.seed,
     )
     print(
