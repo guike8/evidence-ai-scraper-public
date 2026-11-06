@@ -5,6 +5,12 @@ inspectable recovery and explicit failure behavior. The reviewed implementations
 features. A broad superiority claim needs paired measurements on representative
 pages and schemas.
 
+The current priority is [reusing and directly comparing self-hosted Firecrawl](firecrawl-integration.md),
+with our local model and independent evidence contract. The updated model's
+synthetic gains do not establish an overall win; its eligible real-page replay
+fails all 13 tasks. See the [model measurements and failures](../training/RESULTS.md).
+The component and fixture measurements below remain separate historical tracks.
+
 | Implementation checked | Established strengths | Implication for this project |
 | --- | --- | --- |
 | [Firecrawl](https://docs.firecrawl.dev/contributing/open-source-or-cloud), published release 2.11.0; self-host guide pins 2.11.162 | Browser-backed scraping, local-model self-hosting, schema extraction; current Cloud examples allow starting without an API key. The release also advertises reusable deterministic JSON extractors. | Credentials and deterministic-first extraction are shared capabilities. Cloud and self-hosted features require separate comparisons. |

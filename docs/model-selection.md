@@ -28,6 +28,12 @@ The default `probe` exercises the nested product contract. `--schema` selects a 
 
 A passing probe establishes one request at one configuration. Evaluate representative pages, absent facts, conflicting entities, long input, malformed evidence, duplicate answers and embedded instructions before choosing a model for a task. Measure required-field precision/recall and unsupported populated values as well as speed; failures and timeouts remain in recall denominators.
 
+The current citation-v3 checkpoint remains experimental: actual Studio probes
+returned 9/9 schema-valid outputs but passed only 1/9 complete fact/evidence
+contracts. Its eligible real-page replay acceptance is 0/13. These results do
+not qualify it as a general default; see the [paired measurements](../training/RESULTS.md)
+and [Firecrawl comparison priority](firecrawl-integration.md).
+
 ## Hosted Hugging Face inference
 
 For the optional hosted path, set `SCRAPER_INFERENCE_BACKEND=huggingface`, `HF_TOKEN`, an explicit `HF_PROVIDER` and `HF_MODEL`, plus actual input/output prices and a cumulative `SCRAPER_MAX_SPEND_USD`. Configure retrieval separately. The probe requires paid-call settings when hosted inference is selected. Do not infer account eligibility or zero pricing from advertised allowances.

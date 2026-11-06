@@ -8,6 +8,7 @@ import httpx
 import pytest
 from pydantic import ValidationError
 
+import ai_scraper.crawl as crawl_module
 from ai_scraper.config import Settings
 from ai_scraper.contracts import ScraperError
 from ai_scraper.crawl import (
@@ -115,6 +116,38 @@ def setup(tmp_path, *, pages=None, handler=None, pending=None, fail=None, blocke
         sleep=clock.sleep,
     )
     return crawler, clock, events, client, scoped
+
+
+async def test_quote_mode_is_bound_to_saved_crawl_without_changing_legacy_false_identity(
+    tmp_path, monkeypatch
+):
+    crawler, _, events, client, _ = setup(tmp_path)
+    legacy = crawler._configuration()
+    assert "source_quote_evidence" not in legacy
+    assert "source_quote_policy_version" not in legacy
+    default = await crawler.start(CrawlRequest(seeds=[ROOT], wait_seconds=0))
+    crawler.settings = crawler.settings.model_copy(update={"local_source_quote_evidence": True})
+    assert crawler._configuration()["source_quote_evidence"] is True
+    version = crawl_module.SOURCE_QUOTE_SCHEMA_VERSION
+    assert crawler._configuration()["source_quote_policy_version"] == version
+    with pytest.raises(ScraperError, match="original extraction configuration"):
+        await crawler.resume(default.crawl_id, wait_seconds=5)
+    quoted = await crawler.start(CrawlRequest(seeds=[ROOT], wait_seconds=0))
+    assert quoted.crawl_id != default.crawl_id
+    crawler.settings = crawler.settings.model_copy(update={"local_source_quote_evidence": False})
+    assert crawler._configuration() == legacy
+    with pytest.raises(ScraperError, match="original extraction configuration"):
+        await crawler.resume(quoted.crawl_id, wait_seconds=5)
+    assert not events
+    crawler.settings = crawler.settings.model_copy(update={"local_source_quote_evidence": True})
+    monkeypatch.setattr(crawl_module, "SOURCE_QUOTE_SCHEMA_VERSION", "changed-test-policy")
+    with pytest.raises(ScraperError, match="original extraction configuration"):
+        await crawler.resume(quoted.crawl_id, wait_seconds=5)
+    assert not events
+    monkeypatch.setattr(crawl_module, "SOURCE_QUOTE_SCHEMA_VERSION", version)
+    result = await crawler.resume(quoted.crawl_id, wait_seconds=5)
+    assert result.status == "success"
+    await client.aclose()
 
 
 def test_canonical_identity_preserves_query_semantics():

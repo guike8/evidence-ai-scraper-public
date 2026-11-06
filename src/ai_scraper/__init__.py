@@ -1,3 +1,3 @@
 """Evidence-first extraction. Import Pipeline lazily to keep schemas standalone."""
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"

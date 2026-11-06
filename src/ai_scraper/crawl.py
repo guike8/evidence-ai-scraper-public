@@ -26,6 +26,7 @@ from pydantic import Field, field_validator, model_validator
 
 from .config import Settings
 from .contracts import ScraperError
+from .extraction.source_quote_schema import SOURCE_QUOTE_SCHEMA_VERSION
 from .jobs import JobStore, digest
 from .policy import URLPolicy
 from .retrieval.direct import REDIRECTS, PublicHTTPTransport, _strip_credentials
@@ -747,6 +748,9 @@ class Crawler:
             if hasattr(self.settings, name):
                 value[name] = getattr(self.settings, name)
         executable = getattr(self.settings, "browser_executable_path", None)
+        if self.settings.local_source_quote_evidence:
+            value["source_quote_evidence"] = True
+            value["source_quote_policy_version"] = SOURCE_QUOTE_SCHEMA_VERSION
         value["browser_executable_path_hash"] = (
             hashlib.sha256(executable.encode()).hexdigest() if executable else None
         )

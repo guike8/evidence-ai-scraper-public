@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 
 from .schemas import StrictModel
 
@@ -34,6 +34,7 @@ class Settings(StrictModel):
     local_base_url: str = "http://127.0.0.1:8000/v1"
     local_api_key: SecretStr | None = None
     local_source_bound_evidence: bool = False
+    local_source_quote_evidence: bool = False
     allowed_domains: list[str] = Field(default_factory=list)
     wait_seconds: float = Field(default=180.0, ge=0, le=1800)
     hf_timeout: float = Field(default=60.0, gt=0, le=300)
@@ -58,6 +59,12 @@ class Settings(StrictModel):
         if not value.strip():
             raise ValueError("User agent cannot be blank")
         return value
+
+    @model_validator(mode="after")
+    def exclusive_local_citations(self):
+        if self.local_source_bound_evidence and self.local_source_quote_evidence:
+            raise ValueError("Local citation modes are mutually exclusive")
+        return self
 
     @classmethod
     def from_env(cls):
@@ -84,6 +91,7 @@ class Settings(StrictModel):
             "LOCAL_BASE_URL": ("local_base_url", str),
             "LOCAL_API_KEY": ("local_api_key", SecretStr),
             "LOCAL_SOURCE_BOUND_EVIDENCE": ("local_source_bound_evidence", _boolean),
+            "LOCAL_SOURCE_QUOTE_EVIDENCE": ("local_source_quote_evidence", _boolean),
             "SCRAPER_ALLOWED_DOMAINS": (
                 "allowed_domains",
                 lambda s: [x.strip().lower() for x in s.split(",") if x.strip()],

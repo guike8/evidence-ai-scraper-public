@@ -56,6 +56,52 @@ the wrong section for a quote. A literal quote can still refer to another
 field or entity. Measure accepted factual precision alongside record acceptance.
 Hosted Hugging Face inference retains its separate provider schema.
 
+## Bind literal quotes to canonical field paths
+
+The experimental local quote mode selects from observed short source quotes.
+Each quote is inseparable from its section ID or scalar JSON-LD pointer, and
+evidence field paths must match the trusted business schema. The decoder emits
+the excerpt before its forced locator. This prevents nonexistent quotes,
+mismatched quote/location pairs and paths such as `data.name` when the actual
+business path is `name`.
+
+```sh
+export LOCAL_SOURCE_QUOTE_EVIDENCE=true
+uv run ai-scraper extract https://example.org/ --source-quote-evidence
+uv run ai-scraper replay saved-record.json --url https://example.org/ \
+  --local-inference --source-quote-evidence
+```
+
+Configure the explicit local model and compatible schema-enforcing loopback
+server first. Library callers use
+`LocalExtractor(model="your-local-model-id", source_quote_evidence=True)`.
+This mode is off by default and is mutually exclusive with source-bound
+locator mode. Set only one environment mode to true. A positive CLI mode flag
+overrides the other mode from the environment; the corresponding `--no-...`
+flag disables that mode. CLI support includes extraction, resume, replay,
+probe, crawl and crawl resume. MCP uses the configured environment profile.
+
+The catalog includes whole sections and JSON-LD scalars up to 512 characters,
+literal numeric/boolean label suffixes and saved `href`/`src` attribute values.
+It does not enumerate every possible source substring. Long quotes remain in
+the inference input but are omitted from this selected quote catalog; coverage
+metadata records that limitation. There are at most 512 literal branches and
+a 1 MB serialized grammar, with additional traversal and source-text bounds.
+Unsupported or oversized catalogs fail with `CITATION_CATALOG_UNAVAILABLE`
+before inference; no weaker grammar is substituted.
+
+Policy `source-quotes-excerpt-first-v2` separates inference caches and crawl
+resume contracts. The application still applies the same business, source and
+completeness validators. A literal date can belong to the wrong field, and a
+description can contain a string that is not the requested title. Measure
+wrong accepted facts and intentional negative controls alongside acceptance.
+The optional policy does not qualify a model for production by itself.
+
+For new training experiments, use the [balanced v3 curriculum](../training/README-citation-v3.md)
+and [verified adapter initialization](../training/README.md#initialize-from-a-verified-adapter).
+The v2 instructions below remain for reproduction. V2 confounded JSON-LD
+presence with injection/ambiguity modes; v3 crosses representation and task mode.
+
 ## Reproduce the citation curriculum
 
 Use an Apple Silicon Mac, Python 3.12 and the pinned training dependencies in

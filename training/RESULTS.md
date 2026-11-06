@@ -1,9 +1,118 @@
 # Local model experiment results
 
-These November 2026 experiments use authored synthetic snapshots. They do not
-establish representative web accuracy or a lead over other scrapers. Retrieval
-and deterministic extraction are excluded: each model receives the same saved
-source and extraction contract, with one completion and no repair.
+## Citation-v3 continuation: improvement with a real-page failure
+
+The updated adapter improves our previous weights on two synthetic sets, but
+**fails every eligible real-page task** in this small replay test. It is an
+experimental checkpoint, not a production recommendation or a Firecrawl win.
+The next priority is a matched Firecrawl baseline and reviewed real-page data,
+as described in the [integration and comparison plan](../docs/firecrawl-integration.md).
+
+| Track | Old accepted | New accepted | Correct accepted facts, old / new | Wrong accepted facts, old / new |
+|---|---:|---:|---:|---:|
+| Original synthetic regression | 41/108 | 61/108 | 231 / 407 | 0 / 0 |
+| Fresh synthetic families | 16/108 | 29/108 | 87 / 169 | 2 / 0 |
+| Eligible real-page replays | 0/13 | 0/13 | 0 / 0 | 0 / 0 |
+
+The 108 original cases were inspected in previous work and are explicitly a
+regression set. The 61/108 gain is +20 records (+18.52 percentage points).
+The paired run retained 39 old accepted records,
+gained 22 and lost 2.
+Accepted required recall rose from 82/252
+(32.54%) to
+154/252
+(61.11%).
+Records with evidence rejection fell from 56 to 36; validation codes can overlap.
+All 17 intentional critical-missing controls were rejected in both arms.
+The new raw candidates still contain 21 wrong or unlabeled values; their
+validated accepted business objects contain 407 correct and zero wrong facts.
+
+The newly authored synthetic test uses disjoint DOM/entity/domain/custom-name
+families, with related extraction tasks. New accepted required recall is
+56/207
+(27.05%); raw all-field precision/recall
+is 87.50%/93.33%.
+It retains its timeout and truncated completion in the 108-case denominator.
+These automatically checked, agent-authored labels have no independent human
+review. Neither synthetic score establishes general web accuracy.
+
+### Real-page replay scope and failure
+
+The frozen corpus attempted 18 tasks on 17 distinct public URLs across 12 hosts.
+Five tasks could not reach model evaluation: three authored targets fail the
+current production contract, and two exceed the fixed source-planning budget.
+The eligible 13 tasks contain 31 positive facts, 25 required facts and one
+intentional no-product negative. They are English developer-oriented tasks,
+not a representative sample; no positive product or job task is eligible.
+Labels and source hashes were reviewed before inference, with a second agent
+review but no independent human annotation. Raw sources are not redistributed.
+
+New acceptance is 0/13 eligible and
+0/18 attempted. Its raw correct fact count is
+0/31, with
+9 output-budget failures.
+The remaining failures include schema, completeness and evidence rejection.
+This is broader failure than citation formatting: synthetic training has not
+taught adequate instruction following and extraction on these natural pages.
+The old model's paired eligible acceptance is 0/13;
+accepted required-fact recall across all 18 attempts is
+0/48 old and
+0/48 new.
+Zero wrong accepted facts when nothing is accepted is not an accuracy success.
+
+Public pages were captured on a connected Mac and replayed through inference
+on Studio. The protected Studio VPN egress stayed blocked. This is neither
+live Studio retrieval nor a comparison against Firecrawl Cloud. Retrieval,
+deterministic extraction and bounded repair are outside these model-only scores.
+
+### Selection, training and reproducibility
+
+All six old/new runs use the same original exclusive-reference grammar,
+unchanged business/evidence/completeness validators, greedy decoding, thinking
+disabled, 4,096 output tokens, 48,000 source characters, 45 seconds per request,
+one completion and no repair. Weights, source, case hashes and policy were
+frozen before testing. There was no post-test tuning or concurrent training.
+Read [portable paired metrics](citation-v3-metrics.json) for denominators,
+raw/accepted/required/optional facts, per-schema scores, errors, latency,
+tokens, negative controls, source hashes and paired record changes.
+
+Training continued from the old adapter with a fresh Adam optimizer and no
+optimizer/RNG resume: 1,800 microbatches, 450 updates, learning rate 5e-6,
+rank 8 on the last eight q/v layers, scale 20, dropout zero, batch one,
+accumulation four and a 4,096-token sequence limit. The blend contains 720
+original **training-only** replay rows and 1,080 balanced citation-v3 rows;
+validation is 72 new rows and the fresh test 108 rows. Plaintext, JSON-LD and
+mixed representations cross ordinary/negative modes independently. V2 had
+confounded representation with task mode and was not promoted.
+
+The [fixed public replay recipe](README-citation-v3.md#reproduce-the-measured-training-replay)
+reproduces all six measured JSONL files byte for byte, fingerprint
+`410a7f708a512ca305c1cbd92db55fd1a3938d06a7804484c3932e0b821ee47e`.
+Training including preflight took 1,026.8 seconds with 3.44 GB peak MLX
+allocation. All 1,800 examples fit without truncation. The saved adapter has
+32 finite F32 tensors / 458,752 parameters; original base tensors remain
+unchanged. New adapter SHA256:
+`64e66dab7b04a7c8a3e90af136477856ba57de52023b45ab4dabb985deb49f7b`.
+
+The experimental quote/locator/field-path grammar is available separately but
+was **not selected** for these results. New weights plus that grammar accepted
+44/72 original validation records with no wrong accepted facts, then admitted
+two semantically wrong facts on a second validation set. Literal quote
+occurrence cannot establish full identity or ownership by an array item.
+The selected original grammar had zero wrong accepted facts on both validation
+sets. No production validator was relaxed or target relabeled to raise a score.
+
+The [experimental citation-v3 MLX adapter](https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-citation-v3-mlx-lora)
+has a separate model card and checksums; the earlier checkpoint remains intact.
+The [foreground serving helper](README-serving.md) verifies exact backend
+package identities/import origins, base/adapter tensors and active wrappers.
+The public helper and minimal published adapter configuration passed actual
+Studio startup and tensor checks. All nine probe completions were schema-valid
+and reference-exclusive, but only the listing probe passed the full exact-fact
+and evidence contract (1/9). Local fixtures passed 1,124 tests (38 optional
+skips); Studio fixtures including browser execution passed 1,130 tests (32 skips).
+Ruff checks, distribution audits and the serving security review passed. No API inference fees were incurred; hardware and energy
+costs are unmeasured. The historical experiments below remain for comparison.
 
 ## Fixed baseline and data
 
@@ -169,9 +278,9 @@ Transformers/PEFT and GGUF compatibility are not established.
 
 The held-out result remains below the full accepted-recall release target.
 No API inference fees were incurred; hardware,
-electricity and download costs were not measured. Real-page retrieval,
-representative human-reviewed data, multilingual behavior, unfamiliar custom
-schemas and fused artifacts still require separate evaluation.
+electricity and download costs were not measured. The citation-v3 real-page replay above adds limited coverage; representative
+human-reviewed data, multilingual behavior, unfamiliar custom schemas and fused
+artifacts still require separate evaluation.
 
 Source code is MIT. Model derivatives retain Apache-2.0 attribution. Public
 model packages contain only verified adapter tensors, a minimal MLX loader

@@ -6,10 +6,12 @@ change the scraper's default model or start/stop its inference service. Training
 and synthetic validation have run on Apple Silicon; see [measured results](RESULTS.md).
 Representative real-web accuracy remains unverified.
 
-The frozen [experimental MLX adapter](https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-mlx-lora)
-is distributed separately with its model card, measurements and checksums.
-It is MLX-only and has not qualified for general production use; read the
-[held-out evaluation](RESULTS.md#frozen-held-out-comparison) before using it.
+The latest [experimental citation-v3 MLX adapter](https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-citation-v3-mlx-lora)
+improves synthetic measurements but fails the eligible real-page replay set.
+It is distributed separately with its model card, measurements and checksums.
+Read the [paired results and failures](RESULTS.md) and the
+[experimental serving guide](README-serving.md) before using it. The earlier
+[checkpoint](https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-mlx-lora) remains available.
 
 The baseline is public, ungated `mlx-community/Qwen3-1.7B-4bit`, pinned at
 `3b1b1768f8f8cf8351c712464f906e86c2b8269e`. Its `model.safetensors` is

@@ -46,3 +46,36 @@ retain prior task coverage. Keep validation and test rows out of that blend,
 freeze candidate selection on validation, and reserve held-out outcomes for the
 final comparison. Reused business fact templates and synthetic task families
 still limit generalization claims; this is not human-reviewed web accuracy.
+
+## Reproduce the measured training replay
+
+The fixed replay recipe used for the citation-v3 continuation combines only
+720 original **training** rows with 1,080 balanced v3 training rows. It does not
+consume original validation/test rows as training examples. Generate both
+schema-ordered inputs outside the checkout, then build a new private output:
+
+```sh
+python -m training.dataset --output-dir ../private-data/original-schema \
+  --seed 20261105 --target-order schema \
+  --train-per-schema 80 --valid-per-schema 8 --test-per-schema 12
+python -m training.citation_dataset_v3 --output-dir ../private-data/citation-v3-pool \
+  --seed 2026110701 --train-per-schema 120 --valid-per-schema 20 --test-per-schema 12
+python -m training.citation_replay \
+  --original-dir ../private-data/original-schema \
+  --v3-dir ../private-data/citation-v3-pool \
+  --output-dir ../private-data/citation-v3-replay
+```
+
+The mixer fixes the shuffle seed at `2026110704`. It selects validation indices
+`0, 2, 6, 8, 10, 14, 16, 19` for each v3 schema and copies the 108 fresh test
+rows unchanged. Final counts are **1,800 train / 72 validation / 108 fresh test**.
+The six JSONL files reproduce dataset fingerprint
+`410a7f708a512ca305c1cbd92db55fd1a3938d06a7804484c3932e0b821ee47e`.
+
+This is an intentionally fixed recipe. It requires the measured source dataset
+identities, verifies file hashes/counts, validates every source case and target
+against the unchanged production contracts, checks split-disjoint groups, and
+refuses overlapping or existing output directories. The manifest records
+portable identities rather than local paths. Its source-code hash differs from
+the original private mixer, while all six dataset files remain byte-identical.
+Generating or mixing these files runs no inference, scoring or training.

@@ -859,6 +859,7 @@ def create_pipeline(settings: Settings | None = None) -> Pipeline:
             max_tokens=settings.max_output_tokens,
             max_source_chars=settings.max_source_chars,
             source_bound_evidence=settings.local_source_bound_evidence,
+            source_quote_evidence=settings.local_source_quote_evidence,
         )
     elif settings.hf_provider and settings.hf_model and settings.hf_token:
         from .extraction.huggingface import HuggingFaceExtractor

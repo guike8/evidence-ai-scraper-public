@@ -1,6 +1,6 @@
 [project]
 name = "evidence-ai-scraper"
-version = "0.5.0"
+version = "0.6.0"
 description = "Resumable public webpage retrieval and evidence-checked structured extraction"
 readme = "README.md"
 license = "MIT"
@@ -42,6 +42,7 @@ include = [
   "/src/**", "/tests/**", "/benchmarks/**", "/docs/**", "/deploy/**",
   "/examples/**", "/scripts/**", "/README.md", "/LICENSE", "/SECURITY.md",
   "/training/*.py", "/training/*.md", "/training/requirements.lock",
+  "/training/citation-v3-metrics.json",
   "/pyproject.toml", "/uv.lock", "/.python-version", "/.gitignore", "/.gitattributes",
 ]
 

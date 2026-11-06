@@ -80,6 +80,12 @@ def parser() -> argparse.ArgumentParser:
                 default=None,
                 help="Constrain local citations to locations present in the saved source",
             )
+            command.add_argument(
+                "--source-quote-evidence",
+                action=argparse.BooleanOptionalAction,
+                default=None,
+                help="Experimental local grammar binding literal quotes to saved source locations",
+            )
         if name in {"extract", "resume", "replay", "probe", "crawl", "resume-crawl"}:
             browser = command.add_mutually_exclusive_group()
             browser.add_argument("--browser", action="store_true", help="Retrieve with anonymous Chromium")
@@ -254,8 +260,21 @@ def _settings(args: argparse.Namespace) -> Settings:
         settings = settings.model_copy(update={"retrieval_backend": "browser"})
     elif getattr(args, "render_fallback", False):
         settings = settings.model_copy(update={"retrieval_backend": "auto"})
-    if getattr(args, "source_bound_evidence", None) is not None:
-        settings = settings.model_copy(update={"local_source_bound_evidence": args.source_bound_evidence})
+    bound_flag = getattr(args, "source_bound_evidence", None)
+    quote_flag = getattr(args, "source_quote_evidence", None)
+    if bound_flag is True and quote_flag is True:
+        raise ScraperError("INVALID_REQUEST", "Local citation modes are mutually exclusive")
+    citation_updates = {}
+    if bound_flag is not None:
+        citation_updates["local_source_bound_evidence"] = bound_flag
+        if bound_flag:
+            citation_updates["local_source_quote_evidence"] = False
+    if quote_flag is not None:
+        citation_updates["local_source_quote_evidence"] = quote_flag
+        if quote_flag:
+            citation_updates["local_source_bound_evidence"] = False
+    if citation_updates:
+        settings = settings.model_copy(update=citation_updates)
     if args.state_dir is not None:
         settings = settings.model_copy(update={"state_dir": args.state_dir})
     return settings

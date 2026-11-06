@@ -1,0 +1,1382 @@
+{
+  "candidate_adapter_sha256": "64e66dab7b04a7c8a3e90af136477856ba57de52023b45ab4dabb985deb49f7b",
+  "comparisons": {
+    "fresh": {
+      "accepted_case_gain": 13,
+      "accepted_correct_fact_gain": 82,
+      "accepted_record_overlap": 10,
+      "lost_accepted_records": 6,
+      "new": {
+        "abstention": {
+          "accuracy": 0.8478260869565217,
+          "correct_abstentions": 156,
+          "labeled_absent_paths": 184
+        },
+        "accepted_cases": 29,
+        "accepted_facts": {
+          "correct": 169,
+          "f1": 0.4482758620689655,
+          "missed": 416,
+          "precision": 1.0,
+          "predicted": 169,
+          "present": 585,
+          "recall": 0.28888888888888886,
+          "wrong_or_unlabeled": 0
+        },
+        "actual_case_file_sha256": "e61d0d8d166d2f56196411318dd55d26a136a04476eebbac25f710afefbb4ab4",
+        "adapter_sha256": "64e66dab7b04a7c8a3e90af136477856ba57de52023b45ab4dabb985deb49f7b",
+        "case_count": 108,
+        "cases_hash": "df14acedc81ca169577c1786c208e848a679027fd8fe5254809f829571880191",
+        "diagnostics": {
+          "errors": {
+            "INFERENCE_TIMEOUT": 1,
+            "TRUNCATED_OUTPUT": 1
+          },
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 79,
+            "partial": 6,
+            "success": 23
+          },
+          "token_limit_cases": 1
+        },
+        "driver_sha256": "e10f2aff38bcf6397a57a1eb4a7b593e5568845ee9913af13373aec2a0501627",
+        "elapsed_seconds": 319.48020637499576,
+        "expected_negative_cases": 34,
+        "factually_complete_accepted_records": 29,
+        "falsely_accepted_negative_cases": 0,
+        "hook_sha256": "08742d0be392aed183aefd7620ba12e30ecb510a53db2278d68b9256f8baa8bd",
+        "latency": {
+          "measured_cases": 108,
+          "p50_ms": 1426.5645830018912,
+          "p95_ms": 8134.125832999416,
+          "unknown_cases": 0
+        },
+        "missing_outputs": 0,
+        "optional_facts": {
+          "accepted": {
+            "correct": 113,
+            "f1": 0.46028513238289204,
+            "missed": 265,
+            "precision": 1.0,
+            "predicted": 113,
+            "present": 378,
+            "recall": 0.29894179894179895,
+            "wrong_or_unlabeled": 0
+          },
+          "raw": {
+            "correct": 355,
+            "f1": 0.9366754617414248,
+            "missed": 23,
+            "precision": 0.9342105263157895,
+            "predicted": 380,
+            "present": 378,
+            "recall": 0.9391534391534392,
+            "wrong_or_unlabeled": 25
+          }
+        },
+        "outputs_hash": "8f89ac3c859d5078f93fab761cd2e7e1cd274ad93028e06a4183f292f03cb1a8",
+        "per_schema": {
+          "article_v1": {
+            "accepted_cases": 6,
+            "accepted_correct_facts": 28,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "custom_v1": {
+            "accepted_cases": 1,
+            "accepted_correct_facts": 5,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "event_v1": {
+            "accepted_cases": 4,
+            "accepted_correct_facts": 23,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "job_v1": {
+            "accepted_cases": 6,
+            "accepted_correct_facts": 34,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "listing_v1": {
+            "accepted_cases": 4,
+            "accepted_correct_facts": 18,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "organization_v1": {
+            "accepted_cases": 2,
+            "accepted_correct_facts": 12,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "page_v1": {
+            "accepted_cases": 2,
+            "accepted_correct_facts": 25,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "person_v1": {
+            "accepted_cases": 4,
+            "accepted_correct_facts": 24,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "product_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          }
+        },
+        "provider_schemas_hash": "5a20bdb28c755e8b6e81965b8da93275175748e3ecaa131d29ab34c852b38554",
+        "raw_facts": {
+          "correct": 546,
+          "f1": 0.9032258064516129,
+          "missed": 39,
+          "precision": 0.875,
+          "predicted": 624,
+          "present": 585,
+          "recall": 0.9333333333333333,
+          "wrong_or_unlabeled": 78
+        },
+        "receipt_sha256": "dcdd955ad7eadcd5274f1c6225e81531f68e499e823495e39f40814f3436c9ce",
+        "required_facts": {
+          "accepted": {
+            "correct": 56,
+            "f1": 0.42585551330798477,
+            "missed": 151,
+            "precision": 1.0,
+            "predicted": 56,
+            "present": 207,
+            "recall": 0.27053140096618356,
+            "wrong_or_unlabeled": 0
+          },
+          "raw": {
+            "correct": 191,
+            "f1": 0.8470066518847007,
+            "missed": 16,
+            "precision": 0.7827868852459017,
+            "predicted": 244,
+            "present": 207,
+            "recall": 0.9227053140096618,
+            "wrong_or_unlabeled": 53
+          }
+        },
+        "schema_guard_sha256": "99ba1a751fb84fd9c2ebe6a595d2f3b6b66ac4be5e0566b6c1c89ebf527fe91d",
+        "schema_variant": "exclusive_evidence_v1",
+        "source_evidence": {
+          "authored_reference_matches": 277,
+          "correct_with_source_support": 370,
+          "populated_fields": 624,
+          "source_supported_fields": 374
+        },
+        "source_tree_sha256": "8f0bf2a1cd92d6794062fbeaf5795659aefec66eaea101e0f2affb8c7bdab93e",
+        "tokens": {
+          "input_tokens": {
+            "measured_cases": 107,
+            "total": 124182
+          },
+          "output_tokens": {
+            "measured_cases": 107,
+            "total": 37412
+          }
+        },
+        "valid_json_cases": 106,
+        "valid_schema_cases": 106,
+        "validation_code_record_counts": {
+          "completeness": 28,
+          "evidence": 54,
+          "identity": 3
+        }
+      },
+      "newly_accepted_records": 19,
+      "old": {
+        "abstention": {
+          "accuracy": 0.8532608695652174,
+          "correct_abstentions": 157,
+          "labeled_absent_paths": 184
+        },
+        "accepted_cases": 16,
+        "accepted_facts": {
+          "correct": 87,
+          "f1": 0.258160237388724,
+          "missed": 498,
+          "precision": 0.9775280898876404,
+          "predicted": 89,
+          "present": 585,
+          "recall": 0.14871794871794872,
+          "wrong_or_unlabeled": 2
+        },
+        "actual_case_file_sha256": "e61d0d8d166d2f56196411318dd55d26a136a04476eebbac25f710afefbb4ab4",
+        "adapter_sha256": "a39abab04fec46859f2931f741b377a714cda6d7c2086ac2b29faa3a1d49ca09",
+        "case_count": 108,
+        "cases_hash": "df14acedc81ca169577c1786c208e848a679027fd8fe5254809f829571880191",
+        "diagnostics": {
+          "errors": {
+            "INVALID_SCHEMA": 1,
+            "TRUNCATED_OUTPUT": 1
+          },
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 92,
+            "partial": 2,
+            "success": 14
+          },
+          "token_limit_cases": 1
+        },
+        "driver_sha256": "e10f2aff38bcf6397a57a1eb4a7b593e5568845ee9913af13373aec2a0501627",
+        "elapsed_seconds": 133.05665508400125,
+        "expected_negative_cases": 34,
+        "factually_complete_accepted_records": 14,
+        "falsely_accepted_negative_cases": 0,
+        "hook_sha256": "08742d0be392aed183aefd7620ba12e30ecb510a53db2278d68b9256f8baa8bd",
+        "latency": {
+          "measured_cases": 108,
+          "p50_ms": 1089.2557499973918,
+          "p95_ms": 1995.8717089975835,
+          "unknown_cases": 0
+        },
+        "missing_outputs": 0,
+        "optional_facts": {
+          "accepted": {
+            "correct": 58,
+            "f1": 0.2654462242562929,
+            "missed": 320,
+            "precision": 0.9830508474576272,
+            "predicted": 59,
+            "present": 378,
+            "recall": 0.15343915343915343,
+            "wrong_or_unlabeled": 1
+          },
+          "raw": {
+            "correct": 290,
+            "f1": 0.8430232558139535,
+            "missed": 88,
+            "precision": 0.9354838709677419,
+            "predicted": 310,
+            "present": 378,
+            "recall": 0.7671957671957672,
+            "wrong_or_unlabeled": 20
+          }
+        },
+        "outputs_hash": "48a36ca2fb417a561be5e5053d0b492ba959ad1d97cca1bd5eb87bfa61aa2a30",
+        "per_schema": {
+          "article_v1": {
+            "accepted_cases": 2,
+            "accepted_correct_facts": 9,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "custom_v1": {
+            "accepted_cases": 1,
+            "accepted_correct_facts": 5,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "event_v1": {
+            "accepted_cases": 5,
+            "accepted_correct_facts": 29,
+            "accepted_wrong_facts": 1,
+            "case_count": 12
+          },
+          "job_v1": {
+            "accepted_cases": 4,
+            "accepted_correct_facts": 23,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "listing_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "organization_v1": {
+            "accepted_cases": 1,
+            "accepted_correct_facts": 4,
+            "accepted_wrong_facts": 1,
+            "case_count": 12
+          },
+          "page_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "person_v1": {
+            "accepted_cases": 3,
+            "accepted_correct_facts": 17,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "product_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          }
+        },
+        "provider_schemas_hash": "5a20bdb28c755e8b6e81965b8da93275175748e3ecaa131d29ab34c852b38554",
+        "raw_facts": {
+          "correct": 460,
+          "f1": 0.828082808280828,
+          "missed": 125,
+          "precision": 0.8745247148288974,
+          "predicted": 526,
+          "present": 585,
+          "recall": 0.7863247863247863,
+          "wrong_or_unlabeled": 66
+        },
+        "receipt_sha256": "7a2f4c66fcf7ee0a13593eb0734eb08556b3e5fb96e95bda6a1635610a6c4238",
+        "required_facts": {
+          "accepted": {
+            "correct": 29,
+            "f1": 0.24472573839662448,
+            "missed": 178,
+            "precision": 0.9666666666666667,
+            "predicted": 30,
+            "present": 207,
+            "recall": 0.14009661835748793,
+            "wrong_or_unlabeled": 1
+          },
+          "raw": {
+            "correct": 170,
+            "f1": 0.8037825059101655,
+            "missed": 37,
+            "precision": 0.7870370370370371,
+            "predicted": 216,
+            "present": 207,
+            "recall": 0.821256038647343,
+            "wrong_or_unlabeled": 46
+          }
+        },
+        "schema_guard_sha256": "99ba1a751fb84fd9c2ebe6a595d2f3b6b66ac4be5e0566b6c1c89ebf527fe91d",
+        "schema_variant": "exclusive_evidence_v1",
+        "source_evidence": {
+          "authored_reference_matches": 150,
+          "correct_with_source_support": 217,
+          "populated_fields": 526,
+          "source_supported_fields": 225
+        },
+        "source_tree_sha256": "8f0bf2a1cd92d6794062fbeaf5795659aefec66eaea101e0f2affb8c7bdab93e",
+        "tokens": {
+          "input_tokens": {
+            "measured_cases": 108,
+            "total": 125065
+          },
+          "output_tokens": {
+            "measured_cases": 108,
+            "total": 33370
+          }
+        },
+        "valid_json_cases": 107,
+        "valid_schema_cases": 106,
+        "validation_code_record_counts": {
+          "ambiguous_entity": 1,
+          "completeness": 40,
+          "evidence": 59,
+          "identity": 2
+        }
+      }
+    },
+    "realweb": {
+      "accepted_case_gain": 0,
+      "accepted_correct_fact_gain": 0,
+      "accepted_record_overlap": 0,
+      "lost_accepted_records": 0,
+      "new": {
+        "abstention": {
+          "accuracy": 0.34615384615384615,
+          "correct_abstentions": 18,
+          "labeled_absent_paths": 52
+        },
+        "accepted_cases": 0,
+        "accepted_facts": {
+          "correct": 0,
+          "f1": 0.0,
+          "missed": 31,
+          "precision": null,
+          "predicted": 0,
+          "present": 31,
+          "recall": 0.0,
+          "wrong_or_unlabeled": 0
+        },
+        "actual_case_file_sha256": "57b7745f2236a7e9baf5105fe9166c36b1bd005ebffef41bb2a82a42b97501b3",
+        "adapter_sha256": "64e66dab7b04a7c8a3e90af136477856ba57de52023b45ab4dabb985deb49f7b",
+        "attempted_fact_recall": 0.0,
+        "attempted_record_acceptance": 0.0,
+        "attempted_required_fact_recall": 0.0,
+        "case_count": 13,
+        "cases_hash": "3d856ad9767e5a5a3ac2520cd32796f7c8357ad35000b62c7b91419ab043c878",
+        "diagnostics": {
+          "errors": {
+            "INVALID_SCHEMA": 1,
+            "TRUNCATED_OUTPUT": 9
+          },
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 13
+          },
+          "token_limit_cases": 9
+        },
+        "driver_sha256": "e10f2aff38bcf6397a57a1eb4a7b593e5568845ee9913af13373aec2a0501627",
+        "elapsed_seconds": 195.45524833300442,
+        "expected_negative_cases": 1,
+        "factually_complete_accepted_records": 0,
+        "falsely_accepted_negative_cases": 0,
+        "hook_sha256": "08742d0be392aed183aefd7620ba12e30ecb510a53db2278d68b9256f8baa8bd",
+        "latency": {
+          "measured_cases": 13,
+          "p50_ms": 17957.87483300228,
+          "p95_ms": 27934.47158300114,
+          "unknown_cases": 0
+        },
+        "missing_outputs": 0,
+        "optional_facts": {
+          "accepted": {
+            "correct": 0,
+            "f1": 0.0,
+            "missed": 6,
+            "precision": null,
+            "predicted": 0,
+            "present": 6,
+            "recall": 0.0,
+            "wrong_or_unlabeled": 0
+          },
+          "raw": {
+            "correct": 0,
+            "f1": 0.0,
+            "missed": 6,
+            "precision": 0.0,
+            "predicted": 8,
+            "present": 6,
+            "recall": 0.0,
+            "wrong_or_unlabeled": 8
+          }
+        },
+        "outputs_hash": "1f6249a7ac83be6549be7a4ee2b54f394b676a9c94de6f1dea775bbb92402534",
+        "per_schema": {
+          "article_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 1
+          },
+          "custom_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 2
+          },
+          "event_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 1
+          },
+          "listing_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 2
+          },
+          "organization_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 3
+          },
+          "page_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 1
+          },
+          "person_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 2
+          },
+          "product_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 1
+          }
+        },
+        "provider_schemas_hash": "8f5e29c534eef3549382c178379d4cd2c2731955df215fca56f252aab8f7a00b",
+        "raw_facts": {
+          "correct": 0,
+          "f1": 0.0,
+          "missed": 31,
+          "precision": 0.0,
+          "predicted": 9,
+          "present": 31,
+          "recall": 0.0,
+          "wrong_or_unlabeled": 9
+        },
+        "receipt_sha256": "783b66a0fba3982a896cc9fe9b04842fdb890bc2e8cee552b43a51a35e866737",
+        "required_facts": {
+          "accepted": {
+            "correct": 0,
+            "f1": 0.0,
+            "missed": 25,
+            "precision": null,
+            "predicted": 0,
+            "present": 25,
+            "recall": 0.0,
+            "wrong_or_unlabeled": 0
+          },
+          "raw": {
+            "correct": 0,
+            "f1": 0.0,
+            "missed": 25,
+            "precision": 0.0,
+            "predicted": 1,
+            "present": 25,
+            "recall": 0.0,
+            "wrong_or_unlabeled": 1
+          }
+        },
+        "schema_guard_sha256": "99ba1a751fb84fd9c2ebe6a595d2f3b6b66ac4be5e0566b6c1c89ebf527fe91d",
+        "schema_variant": "exclusive_evidence_v1",
+        "source_evidence": {
+          "authored_reference_matches": 0,
+          "correct_with_source_support": 0,
+          "populated_fields": 9,
+          "source_supported_fields": 0
+        },
+        "source_tree_sha256": "8f0bf2a1cd92d6794062fbeaf5795659aefec66eaea101e0f2affb8c7bdab93e",
+        "tokens": {
+          "input_tokens": {
+            "measured_cases": 13,
+            "total": 98787
+          },
+          "output_tokens": {
+            "measured_cases": 13,
+            "total": 37259
+          }
+        },
+        "valid_json_cases": 4,
+        "valid_schema_cases": 3,
+        "validation_code_record_counts": {
+          "completeness": 3,
+          "evidence": 1
+        }
+      },
+      "newly_accepted_records": 0,
+      "old": {
+        "abstention": {
+          "accuracy": 0.19230769230769232,
+          "correct_abstentions": 10,
+          "labeled_absent_paths": 52
+        },
+        "accepted_cases": 0,
+        "accepted_facts": {
+          "correct": 0,
+          "f1": 0.0,
+          "missed": 31,
+          "precision": null,
+          "predicted": 0,
+          "present": 31,
+          "recall": 0.0,
+          "wrong_or_unlabeled": 0
+        },
+        "actual_case_file_sha256": "57b7745f2236a7e9baf5105fe9166c36b1bd005ebffef41bb2a82a42b97501b3",
+        "adapter_sha256": "a39abab04fec46859f2931f741b377a714cda6d7c2086ac2b29faa3a1d49ca09",
+        "attempted_fact_recall": 0.0,
+        "attempted_record_acceptance": 0.0,
+        "attempted_required_fact_recall": 0.0,
+        "case_count": 13,
+        "cases_hash": "3d856ad9767e5a5a3ac2520cd32796f7c8357ad35000b62c7b91419ab043c878",
+        "diagnostics": {
+          "errors": {
+            "INVALID_SCHEMA": 2,
+            "TRUNCATED_OUTPUT": 7
+          },
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 13
+          },
+          "token_limit_cases": 7
+        },
+        "driver_sha256": "e10f2aff38bcf6397a57a1eb4a7b593e5568845ee9913af13373aec2a0501627",
+        "elapsed_seconds": 154.2237159590004,
+        "expected_negative_cases": 1,
+        "factually_complete_accepted_records": 0,
+        "falsely_accepted_negative_cases": 0,
+        "hook_sha256": "08742d0be392aed183aefd7620ba12e30ecb510a53db2278d68b9256f8baa8bd",
+        "latency": {
+          "measured_cases": 13,
+          "p50_ms": 18125.140334006574,
+          "p95_ms": 22695.05429200217,
+          "unknown_cases": 0
+        },
+        "missing_outputs": 0,
+        "optional_facts": {
+          "accepted": {
+            "correct": 0,
+            "f1": 0.0,
+            "missed": 6,
+            "precision": null,
+            "predicted": 0,
+            "present": 6,
+            "recall": 0.0,
+            "wrong_or_unlabeled": 0
+          },
+          "raw": {
+            "correct": 1,
+            "f1": 0.08333333333333333,
+            "missed": 5,
+            "precision": 0.05555555555555555,
+            "predicted": 18,
+            "present": 6,
+            "recall": 0.16666666666666666,
+            "wrong_or_unlabeled": 17
+          }
+        },
+        "outputs_hash": "12e340f1df5a01f94c3bbad2ba6bc14559a6575809abd4439a81a80974fc813c",
+        "per_schema": {
+          "article_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 1
+          },
+          "custom_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 2
+          },
+          "event_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 1
+          },
+          "listing_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 2
+          },
+          "organization_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 3
+          },
+          "page_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 1
+          },
+          "person_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 2
+          },
+          "product_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 1
+          }
+        },
+        "provider_schemas_hash": "8f5e29c534eef3549382c178379d4cd2c2731955df215fca56f252aab8f7a00b",
+        "raw_facts": {
+          "correct": 2,
+          "f1": 0.0784313725490196,
+          "missed": 29,
+          "precision": 0.1,
+          "predicted": 20,
+          "present": 31,
+          "recall": 0.06451612903225806,
+          "wrong_or_unlabeled": 18
+        },
+        "receipt_sha256": "93afaed19692451c63786f0bf77718b563763ef72700c787a6493a84a28ab339",
+        "required_facts": {
+          "accepted": {
+            "correct": 0,
+            "f1": 0.0,
+            "missed": 25,
+            "precision": null,
+            "predicted": 0,
+            "present": 25,
+            "recall": 0.0,
+            "wrong_or_unlabeled": 0
+          },
+          "raw": {
+            "correct": 1,
+            "f1": 0.07407407407407407,
+            "missed": 24,
+            "precision": 0.5,
+            "predicted": 2,
+            "present": 25,
+            "recall": 0.04,
+            "wrong_or_unlabeled": 1
+          }
+        },
+        "schema_guard_sha256": "99ba1a751fb84fd9c2ebe6a595d2f3b6b66ac4be5e0566b6c1c89ebf527fe91d",
+        "schema_variant": "exclusive_evidence_v1",
+        "source_evidence": {
+          "authored_reference_matches": 1,
+          "correct_with_source_support": 1,
+          "populated_fields": 20,
+          "source_supported_fields": 1
+        },
+        "source_tree_sha256": "8f0bf2a1cd92d6794062fbeaf5795659aefec66eaea101e0f2affb8c7bdab93e",
+        "tokens": {
+          "input_tokens": {
+            "measured_cases": 13,
+            "total": 98787
+          },
+          "output_tokens": {
+            "measured_cases": 13,
+            "total": 29556
+          }
+        },
+        "valid_json_cases": 6,
+        "valid_schema_cases": 4,
+        "validation_code_record_counts": {
+          "completeness": 3,
+          "evidence": 1
+        }
+      }
+    },
+    "regression": {
+      "accepted_case_gain": 20,
+      "accepted_correct_fact_gain": 176,
+      "accepted_record_overlap": 39,
+      "lost_accepted_records": 2,
+      "new": {
+        "abstention": {
+          "accuracy": 0.8495575221238938,
+          "correct_abstentions": 96,
+          "labeled_absent_paths": 113
+        },
+        "accepted_cases": 61,
+        "accepted_facts": {
+          "correct": 407,
+          "f1": 0.7516158818097877,
+          "missed": 269,
+          "precision": 1.0,
+          "predicted": 407,
+          "present": 676,
+          "recall": 0.6020710059171598,
+          "wrong_or_unlabeled": 0
+        },
+        "actual_case_file_sha256": "dbb0af8f231ba1845706e5d1eee6dc3d9e3743d1876776db34dceceae680c2c2",
+        "adapter_sha256": "64e66dab7b04a7c8a3e90af136477856ba57de52023b45ab4dabb985deb49f7b",
+        "case_count": 108,
+        "cases_hash": "7c47300f41473a4c2848d1180f6a66fa4b74e0fbc718ba7e2b23079268af3efd",
+        "diagnostics": {
+          "errors": {},
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 47,
+            "partial": 2,
+            "success": 59
+          },
+          "token_limit_cases": 0
+        },
+        "driver_sha256": "e10f2aff38bcf6397a57a1eb4a7b593e5568845ee9913af13373aec2a0501627",
+        "elapsed_seconds": 495.5518693749982,
+        "expected_negative_cases": 17,
+        "factually_complete_accepted_records": 61,
+        "falsely_accepted_negative_cases": 0,
+        "hook_sha256": "08742d0be392aed183aefd7620ba12e30ecb510a53db2278d68b9256f8baa8bd",
+        "latency": {
+          "measured_cases": 108,
+          "p50_ms": 4333.215042002848,
+          "p95_ms": 8221.704625000712,
+          "unknown_cases": 0
+        },
+        "missing_outputs": 0,
+        "optional_facts": {
+          "accepted": {
+            "correct": 253,
+            "f1": 0.7474150664697193,
+            "missed": 171,
+            "precision": 1.0,
+            "predicted": 253,
+            "present": 424,
+            "recall": 0.5966981132075472,
+            "wrong_or_unlabeled": 0
+          },
+          "raw": {
+            "correct": 421,
+            "f1": 0.9813519813519813,
+            "missed": 3,
+            "precision": 0.9700460829493087,
+            "predicted": 434,
+            "present": 424,
+            "recall": 0.9929245283018868,
+            "wrong_or_unlabeled": 13
+          }
+        },
+        "outputs_hash": "a1f1fca41a870654ac4d0bf0eda9bdf491539634a2cd820086f78146cee8a59c",
+        "per_schema": {
+          "article_v1": {
+            "accepted_cases": 9,
+            "accepted_correct_facts": 44,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "custom_v1": {
+            "accepted_cases": 3,
+            "accepted_correct_facts": 18,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "event_v1": {
+            "accepted_cases": 9,
+            "accepted_correct_facts": 54,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "job_v1": {
+            "accepted_cases": 10,
+            "accepted_correct_facts": 59,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "listing_v1": {
+            "accepted_cases": 10,
+            "accepted_correct_facts": 65,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "organization_v1": {
+            "accepted_cases": 2,
+            "accepted_correct_facts": 12,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "page_v1": {
+            "accepted_cases": 6,
+            "accepted_correct_facts": 78,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "person_v1": {
+            "accepted_cases": 9,
+            "accepted_correct_facts": 53,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "product_v1": {
+            "accepted_cases": 3,
+            "accepted_correct_facts": 24,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          }
+        },
+        "provider_schemas_hash": "2b1e453d8eeba0d5b82f79627652426394ae86f704f752247c54ad4c651a4963",
+        "raw_facts": {
+          "correct": 672,
+          "f1": 0.9817384952520087,
+          "missed": 4,
+          "precision": 0.9696969696969697,
+          "predicted": 693,
+          "present": 676,
+          "recall": 0.9940828402366864,
+          "wrong_or_unlabeled": 21
+        },
+        "receipt_sha256": "02702d487fcfafaec91e73db70131e18abf260ce4e044b68b6138c056034dd80",
+        "required_facts": {
+          "accepted": {
+            "correct": 154,
+            "f1": 0.7586206896551724,
+            "missed": 98,
+            "precision": 1.0,
+            "predicted": 154,
+            "present": 252,
+            "recall": 0.6111111111111112,
+            "wrong_or_unlabeled": 0
+          },
+          "raw": {
+            "correct": 251,
+            "f1": 0.9823874755381604,
+            "missed": 1,
+            "precision": 0.9691119691119691,
+            "predicted": 259,
+            "present": 252,
+            "recall": 0.996031746031746,
+            "wrong_or_unlabeled": 8
+          }
+        },
+        "schema_guard_sha256": "99ba1a751fb84fd9c2ebe6a595d2f3b6b66ac4be5e0566b6c1c89ebf527fe91d",
+        "schema_variant": "exclusive_evidence_v1",
+        "source_evidence": {
+          "authored_reference_matches": 275,
+          "correct_with_source_support": 606,
+          "populated_fields": 693,
+          "source_supported_fields": 607
+        },
+        "source_tree_sha256": "8f0bf2a1cd92d6794062fbeaf5795659aefec66eaea101e0f2affb8c7bdab93e",
+        "tokens": {
+          "input_tokens": {
+            "measured_cases": 108,
+            "total": 131060
+          },
+          "output_tokens": {
+            "measured_cases": 108,
+            "total": 36623
+          }
+        },
+        "valid_json_cases": 108,
+        "valid_schema_cases": 108,
+        "validation_code_record_counts": {
+          "completeness": 12,
+          "evidence": 36,
+          "identity": 3
+        }
+      },
+      "newly_accepted_records": 22,
+      "old": {
+        "abstention": {
+          "accuracy": 0.8407079646017699,
+          "correct_abstentions": 95,
+          "labeled_absent_paths": 113
+        },
+        "accepted_cases": 41,
+        "accepted_facts": {
+          "correct": 231,
+          "f1": 0.5093715545755237,
+          "missed": 445,
+          "precision": 1.0,
+          "predicted": 231,
+          "present": 676,
+          "recall": 0.34171597633136097,
+          "wrong_or_unlabeled": 0
+        },
+        "actual_case_file_sha256": "dbb0af8f231ba1845706e5d1eee6dc3d9e3743d1876776db34dceceae680c2c2",
+        "adapter_sha256": "a39abab04fec46859f2931f741b377a714cda6d7c2086ac2b29faa3a1d49ca09",
+        "case_count": 108,
+        "cases_hash": "7c47300f41473a4c2848d1180f6a66fa4b74e0fbc718ba7e2b23079268af3efd",
+        "diagnostics": {
+          "errors": {
+            "INFERENCE_TIMEOUT": 1
+          },
+          "repetition_heuristic_cases": 0,
+          "statuses": {
+            "failed": 67,
+            "partial": 2,
+            "success": 39
+          },
+          "token_limit_cases": 0
+        },
+        "driver_sha256": "e10f2aff38bcf6397a57a1eb4a7b593e5568845ee9913af13373aec2a0501627",
+        "elapsed_seconds": 538.0574703340026,
+        "expected_negative_cases": 17,
+        "factually_complete_accepted_records": 41,
+        "falsely_accepted_negative_cases": 0,
+        "hook_sha256": "08742d0be392aed183aefd7620ba12e30ecb510a53db2278d68b9256f8baa8bd",
+        "latency": {
+          "measured_cases": 108,
+          "p50_ms": 4434.650249997503,
+          "p95_ms": 8663.754000001063,
+          "unknown_cases": 0
+        },
+        "missing_outputs": 0,
+        "optional_facts": {
+          "accepted": {
+            "correct": 149,
+            "f1": 0.5200698080279232,
+            "missed": 275,
+            "precision": 1.0,
+            "predicted": 149,
+            "present": 424,
+            "recall": 0.35141509433962265,
+            "wrong_or_unlabeled": 0
+          },
+          "raw": {
+            "correct": 409,
+            "f1": 0.964622641509434,
+            "missed": 15,
+            "precision": 0.964622641509434,
+            "predicted": 424,
+            "present": 424,
+            "recall": 0.964622641509434,
+            "wrong_or_unlabeled": 15
+          }
+        },
+        "outputs_hash": "c9ba0d742a61caccdbd49fa905af67d1254560ddaedec274a6be7e0e23b79775",
+        "per_schema": {
+          "article_v1": {
+            "accepted_cases": 9,
+            "accepted_correct_facts": 44,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "custom_v1": {
+            "accepted_cases": 2,
+            "accepted_correct_facts": 12,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "event_v1": {
+            "accepted_cases": 8,
+            "accepted_correct_facts": 48,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "job_v1": {
+            "accepted_cases": 10,
+            "accepted_correct_facts": 59,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "listing_v1": {
+            "accepted_cases": 2,
+            "accepted_correct_facts": 9,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "organization_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "page_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "person_v1": {
+            "accepted_cases": 10,
+            "accepted_correct_facts": 59,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          },
+          "product_v1": {
+            "accepted_cases": 0,
+            "accepted_correct_facts": 0,
+            "accepted_wrong_facts": 0,
+            "case_count": 12
+          }
+        },
+        "provider_schemas_hash": "2b1e453d8eeba0d5b82f79627652426394ae86f704f752247c54ad4c651a4963",
+        "raw_facts": {
+          "correct": 660,
+          "f1": 0.9684519442406456,
+          "missed": 16,
+          "precision": 0.9606986899563319,
+          "predicted": 687,
+          "present": 676,
+          "recall": 0.9763313609467456,
+          "wrong_or_unlabeled": 27
+        },
+        "receipt_sha256": "782d58cf1eb2bcbd7b747c1442e097f306c2b5cbf508d5ee83ddd16dc2f25eff",
+        "required_facts": {
+          "accepted": {
+            "correct": 82,
+            "f1": 0.49101796407185627,
+            "missed": 170,
+            "precision": 1.0,
+            "predicted": 82,
+            "present": 252,
+            "recall": 0.3253968253968254,
+            "wrong_or_unlabeled": 0
+          },
+          "raw": {
+            "correct": 251,
+            "f1": 0.974757281553398,
+            "missed": 1,
+            "precision": 0.9543726235741445,
+            "predicted": 263,
+            "present": 252,
+            "recall": 0.996031746031746,
+            "wrong_or_unlabeled": 12
+          }
+        },
+        "schema_guard_sha256": "99ba1a751fb84fd9c2ebe6a595d2f3b6b66ac4be5e0566b6c1c89ebf527fe91d",
+        "schema_variant": "exclusive_evidence_v1",
+        "source_evidence": {
+          "authored_reference_matches": 265,
+          "correct_with_source_support": 491,
+          "populated_fields": 687,
+          "source_supported_fields": 500
+        },
+        "source_tree_sha256": "8f0bf2a1cd92d6794062fbeaf5795659aefec66eaea101e0f2affb8c7bdab93e",
+        "tokens": {
+          "input_tokens": {
+            "measured_cases": 107,
+            "total": 129431
+          },
+          "output_tokens": {
+            "measured_cases": 107,
+            "total": 37320
+          }
+        },
+        "valid_json_cases": 107,
+        "valid_schema_cases": 107,
+        "validation_code_record_counts": {
+          "completeness": 13,
+          "evidence": 56,
+          "identity": 1
+        }
+      }
+    }
+  },
+  "credentialless_inference": true,
+  "format": "citation-v3-paired-measurements-v1",
+  "frozen_candidate_sha256": "a51931bb77a4eb6a1e5ccf0acc46d49aed13e9a59841bffbc00e4ed1f054ffb2",
+  "inference_policy": {
+    "batch_deadline_seconds": 1800,
+    "enable_thinking": false,
+    "max_source_chars": 48000,
+    "max_tokens": 4096,
+    "repair_attempts": 0,
+    "temperature": 0,
+    "timeout_seconds": 45
+  },
+  "limitations": [
+    "Original 108 cases are a previously inspected regression set, not a fresh held-out test.",
+    "Fresh synthetic cases use disjoint render/entity/domain/custom-name families but related extraction tasks.",
+    "Public website tasks were agent-authored before inference, reviewed by a second agent and not independently human-reviewed.",
+    "Real-web scores use connected-Mac public captures replayed on Studio; Studio VPN egress protection stayed unchanged.",
+    "No positive product or job task reached the eligible real-web model subset.",
+    "Model-only scores exclude deterministic extraction and repair.",
+    "Accepted means production validators returned success or partial, not a general semantic-correctness guarantee."
+  ],
+  "paid_api_calls": 0,
+  "post_test_tuning": false,
+  "previous_adapter_sha256": "a39abab04fec46859f2931f741b377a714cda6d7c2086ac2b29faa3a1d49ca09",
+  "public_serving_verification": {
+    "active_lora_wrappers": 16,
+    "adapter_sha256": "64e66dab7b04a7c8a3e90af136477856ba57de52023b45ab4dabb985deb49f7b",
+    "adapter_tensors_verified": 32,
+    "backend_versions": {
+      "mlx": "0.32.4",
+      "mlx-lm": "0.32.3.dev8+g0d4d3d04f",
+      "omlx": "0.7.3rc1",
+      "xgrammar": "0.2.8"
+    },
+    "base_tensors_verified": 704,
+    "capability_passes": 1,
+    "exclusive_reference_cases": 9,
+    "owned_server_stopped": true,
+    "paid_api_calls": 0,
+    "port_closed": true,
+    "production_service_changed": false,
+    "public_helper_verified": true,
+    "public_minimal_adapter_verified": true,
+    "repair_attempts": 0,
+    "schema_count": 9,
+    "schema_valid_cases": 9,
+    "schemas": [
+      {
+        "elapsed_ms": 3519.1297080018558,
+        "error_code": "CAPABILITY_PROBE_FAILED",
+        "http_status": 200,
+        "passed": false,
+        "reference_forms_valid": true,
+        "schema_hash": "83a842e1ff34ae2cdb1f95176da122297486b9e934c91e8d73126489e5f61965",
+        "schema_id": "article_v1",
+        "usage": {
+          "input_tokens": 811,
+          "latency_ms": 3518.743665998045,
+          "output_tokens": 47
+        },
+        "valid_schema": true,
+        "warning_present": false
+      },
+      {
+        "elapsed_ms": 1274.9911249993602,
+        "error_code": "CAPABILITY_PROBE_FAILED",
+        "http_status": 200,
+        "passed": false,
+        "reference_forms_valid": true,
+        "schema_hash": "bf820d603b6ae74b9f864b94caeb057ed2352449b8385d476ee0cd0421546e80",
+        "schema_id": "custom_v1",
+        "usage": {
+          "input_tokens": 921,
+          "latency_ms": 1274.5359170003212,
+          "output_tokens": 208
+        },
+        "valid_schema": true,
+        "warning_present": false
+      },
+      {
+        "elapsed_ms": 681.1733340000501,
+        "error_code": "CAPABILITY_PROBE_FAILED",
+        "http_status": 200,
+        "passed": false,
+        "reference_forms_valid": true,
+        "schema_hash": "30ffb669b29b2dbb45ade9c222f30b296d24577368ce7a0bab6388766204ef46",
+        "schema_id": "event_v1",
+        "usage": {
+          "input_tokens": 837,
+          "latency_ms": 681.0916660033399,
+          "output_tokens": 47
+        },
+        "valid_schema": true,
+        "warning_present": false
+      },
+      {
+        "elapsed_ms": 1069.9224170020898,
+        "error_code": "CAPABILITY_PROBE_FAILED",
+        "http_status": 200,
+        "passed": false,
+        "reference_forms_valid": true,
+        "schema_hash": "3f65f98e27e319a15d66a40c1a22c686c669b09e2120a59ff9759392f80f4c37",
+        "schema_id": "job_v1",
+        "usage": {
+          "input_tokens": 822,
+          "latency_ms": 1069.832207998843,
+          "output_tokens": 159
+        },
+        "valid_schema": true,
+        "warning_present": false
+      },
+      {
+        "elapsed_ms": 1092.9375420018914,
+        "http_status": 200,
+        "passed": true,
+        "reference_forms_valid": true,
+        "schema_hash": "d9622a3af429d60a03c1b89b5a6b904aee890ff52e24b3c14865d7a0f5032851",
+        "schema_id": "listing_v1",
+        "usage": {
+          "cost_estimate_usd": 0.0,
+          "input_tokens": 821,
+          "latency_ms": 1092.6774159961496,
+          "output_tokens": 166,
+          "pricing_basis": "Local model; excludes electricity and hardware"
+        },
+        "valid_schema": true,
+        "warning_present": false
+      },
+      {
+        "elapsed_ms": 1068.5797089972766,
+        "error_code": "CAPABILITY_PROBE_FAILED",
+        "http_status": 200,
+        "passed": false,
+        "reference_forms_valid": true,
+        "schema_hash": "baf8d880dee71ac8632f6923e9133bcc6890cb3222fd75e81041529306f357df",
+        "schema_id": "organization_v1",
+        "usage": {
+          "input_tokens": 817,
+          "latency_ms": 1068.342374994245,
+          "output_tokens": 161
+        },
+        "valid_schema": true,
+        "warning_present": false
+      },
+      {
+        "elapsed_ms": 715.4009160003625,
+        "error_code": "CAPABILITY_PROBE_FAILED",
+        "http_status": 200,
+        "passed": false,
+        "reference_forms_valid": true,
+        "schema_hash": "794faf37d1c02d1a7b98a54521ffaa6c1961452686a8d8b395d0e8309b7608d8",
+        "schema_id": "page_v1",
+        "usage": {
+          "input_tokens": 966,
+          "latency_ms": 715.296207999927,
+          "output_tokens": 57
+        },
+        "valid_schema": true,
+        "warning_present": false
+      },
+      {
+        "elapsed_ms": 661.1160410029697,
+        "error_code": "CAPABILITY_PROBE_FAILED",
+        "http_status": 200,
+        "passed": false,
+        "reference_forms_valid": true,
+        "schema_hash": "cc7ff4428dfdd93a51922d3c7e713809cacc59e3bbc32a9f0b2bee508647736d",
+        "schema_id": "person_v1",
+        "usage": {
+          "input_tokens": 816,
+          "latency_ms": 661.0359170008451,
+          "output_tokens": 45
+        },
+        "valid_schema": true,
+        "warning_present": false
+      },
+      {
+        "elapsed_ms": 1606.1751659945003,
+        "error_code": "CAPABILITY_PROBE_FAILED",
+        "http_status": 200,
+        "passed": false,
+        "reference_forms_valid": true,
+        "schema_hash": "90493f3199753373f280c5678da81807b283f4dc5007623aa6f6609fd818904d",
+        "schema_id": "product_v1",
+        "usage": {
+          "input_tokens": 700,
+          "latency_ms": 1606.073999995715,
+          "output_tokens": 316
+        },
+        "valid_schema": true,
+        "warning_present": false
+      }
+    ],
+    "serving_packages": {
+      "format": "package-tree-sha256-v1",
+      "import_origins_verified": true,
+      "mlx_lm_source": {
+        "commit_id": "0d4d3d04f8ab7ce4a51e7209e8615755a48ba94d",
+        "url": "https://github.com/ml-explore/mlx-lm"
+      },
+      "packages": {
+        "mlx": {
+          "file_count": 452,
+          "sha256": "fbea43bc9098d1c93c44b7d6ad3eda22e8fd2e13684c6a6cb0c8078c57bf9ce2",
+          "total_bytes": 243821514
+        },
+        "mlx-lm": {
+          "file_count": 209,
+          "sha256": "5d099ec02f044540cb32b8721bec4b0f0fced01168fa17592bc1508882a9f7f4",
+          "total_bytes": 2036132
+        },
+        "omlx": {
+          "file_count": 641,
+          "sha256": "4a2955e933c7f5efe26c8282bd0747a4969477d032d4627729005b6dc0408709",
+          "total_bytes": 105358682
+        },
+        "xgrammar": {
+          "file_count": 40,
+          "sha256": "06be1e91fd5b9260e5c60c6f0c88d67def919d75bded0cab81bfe37f4c2b86e5",
+          "total_bytes": 4059583
+        }
+      }
+    },
+    "source_bound_evidence": false,
+    "source_quote_evidence": false,
+    "training_performed": false,
+    "vpn_changed": false
+  },
+  "realweb_scope": {
+    "annotation_method": "Agent-authored source/DOM review, no model outputs, no independent human review",
+    "attempted_authored_fact_count": 58,
+    "attempted_authored_required_fact_count": 48,
+    "attempted_case_count": 18,
+    "attempted_distinct_url_count": 17,
+    "attempted_end_to_end_denominator": 18,
+    "attempted_hostname_count": 12,
+    "eligible_authored_fact_count": 31,
+    "eligible_authored_required_fact_count": 25,
+    "eligible_model_subset_count": 13,
+    "pre_inference_blocked_count": 5,
+    "pre_inference_blocker_counts": {
+      "gold_contract_validation": 3,
+      "source_planning": 2
+    },
+    "scope": "Explicit limited extraction tasks, not exhaustive website accuracy",
+    "snapshot_redistribution": false
+  },
+  "same_original_exclusive_reference_grammar": true,
+  "selection_before_test": true
+}

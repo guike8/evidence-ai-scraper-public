@@ -26,6 +26,11 @@ from .evidence_schema import (
     source_evidence_catalog,
 )
 from .huggingface import HuggingFaceExtractor, schema_fingerprint
+from .source_quote_schema import (
+    SOURCE_QUOTE_SCHEMA_VERSION,
+    SourceQuoteSchemaError,
+    bind_source_quote_evidence,
+)
 
 if TYPE_CHECKING:
     from ..registry import SchemaSpec
@@ -161,13 +166,25 @@ class LocalExtractor(HuggingFaceExtractor):
         max_source_chars: int = 48000,
         client: httpx.AsyncClient | None = None,
         source_bound_evidence: bool = False,
+        source_quote_evidence: bool = False,
     ):
         if not isinstance(model, str) or not model.strip() or model == "auto":
             raise ValueError("An explicit local model identifier is required")
         if type(source_bound_evidence) is not bool:
             raise ValueError("source_bound_evidence must be a boolean")
+        if type(source_quote_evidence) is not bool:
+            raise ValueError("source_quote_evidence must be a boolean")
+        if source_bound_evidence and source_quote_evidence:
+            raise ValueError("Local citation modes are mutually exclusive")
         self.source_bound_evidence = source_bound_evidence
-        self.citation_policy_version = SOURCE_BOUND_EVIDENCE_VERSION if source_bound_evidence else None
+        self.source_quote_evidence = source_quote_evidence
+        self.citation_policy_version = (
+            SOURCE_QUOTE_SCHEMA_VERSION
+            if source_quote_evidence
+            else SOURCE_BOUND_EVIDENCE_VERSION
+            if source_bound_evidence
+            else None
+        )
         self.last_evidence_catalog: dict[str, Any] | None = None
         self.base_url = validate_local_endpoint(base_url)
         self._local_client = _LocalHTTPClient(self.base_url, api_key, timeout, client)
@@ -204,7 +221,7 @@ class LocalExtractor(HuggingFaceExtractor):
         return scoped
 
     def prepare_source(self, snapshot: SourceSnapshot) -> dict[str, Any] | None:
-        if self.source_bound_evidence:
+        if self.source_bound_evidence or self.source_quote_evidence:
             # Product inference otherwise skips this optional preparation hook.
             # Check catalog limits before orchestration reserves a model call.
             self._source_content(snapshot)
@@ -213,10 +230,23 @@ class LocalExtractor(HuggingFaceExtractor):
 
     def _source_content(self, snapshot: SourceSnapshot) -> str:
         self.last_evidence_catalog = None
-        if self.source_bound_evidence:
+        if self.source_bound_evidence or self.source_quote_evidence:
             self.schema = copy.deepcopy(self._evidence_schema_template)
             self.schema_fingerprint = schema_fingerprint(self.schema)
         source = super()._source_content(snapshot)
+        if self.source_quote_evidence:
+            try:
+                bound = bind_source_quote_evidence(
+                    self._evidence_schema_template, json.loads(source, parse_constant=_constant)
+                )
+            except (SourceQuoteSchemaError, ValueError, TypeError, RecursionError):
+                raise ScraperError(
+                    "CITATION_CATALOG_UNAVAILABLE", "Cannot build the bounded source quote catalog"
+                ) from None
+            self.schema = bound.schema
+            self.schema_fingerprint = schema_fingerprint(self.schema)
+            self.last_evidence_catalog = bound.metadata()
+            return source
         if not self.source_bound_evidence:
             return source
         # Always derive from the immutable request template. A previous source
