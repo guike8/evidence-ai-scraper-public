@@ -42,7 +42,6 @@ from .firecrawl_benchmark import (
     _CODE,
     _SHA,
     BenchmarkDeadline,
-    _cases,
     _read,
     _settings,
     _sha,
@@ -58,6 +57,28 @@ FORMAT = "realpage-two-stage-evaluation-v1"
 FREEZE_FORMAT = "realpage-two-stage-freeze-v1"
 CHECKPOINT_FORMAT = "realpage-two-stage-checkpoint-v1"
 MAX_WALL_SECONDS = 1800
+MAX_CASE_ROW_BYTES = 8_000_000
+
+
+def _cases(path):
+    """Read full saved representations without widening model input limits.
+
+    A case can retain raw HTML and several normalized representations while
+    its model view remains bounded to 8,000 characters. Reuse the regular-file,
+    no-symlink and stable-inode checks; keep this larger row budget isolated
+    from the older benchmark and generic evaluation readers.
+    """
+    body = _read(Path(path), evaluate.MAX_FILE_BYTES)
+    cases = []
+    for line in body.splitlines():
+        if not line.strip():
+            continue
+        require(len(line) <= MAX_CASE_ROW_BYTES and len(cases) < evaluate.MAX_ROWS, "CASE_LIMIT")
+        row = evaluate._parse(line.decode("utf-8"))
+        require(isinstance(row, dict), "INVALID_CASE")
+        cases.append(row)
+    evaluate.validate_cases(cases)
+    return cases, _sha(body)
 
 
 def python_identity():

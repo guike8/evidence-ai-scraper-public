@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
 
@@ -139,6 +140,55 @@ def test_freeze_is_offline_and_contains_only_input_hashes_and_counts(tmp_path, m
     assert "Ledger entry" not in body and "Authored fixture labels" not in body
     assert str(tmp_path) not in body and ENDPOINT not in body
     assert identity["inputs"][cases[0]["case_id"]]
+
+
+def test_large_full_saved_case_is_read_without_widening_the_model_view(tmp_path):
+    original = case()
+    enlarged = copy.deepcopy(original)
+    request = ExtractionRequest.model_validate(enlarged["request"])
+    record = copy.deepcopy(enlarged["snapshot"]["raw_record"])
+    # Saved vendor HTML may retain a large template/comment while the supplied
+    # Markdown and its original evidence sections remain exactly unchanged.
+    record["page_html"] += "<!--" + "x" * 2_050_000 + "-->"
+    snapshot = normalize_record(record, request, retrieval_method="firecrawl_preparation_replay")
+    enlarged["snapshot"] = snapshot.model_dump(mode="json")
+    enlarged["source_hash"] = snapshot.source_hash
+    body = (json.dumps(enlarged, separators=(",", ":")) + "\n").encode()
+    assert evaluate.MAX_ROW_BYTES < len(body) < bench.MAX_CASE_ROW_BYTES
+    path = tmp_path / "large.cases.jsonl"
+    path.write_bytes(body)
+    loaded, sha = bench._cases(path)
+    assert loaded == [enlarged] and sha == hashlib.sha256(body).hexdigest()
+    small = bench.freeze_identity([original], cases_sha256="b" * 64, model=MODEL, base_url=ENDPOINT)
+    large = bench.freeze_identity(loaded, cases_sha256=sha, model=MODEL, base_url=ENDPOINT)
+    first, second = small["inputs"][original["case_id"]], large["inputs"][original["case_id"]]
+    assert second["source_descriptor"]["view_chars"] <= 8000
+    assert second["business_messages_sha256"] == first["business_messages_sha256"]
+    assert second["business_schema_sha256"] == first["business_schema_sha256"]
+
+
+def test_large_case_row_limit_still_fails_before_unbounded_json_parsing(tmp_path):
+    path = tmp_path / "oversized.cases.jsonl"
+    path.write_bytes(b'{"padding":"' + b"x" * bench.MAX_CASE_ROW_BYTES + b'"}\n')
+    with pytest.raises(ValueError, match="CASE_LIMIT"):
+        bench._cases(path)
+
+
+@pytest.mark.parametrize("body", [b'{"case_id":"one","case_id":"two"}\n', b'{"broken":\n', b"[]\n"])
+def test_case_reader_rejects_duplicate_keys_malformed_json_and_nonobjects(tmp_path, body):
+    path = tmp_path / "malformed.cases.jsonl"
+    path.write_bytes(body)
+    with pytest.raises(ValueError):
+        bench._cases(path)
+
+
+def test_case_reader_refuses_symlinks(tmp_path):
+    target = tmp_path / "real.cases.jsonl"
+    target.write_text(json.dumps(case()) + "\n")
+    link = tmp_path / "linked.cases.jsonl"
+    link.symlink_to(target)
+    with pytest.raises(OSError):
+        bench._cases(link)
 
 
 async def test_success_uses_two_actual_stage_requests_and_receipt_contains_no_raw_passages(tmp_path):
