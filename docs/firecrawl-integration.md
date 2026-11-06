@@ -5,6 +5,73 @@ has not demonstrated an accuracy or coverage win over it. Reusing its crawler
 can let this project focus on local structured extraction and independently
 verified evidence instead of duplicating crawling infrastructure.
 
+## Use the self-hosted retrieval adapter
+
+The library, CLI, crawler and configured MCP interface now support backend
+`firecrawl`. It calls a separately operated local service and requests only
+raw HTML, cleaned HTML and Markdown. Semantic extraction remains in the selected
+local model. This does not copy Firecrawl core into this MIT repository.
+
+```sh
+export SCRAPER_RETRIEVAL_BACKEND=firecrawl
+export FIRECRAWL_BASE_URL=http://127.0.0.1:3002
+export FIRECRAWL_RUNTIME_ID=sha256:YOUR_VERIFIED_IMAGE_DIGEST
+export FIRECRAWL_TRUST_SERVICE_EGRESS=true
+export SCRAPER_ALLOWED_DOMAINS=example.org
+uv run ai-scraper extract https://example.org/ --output page.json
+```
+
+Replace the digest placeholder with the 64 lowercase hexadecimal characters
+of the actual service image digest (or use its exact 40-hex source commit).
+The service needs to be running first. No API key or paid-price configuration
+is required by this adapter. For semantic gaps, configure the separate loopback
+model endpoint as described in [model selection](model-selection.md).
+
+The endpoint must be a literal loopback HTTP(S) address with an explicit port
+from 1024 through 65535 and no path, query, fragment or credentials. It sends
+no authorization, cookie or proxy-authorization headers and follows no API
+redirects or vendor-supplied job URLs. It requests no JSON extraction, action,
+webhook, document parser or hosted model format. Country selection and browser
+action plans are unsupported in this mode and fail before submission.
+
+`FIRECRAWL_TRUST_SERVICE_EGRESS` is an explicit service boundary: Firecrawl
+controls its website connections, redirects and subresources. The application
+checks target and reported destination URLs, but cannot pin those remote
+connections. The returned warning and provenance describe the destination as
+service-reported. Configure the service's public-target egress restrictions
+and keep it private. The runtime ID binds caches and resume state; it does not
+attest a running container. Pin and verify the actual deployment separately.
+
+Each URL uses a one-URL asynchronous batch. The adapter persists submission
+state before POST and the batch ID before polling. Restart polls the same ID.
+An ambiguous POST response stays `RECONCILIATION_REQUIRED`; recover its ID with
+`resume JOB_ID --snapshot-id BATCH_UUID` rather than submitting again. Only
+explicit submission rejection, such as 429, permits a bounded retry. A changed
+endpoint, runtime or service-policy identity cannot resume an existing job or
+crawl silently. Existing non-Firecrawl resume identities remain unchanged.
+
+## Verification scope
+
+The new adapter is covered by fixture tests for source mapping, asynchronous
+completion, restart, per-record errors, response limits, rejected destinations,
+credential stripping, reconciliation and cache/resume identity. The actual
+full self-host API was attempted in a separate bounded Docker lab, but could
+not start within its spare memory. No scrape jobs were submitted there.
+
+The official Firecrawl Rust HTML cleaner and Markdown conversion component
+were run successfully on 12 previously saved public pages in a networkless,
+read-only 384 MiB container. This is actual component execution, not a complete
+API, browser or URL-retrieval test. The official API image was pinned by ARM64
+digest `sha256:6157ce24e6867f013704c1cf2b752ec1ea7a3f730da09014b511d1049c8651af`,
+with build SHA `7666c1f9ae8720a6bba271e0f60b6a217f8a5210` (tag 2.11.162).
+That runtime differs from the source-inspection commit below.
+
+A [frozen model/source benchmark](../training/README-firecrawl-baseline.md)
+compares the unmodified model and prior checkpoint over the same saved inputs,
+using the full record and selected Firecrawl Markdown separately. It is our
+extraction contract on a development corpus, with factual and citation scoring.
+It is not a comparison against Firecrawl's native JSON extraction or Spark 2.
+
 ## What the current model result means
 
 The citation-v3 adapter accepted 61/108 cases on the previously inspected
@@ -114,9 +181,9 @@ prompt, source planning and retrieval changes. A small model trained on our
 synthetic templates cannot be called better than Firecrawl's hosted models
 without a matched, disclosed comparison.
 
-This document describes the next integration and evaluation work. It does not
-claim that Firecrawl has been deployed or benchmarked here. It makes no
-Firecrawl Cloud calls, requires no paid provider credentials and changes no
-Studio network settings. The Studio's existing VPN protection remains intact;
+The adapter and preparation-component verification above are completed work;
+full API retrieval, native Firecrawl JSON extraction and the broader comparison
+remain unverified. This work makes no Firecrawl Cloud calls, requires no paid
+provider credentials and changes no Studio network settings. The Studio's existing VPN protection remains intact;
 live retrieval there still requires permitted outbound connectivity. Public
 captures replayed locally must be labeled as replay, not live Studio fetching.

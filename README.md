@@ -47,6 +47,15 @@ Install and start the model server separately. The local adapter targets [oMLX](
 
 `LOCAL_BASE_URL` must be loopback HTTP(S). No cloud inference account or scraping API key is needed for the direct/local profile. Set exact comma-separated target hosts; `SCRAPER_ALLOWED_DOMAINS='*'` permits public hosts more broadly while retaining IP, port and redirect checks.
 
+## Use a self-hosted Firecrawl service
+
+Backend `firecrawl` can retrieve raw HTML, cleaned HTML and Markdown from an
+explicitly trusted loopback service, while our local model and validators handle
+extraction. It requires no API key and persists asynchronous batch jobs across
+restart. See [configuration, egress boundaries and verification scope](docs/firecrawl-integration.md).
+The full API path still needs live verification; fixture tests and actual
+networkless content-preparation component execution are separate measurements.
+
 ## Crawl and render public pages
 
 Start from public seed URLs with explicit page and depth limits:

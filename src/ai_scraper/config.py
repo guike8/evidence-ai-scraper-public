@@ -22,7 +22,10 @@ class Settings(StrictModel):
     hf_provider: str | None = None
     hf_model: str | None = None
     inference_backend: Literal["huggingface", "local"] = "huggingface"
-    retrieval_backend: Literal["brightdata", "direct", "browser", "auto"] = "brightdata"
+    retrieval_backend: Literal["brightdata", "direct", "browser", "auto", "firecrawl"] = "brightdata"
+    firecrawl_base_url: str | None = Field(default=None, max_length=200)
+    firecrawl_runtime_id: str | None = Field(default=None, max_length=80)
+    firecrawl_trust_service_egress: bool = False
     user_agent: str = Field(default="EvidenceAIScraper/0.5", min_length=1, max_length=200)
     browser_timeout_seconds: float = Field(default=45.0, ge=1, le=120)
     browser_max_requests: int = Field(default=80, ge=1, le=500)
@@ -66,6 +69,16 @@ class Settings(StrictModel):
             raise ValueError("Local citation modes are mutually exclusive")
         return self
 
+    @model_validator(mode="after")
+    def firecrawl_service_configuration(self):
+        if self.retrieval_backend == "firecrawl":
+            from .retrieval.firecrawl import firecrawl_cache_options
+
+            firecrawl_cache_options(
+                self.firecrawl_base_url, self.firecrawl_runtime_id, self.firecrawl_trust_service_egress
+            )
+        return self
+
     @classmethod
     def from_env(cls):
         fields = {
@@ -73,6 +86,9 @@ class Settings(StrictModel):
             "BRIGHTDATA_API_KEY": ("brightdata_api_key", SecretStr),
             "HF_TOKEN": ("hf_token", SecretStr),
             "FIRECRAWL_API_KEY": ("firecrawl_api_key", SecretStr),
+            "FIRECRAWL_BASE_URL": ("firecrawl_base_url", str),
+            "FIRECRAWL_RUNTIME_ID": ("firecrawl_runtime_id", str),
+            "FIRECRAWL_TRUST_SERVICE_EGRESS": ("firecrawl_trust_service_egress", _boolean),
             "HF_PROVIDER": ("hf_provider", str),
             "HF_MODEL": ("hf_model", str),
             "SCRAPER_INFERENCE_BACKEND": ("inference_backend", str),

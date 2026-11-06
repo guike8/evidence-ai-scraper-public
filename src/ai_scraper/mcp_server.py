@@ -184,7 +184,7 @@ def build_server(
         delay_seconds: float = 1.0,
         wait_seconds: float = 180.0,
         scope_domains: list[str] | None = None,
-        retrieval_mode: Literal["configured", "direct", "browser", "auto"] = "configured",
+        retrieval_mode: Literal["configured", "direct", "browser", "auto", "firecrawl"] = "configured",
     ) -> dict:
         """Crawl public seed hosts with robots, bounded breadth/depth and durable per-page jobs.
 
@@ -231,7 +231,7 @@ def build_server(
     async def resume_crawl(
         crawl_id: str,
         wait_seconds: float | None = None,
-        retrieval_mode: Literal["configured", "direct", "browser", "auto"] = "configured",
+        retrieval_mode: Literal["configured", "direct", "browser", "auto", "firecrawl"] = "configured",
     ) -> dict:
         """Resume a saved crawl with its original retrieval mode and per-page jobs."""
         return await crawl_execute(

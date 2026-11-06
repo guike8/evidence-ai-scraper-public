@@ -754,6 +754,14 @@ class Crawler:
         value["browser_executable_path_hash"] = (
             hashlib.sha256(executable.encode()).hexdigest() if executable else None
         )
+        if self.settings.retrieval_backend == "firecrawl":
+            from .retrieval.firecrawl import firecrawl_cache_options
+
+            value["firecrawl_retrieval"] = firecrawl_cache_options(
+                self.settings.firecrawl_base_url,
+                self.settings.firecrawl_runtime_id,
+                self.settings.firecrawl_trust_service_egress,
+            )
         return value
 
     async def _scope(self, request):

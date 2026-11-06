@@ -15,6 +15,9 @@ ALLOWED_KEYS = frozenset(
         "BRIGHTDATA_API_KEY",
         "HF_TOKEN",
         "FIRECRAWL_API_KEY",
+        "FIRECRAWL_BASE_URL",
+        "FIRECRAWL_RUNTIME_ID",
+        "FIRECRAWL_TRUST_SERVICE_EGRESS",
         "HF_PROVIDER",
         "HF_MODEL",
         "SCRAPER_INFERENCE_BACKEND",
@@ -114,13 +117,24 @@ def load_environment(root: Path, config: Path, inherited: dict[str, str] | None 
 def status(environment: dict[str, str]) -> dict:
     configured = {key: bool(environment.get(key, "").strip()) for key in sorted(ALLOWED_KEYS)}
     retrieval_backend = environment.get("SCRAPER_RETRIEVAL_BACKEND") or "brightdata"
-    credentialless_retrieval = retrieval_backend in {"direct", "browser", "auto"}
+    credentialless_retrieval = retrieval_backend in {"direct", "browser", "auto", "firecrawl"}
     browser_runtime_required = retrieval_backend in {"browser", "auto"}
     missing_retrieval = [
         key
         for key in (("SCRAPER_ALLOWED_DOMAINS",) if credentialless_retrieval else RETRIEVAL_KEYS)
         if not configured[key]
     ]
+    if retrieval_backend == "firecrawl":
+        missing_retrieval.extend(
+            key
+            for key in ("FIRECRAWL_BASE_URL", "FIRECRAWL_RUNTIME_ID", "FIRECRAWL_TRUST_SERVICE_EGRESS")
+            if not configured[key]
+        )
+        if (
+            environment.get("FIRECRAWL_TRUST_SERVICE_EGRESS", "").strip().lower() not in {"true", "1"}
+            and "FIRECRAWL_TRUST_SERVICE_EGRESS" not in missing_retrieval
+        ):
+            missing_retrieval.append("FIRECRAWL_TRUST_SERVICE_EGRESS")
     local = environment.get("SCRAPER_INFERENCE_BACKEND") == "local"
     missing_inference = [
         key for key in (("LOCAL_MODEL", "LOCAL_BASE_URL") if local else INFERENCE_KEYS) if not configured[key]

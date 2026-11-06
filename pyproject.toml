@@ -1,6 +1,6 @@
 [project]
 name = "evidence-ai-scraper"
-version = "0.6.0"
+version = "0.7.0"
 description = "Resumable public webpage retrieval and evidence-checked structured extraction"
 readme = "README.md"
 license = "MIT"

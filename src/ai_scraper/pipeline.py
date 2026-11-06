@@ -76,7 +76,12 @@ class Pipeline:
         self.renderer = renderer
         self.secrets = tuple(
             x.get_secret_value()
-            for x in (settings.brightdata_api_key, settings.hf_token, settings.local_api_key)
+            for x in (
+                settings.brightdata_api_key,
+                settings.hf_token,
+                settings.local_api_key,
+                settings.firecrawl_api_key,
+            )
             if x
         )
 
@@ -107,7 +112,7 @@ class Pipeline:
 
     def _reserve_retrieval(self, job, *, rendering=False):
         if not self.live or (
-            not rendering and self.settings.retrieval_backend in {"direct", "browser", "auto"}
+            not rendering and self.settings.retrieval_backend in {"direct", "browser", "auto", "firecrawl"}
         ):
             return
         price = self.settings.render_record_usd if rendering else self.settings.retrieval_record_usd
@@ -147,14 +152,18 @@ class Pipeline:
         )
 
     def _cost(self, usage: Usage, method: str | None):
-        if self.settings.retrieval_backend in {"direct", "browser", "auto"} and getattr(
+        if self.settings.retrieval_backend in {"direct", "browser", "auto", "firecrawl"} and getattr(
             self.inference, "provider", None
         ) in {
             None,
             "local",
         }:
             usage.cost_estimate_usd = 0.0
-            usage.pricing_basis = "Public HTTP/browser retrieval and local inference: no vendor charge; excludes hardware, energy and connectivity"
+            usage.pricing_basis = (
+                "Self-hosted Firecrawl and local inference: no external API charge; excludes local infrastructure, energy and connectivity"
+                if self.settings.retrieval_backend == "firecrawl"
+                else "Public HTTP/browser retrieval and local inference: no vendor charge; excludes hardware, energy and connectivity"
+            )
             return
         if not self.live:
             if getattr(self.inference, "provider", None) == "local":
@@ -218,6 +227,10 @@ class Pipeline:
 
     async def resume(self, job_id: str, snapshot_id: str | None = None) -> ExtractionResult:
         job = self.store.get(job_id)
+        if snapshot_id and self.settings.retrieval_backend == "firecrawl":
+            from .retrieval.firecrawl import validate_batch_id
+
+            snapshot_id = validate_batch_id(snapshot_id)
         if snapshot_id and job.get("retrieval_parent_id"):
             parent_id = job["retrieval_parent_id"]
             parent = self.store.get(parent_id)
@@ -403,6 +416,9 @@ class Pipeline:
 
         try:
             await self.policy.check(request.url)
+            validate_retrieval = getattr(self.retriever, "validate_job_identity", None)
+            if validate_retrieval is not None:
+                validate_retrieval(job)
             if (
                 self.live
                 and job.get("render_record")
@@ -840,6 +856,16 @@ def create_pipeline(settings: Settings | None = None) -> Pipeline:
                 if settings.retrieval_backend == "browser"
                 else DirectThenBrowserRetriever(retriever, browser)
             )
+    elif settings.retrieval_backend == "firecrawl":
+        from .retrieval.firecrawl import FirecrawlRetriever
+
+        retriever = FirecrawlRetriever(
+            URLPolicy(settings.allowed_domains),
+            base_url=settings.firecrawl_base_url,
+            runtime_id=settings.firecrawl_runtime_id,
+            trust_service_egress=settings.firecrawl_trust_service_egress,
+            max_response_bytes=settings.max_response_bytes,
+        )
     elif settings.brightdata_api_key:
         from .retrieval.brightdata import BrightDataRetriever
 
