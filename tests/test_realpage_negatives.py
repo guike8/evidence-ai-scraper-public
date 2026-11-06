@@ -308,3 +308,61 @@ def test_visible_list_reindex_uses_original_indices_for_repeated_values():
     ]
     result = _visible_evidence(data, evidence, {"sections": [{"id": "s0002", "text": "Amber"}]})
     assert result == [{"field_path": "names.0", "section_id": "s0002", "excerpt": "Amber"}]
+
+
+def informed_review(values):
+    payload = values[5]
+    payload.update(
+        format="realpage-counterfactual-grounding-v2",
+        model_outputs_consulted=True,
+        annotation_scope="After validation; source-reviewed TRAIN-only annotations",
+        prediction_exposure={
+            "training_predictions_used_as_gold": False,
+            "validation_predictions_seen": True,
+            "holdout_predictions_seen": False,
+        },
+    )
+    values[7]()
+    path = values[4]
+    review = json.loads(path.read_text())
+    review.update(
+        model_outputs_seen=True,
+        review_protocol="validation_informed_train_only_v1",
+        training_predictions_used_as_gold=False,
+        validation_predictions_seen=True,
+        holdout_predictions_seen=False,
+    )
+    path.write_text(json.dumps(review))
+
+
+def test_validation_informed_curriculum_discloses_prior_validation_exposure(reviewed, tmp_path):
+    informed_review(reviewed)
+    manifest = compile_augmented(reviewed, tmp_path / "informed")
+    assert manifest["grounding_negatives"]["validation_informed"] is True
+    assert manifest["grounding_negatives"]["review_protocol"] == "validation_informed_train_only_v1"
+    assert json.loads(reviewed[4].read_text())["model_outputs_seen"] is True
+
+
+@pytest.mark.parametrize(
+    "mutation", ["hidden_exposure", "train_predictions", "holdout_seen", "no_protocol", "file_exposure"]
+)
+def test_informed_review_cannot_hide_training_labels_or_site_test_exposure(reviewed, tmp_path, mutation):
+    informed_review(reviewed)
+    path = reviewed[4]
+    review = json.loads(path.read_text())
+    if mutation == "hidden_exposure":
+        review["model_outputs_seen"] = False
+    elif mutation == "train_predictions":
+        review["training_predictions_used_as_gold"] = True
+    elif mutation == "holdout_seen":
+        review["holdout_predictions_seen"] = True
+    elif mutation == "no_protocol":
+        review.pop("review_protocol")
+    else:
+        payload = reviewed[5]
+        payload["prediction_exposure"]["holdout_predictions_seen"] = True
+        reviewed[3].write_text(json.dumps(payload))
+        review["negatives_sha256"] = file_hash(reviewed[3])
+    path.write_text(json.dumps(review))
+    with pytest.raises(ValueError):
+        compile_augmented(reviewed, tmp_path / "rejected")

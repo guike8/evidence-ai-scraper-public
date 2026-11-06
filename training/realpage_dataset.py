@@ -35,6 +35,19 @@ TARGET_FORMAT = "realpage_grounded_v1"
 MAX_ROW_CHARS = 300_000
 SPLITS = {"train": "train", "validation": "valid", "site_holdout": "test"}
 NEGATIVE_FORMAT = "realpage-v4-counterfactual-grounding-negatives-v1"
+VALIDATION_INFORMED_NEGATIVE_FORMAT = "realpage-counterfactual-grounding-v2"
+VALIDATION_REVIEW_PROTOCOL = "validation_informed_train_only_v1"
+
+
+def approved_negative_exposure(review: dict) -> bool:
+    """Allow disclosed validation-informed authoring; never hide test exposure."""
+    return (
+        review.get("model_outputs_seen") is True
+        and review.get("review_protocol") == VALIDATION_REVIEW_PROTOCOL
+        and review.get("training_predictions_used_as_gold") is False
+        and review.get("validation_predictions_seen") is True
+        and review.get("holdout_predictions_seen") is False
+    )
 
 
 def canonical(value: Any) -> str:
@@ -261,11 +274,12 @@ def _negative_rows(path, review_path, train_cases, labels_sha256, max_source_cha
         isinstance(review, dict)
         and review.get("status") == "approved"
         and review.get("negatives_sha256") == file_hash(path)
-        and review.get("model_outputs_seen") is False
+        and (review.get("model_outputs_seen") is False or approved_negative_exposure(review))
         and review.get("unresolved") == [],
         "Independent negative review must approve these exact bytes",
     )
     require(isinstance(negatives, dict), "Negative curriculum must be an object")
+    informed = negatives.get("format") == VALIDATION_INFORMED_NEGATIVE_FORMAT
     require(
         set(negatives)
         == {
@@ -283,11 +297,12 @@ def _negative_rows(path, review_path, train_cases, labels_sha256, max_source_cha
             "approved_business_labels_modified",
             "raw_redistribution",
             "failures",
-        },
+        }
+        | ({"annotation_scope", "prediction_exposure"} if informed else set()),
         "Unexpected negative curriculum keys",
     )
     require(
-        negatives["format"] == NEGATIVE_FORMAT
+        negatives["format"] in {NEGATIVE_FORMAT, VALIDATION_INFORMED_NEGATIVE_FORMAT}
         and negatives["approved_business_labels_sha256"] == labels_sha256
         and negatives["base_train_cases_sha256"]
         == hashlib.sha256("".join(canonical(case) + "\n" for case in train_cases).encode()).hexdigest()
@@ -296,13 +311,26 @@ def _negative_rows(path, review_path, train_cases, labels_sha256, max_source_cha
         "Negative curriculum labels, train cases or source limit differ",
     )
     require(
-        negatives["model_outputs_consulted"] is False
+        (
+            negatives["model_outputs_consulted"] is True
+            and approved_negative_exposure(review)
+            and negatives.get("prediction_exposure")
+            == {
+                "training_predictions_used_as_gold": False,
+                "validation_predictions_seen": True,
+                "holdout_predictions_seen": False,
+            }
+            and isinstance(negatives.get("annotation_scope"), str)
+            and 0 < len(negatives["annotation_scope"]) <= 1000
+            if informed
+            else negatives["model_outputs_consulted"] is False and review.get("model_outputs_seen") is False
+        )
         and negatives["model_calls"] == 0
         and negatives["training_calls"] == 0
         and negatives["approved_business_labels_modified"] is False
         and negatives["raw_redistribution"] is False
         and negatives["failures"] == [],
-        "Negative curriculum must be reviewed before model calls without modifying business gold",
+        "Negative curriculum must disclose prediction exposure and keep source-authored business gold unchanged",
     )
     examples = negatives["examples"]
     require(isinstance(examples, list) and 1 <= len(examples) <= 1000, "Invalid negative example count")
@@ -476,6 +504,11 @@ def _negative_rows(path, review_path, train_cases, labels_sha256, max_source_cha
             "provenance": "Reviewed TRAIN-only counterfactual grounding supervision; not business gold facts",
             "approved_business_labels_sha256": labels_sha256,
             "base_train_cases_sha256": negatives["base_train_cases_sha256"],
+            **(
+                {"review_protocol": VALIDATION_REVIEW_PROTOCOL, "validation_informed": True}
+                if informed
+                else {}
+            ),
         },
     )
 

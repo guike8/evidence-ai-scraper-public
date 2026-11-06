@@ -330,6 +330,8 @@ def workflow_hashes(target_format: str = DEFAULT_TARGET_FORMAT) -> dict[str, str
     }
     if target_format != DEFAULT_TARGET_FORMAT:
         result["realpage_dataset.py"] = file_hash(directory / "realpage_dataset.py")
+        if (directory / "realpage_augment.py").is_file():
+            result["realpage_augment.py"] = file_hash(directory / "realpage_augment.py")
         for relative in (
             "src/ai_scraper/extraction/grounded.py",
             "src/ai_scraper/extraction/grounded_view.py",
