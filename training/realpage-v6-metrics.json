@@ -1,0 +1,1712 @@
+{
+  "format": "realpage-local-model-public-summary-v2",
+  "scope": "Saved-page local business extraction followed by semantic evidence-ID selection; unchanged application validators. No live retrieval/native Firecrawl comparison.",
+  "dataset": {
+    "total_pages": 48,
+    "site_families": 18,
+    "original_business_requests": 96,
+    "positive_scalar_leaves": 220,
+    "optional_absence_controls": 22,
+    "splits": {
+      "train": {
+        "pages": 32,
+        "families": 10,
+        "requests": 64,
+        "positive_leaves": 146,
+        "null_controls": 14
+      },
+      "valid": {
+        "pages": 8,
+        "families": 4,
+        "requests": 16,
+        "positive_leaves": 36,
+        "null_controls": 4
+      },
+      "test": {
+        "pages": 8,
+        "families": 4,
+        "requests": 16,
+        "positive_leaves": 38,
+        "null_controls": 4
+      }
+    },
+    "review": "Agent-authored and independently source-reviewed by another agent before V4 inference; no external human annotation.",
+    "prior_DEV_pages_retired_to_TRAIN_only": 12,
+    "raw_sources_or_completions_redistributed": false,
+    "manifest_sha256": "6a220d7634cf85410e4e57639d7a7a409ffb87f2e784de9191ad677b99acdee7",
+    "dataset_fingerprint": "83a0444ac32cf955925894f6e023086feda57c9a4b92838f34ce676894aee992",
+    "business_labels_sha256": "cb51f1b924e400a017f5fd577bdf9a3797733949bfbc19860af772067823c7fe",
+    "business_review_sha256": "c452b25c4daeba4783716b951a107c9fa2bc14d42500a398b87c4d1e7a63ac8a",
+    "files_sha256": {
+      "test.cases.jsonl": "945a5ef1961cb9157923b2e46220ce3b0a3dcd203e4b29a1a7ab46e33e6a50f8",
+      "test.jsonl": "7544402feec0b22c6945505eab69fdbe0c27d2dff25a0f965cbcd83c115d0fd4",
+      "train.cases.jsonl": "a75638ac9cd6702cd55a2a5d85dfcf36c8b047b520903a4ed4a6d2fff6453b47",
+      "valid.cases.jsonl": "5ce63a07e05e3af622b2188e2719115ad8d87bb1201891fe5107edf791746fb2",
+      "valid.jsonl": "0e7bc29b42bea9c4c5bd4ba795793b4758da57626393a446bac149bd2fbe113e",
+      "train.jsonl": "ca50d54020e24f3a95d1f7b6395d994a3027cd6e348ca62730ce176a1aa0b412",
+      "derived-business-audit.json": "93494ff40d15a48a69c320b30267621367cba5cac90705f1e95a5b8b29e4b4e1"
+    },
+    "augmentation_module_sha256": "b2f47f9470589aedffc3d0ab3e83b1bcbe8e7b39e28d2a48465aa004115ad204",
+    "v6_training_conversations": 560,
+    "business_conversations": 274,
+    "grounding_conversations": 286,
+    "ordinary_positive_grounding_pairs_including_empty": 274,
+    "empty_positive_grounding_pairs": 32,
+    "original_reviewed_counterfactual_controls": 12,
+    "new_pages_or_business_gold_facts_from_augmentation": 0,
+    "derived_business_rows": {
+      "single_field_projections": 146,
+      "full_schema_aliases": 64
+    },
+    "paired_grounding_added_rows": 210,
+    "v6_curriculum_source": "Original V4 140-row parent, with paired business projections/aliases; not the V5 token-filtered curriculum.",
+    "v5_supplemental_negative_curriculum_used_in_v6": false,
+    "v6_training_budget_row_filter_applied": false,
+    "annotation_exposure": {
+      "validation_predictions_seen_during_design": true,
+      "holdout_predictions_seen_during_design": false,
+      "training_predictions_used_as_gold": false
+    },
+    "input_gold_coverage": {
+      "valid": {
+        "positive_fields": 36,
+        "reviewed_fields_visible": 33
+      },
+      "test": {
+        "positive_fields": 38,
+        "reviewed_fields_visible": 34
+      }
+    }
+  },
+  "training": {
+    "v4": {
+      "receipt_sha256": "6f278e4fc1eaa313e3f1196a5afb651a4e853ad1894b549f6e59f680c3f20ebd",
+      "adapter_sha256": "eee04f033ac1957f3310ee347ebf272f5f1baa96f8674ba0d7cce7698f7c724d",
+      "base_repo": "mlx-community/Qwen3-1.7B-4bit",
+      "base_revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+      "base_file_sha256": {
+        "added_tokens.json": "c0284b582e14987fbd3d5a2cb2bd139084371ed9acbae488829a1c900833c680",
+        "config.json": "507a6701220524eb8b283425bf0856a9ae4f21f4052e563896ddd668994b1dc7",
+        "model.safetensors": "0e86d9677e519323849eac1bc272caae88567a481ff188c431f70be543d9995f",
+        "model.safetensors.index.json": "1e3058d4ba4b04e4de35b74467725cbef90ff022198404218e48f21adc9cfa15",
+        "special_tokens_map.json": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+        "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+        "tokenizer_config.json": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "fresh_adapter": true,
+      "microbatches": 512,
+      "optimizer_updates": 128,
+      "learning_rate": 3e-05,
+      "batch_size": 1,
+      "gradient_accumulation": 4,
+      "last_layers": 8,
+      "lora_rank": 8,
+      "lora_scale": 20.0,
+      "lora_dropout": 0.0,
+      "projections": [
+        "self_attn.q_proj",
+        "self_attn.v_proj"
+      ],
+      "max_sequence_length": 8192,
+      "elapsed_seconds": 191.39261850000184,
+      "peak_memory_bytes": 6062760280,
+      "dataset_fingerprint": "35495c15a5a649d2c6dffc1361a432443229ebbf1caec9f7e393e07247e5f7e3",
+      "data_manifest_sha256": "f89201c1981cd166f230138c7ede2982c0be92ba12095758983ec5d103f23faa",
+      "training_file_sha256": {
+        "train.jsonl": "8f52e8ded142330384dbe342aba90e78cfc25fe7a823ff0991800c5a94d8fd83",
+        "valid.jsonl": "0e7bc29b42bea9c4c5bd4ba795793b4758da57626393a446bac149bd2fbe113e",
+        "test.jsonl": "7544402feec0b22c6945505eab69fdbe0c27d2dff25a0f965cbcd83c115d0fd4"
+      },
+      "workflow_sha256": {
+        "__init__.py": "95832bb6ec5f31d0038f40181a26c2d5b8236f9cf39c1f1ea623cb1f45cf7835",
+        "train.py": "c6784ad6ce1c9a20beaa5d9f0cdcb9e94899b222e6d6a907250f1187081ff5ff",
+        "dataset.py": "83f4b97098cae5e8b11e24fe22a4400ed99768c90416170b3526ab0fa824f04a",
+        "job.py": "12db8790cc309ee501a248730cbc1a9d490a5fe0f78ab6c01492d75ee38171c9",
+        "requirements.lock": "0717467f599f4eabcdbe864757e477e37ae4d7b3140ee479d7528e4655de42a0",
+        "realpage_dataset.py": "afb46a031d0023a3ed40917c4a423df11cc5b4e6509f99556c458b73038acac3",
+        "src/ai_scraper/extraction/grounded.py": "32c66719597ad3e841cc3009050d5ebcbd89b276e988f1c43b203e51715f0de1",
+        "src/ai_scraper/extraction/grounded_view.py": "e59007e84703c357c6f463bfeb5209d7a2d74d1c45c66d58e8150ca47673e778"
+      },
+      "tokenizer_preflight": {
+        "train": {
+          "rows": 140,
+          "full_tokens": {
+            "min": 368,
+            "p50": 1607.0,
+            "p95": 3038,
+            "max": 6102
+          },
+          "truncated_rows": 0,
+          "mask_prompt": true
+        },
+        "valid": {
+          "rows": 32,
+          "full_tokens": {
+            "min": 522,
+            "p50": 1451.0,
+            "p95": 4390,
+            "max": 5362
+          },
+          "truncated_rows": 0,
+          "mask_prompt": true
+        },
+        "test": {
+          "rows": 32,
+          "full_tokens": {
+            "min": 381,
+            "p50": 1515.5,
+            "p95": 3108,
+            "max": 4579
+          },
+          "truncated_rows": 0,
+          "mask_prompt": true
+        }
+      },
+      "python": "3.12.16",
+      "mlx_lm_commit": "736ab0d8c1d0edc79c3d798044fe6904e2fa23be",
+      "versions": {
+        "mlx": "0.32.4",
+        "mlx-lm": "0.32.3.dev17+g736ab0d8c",
+        "transformers": "5.22.1",
+        "tokenizers": "0.23.3",
+        "numpy": "2.5.4"
+      },
+      "hardware": {
+        "system": "Darwin",
+        "machine": "arm64"
+      },
+      "test_loss_or_generation_used_during_training": false
+    },
+    "v5": {
+      "receipt_sha256": "d29998beef667b0ea785bf3d5254118f7b5677658ffec3d658b46e539a3ad78d",
+      "adapter_sha256": "c54d1667a31607323f4b4b4309a6f6e66947bc5423273d398932c525c6cc5b06",
+      "base_repo": "mlx-community/Qwen3-1.7B-4bit",
+      "base_revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+      "base_file_sha256": {
+        "added_tokens.json": "c0284b582e14987fbd3d5a2cb2bd139084371ed9acbae488829a1c900833c680",
+        "config.json": "507a6701220524eb8b283425bf0856a9ae4f21f4052e563896ddd668994b1dc7",
+        "model.safetensors": "0e86d9677e519323849eac1bc272caae88567a481ff188c431f70be543d9995f",
+        "model.safetensors.index.json": "1e3058d4ba4b04e4de35b74467725cbef90ff022198404218e48f21adc9cfa15",
+        "special_tokens_map.json": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+        "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+        "tokenizer_config.json": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "fresh_adapter": true,
+      "microbatches": 1024,
+      "optimizer_updates": 256,
+      "learning_rate": 2e-05,
+      "batch_size": 1,
+      "gradient_accumulation": 4,
+      "last_layers": 8,
+      "lora_rank": 8,
+      "lora_scale": 20.0,
+      "lora_dropout": 0.0,
+      "projections": [
+        "self_attn.q_proj",
+        "self_attn.v_proj"
+      ],
+      "max_sequence_length": 8192,
+      "elapsed_seconds": 386.6436257919995,
+      "peak_memory_bytes": 6035990916,
+      "dataset_fingerprint": "f4d17c54751805132619578c01619b056443ceb17c6a69ffdbc43e50f1577410",
+      "data_manifest_sha256": "ee7d3457d85a6622cf8e6ad746b8ef8e7d7e1f2c93966593ec9b42073ebf4b68",
+      "training_file_sha256": {
+        "train.jsonl": "09cf650c220fbe74c128cb93ddffe00e7ac5e9db50edf806872919a2e0353318",
+        "valid.jsonl": "0e7bc29b42bea9c4c5bd4ba795793b4758da57626393a446bac149bd2fbe113e",
+        "test.jsonl": "7544402feec0b22c6945505eab69fdbe0c27d2dff25a0f965cbcd83c115d0fd4"
+      },
+      "workflow_sha256": {
+        "__init__.py": "95832bb6ec5f31d0038f40181a26c2d5b8236f9cf39c1f1ea623cb1f45cf7835",
+        "train.py": "d7fc9f38c676ff0621d82d7fe54c38656124883666fbf0b7d22148f946559bd3",
+        "dataset.py": "83f4b97098cae5e8b11e24fe22a4400ed99768c90416170b3526ab0fa824f04a",
+        "job.py": "12db8790cc309ee501a248730cbc1a9d490a5fe0f78ab6c01492d75ee38171c9",
+        "requirements.lock": "0717467f599f4eabcdbe864757e477e37ae4d7b3140ee479d7528e4655de42a0",
+        "realpage_dataset.py": "fe7dccc8ca2c0769c85e4eee3372a91a0570c056bf003d17406181f6811dfb50",
+        "realpage_augment.py": "e5ebb877feab8da8381afabfef62fd9ce46a208043e2546f9700084079ed0b8f",
+        "src/ai_scraper/extraction/grounded.py": "32c66719597ad3e841cc3009050d5ebcbd89b276e988f1c43b203e51715f0de1",
+        "src/ai_scraper/extraction/grounded_view.py": "e59007e84703c357c6f463bfeb5209d7a2d74d1c45c66d58e8150ca47673e778"
+      },
+      "tokenizer_preflight": {
+        "train": {
+          "rows": 401,
+          "full_tokens": {
+            "min": 368,
+            "p50": 1685,
+            "p95": 2525,
+            "max": 6102
+          },
+          "truncated_rows": 0,
+          "mask_prompt": true
+        },
+        "valid": {
+          "rows": 32,
+          "full_tokens": {
+            "min": 522,
+            "p50": 1451.0,
+            "p95": 4390,
+            "max": 5362
+          },
+          "truncated_rows": 0,
+          "mask_prompt": true
+        },
+        "test": {
+          "rows": 32,
+          "full_tokens": {
+            "min": 381,
+            "p50": 1515.5,
+            "p95": 3108,
+            "max": 4579
+          },
+          "truncated_rows": 0,
+          "mask_prompt": true
+        }
+      },
+      "python": "3.12.16",
+      "mlx_lm_commit": "736ab0d8c1d0edc79c3d798044fe6904e2fa23be",
+      "versions": {
+        "mlx": "0.32.4",
+        "mlx-lm": "0.32.3.dev17+g736ab0d8c",
+        "transformers": "5.22.1",
+        "tokenizers": "0.23.3",
+        "numpy": "2.5.4"
+      },
+      "hardware": {
+        "system": "Darwin",
+        "machine": "arm64"
+      },
+      "test_loss_or_generation_used_during_training": false
+    },
+    "v6": {
+      "receipt_sha256": "ad2314eb892cd2c4eeb15acc358b1cf655e942192852088da9f634b506672b9d",
+      "adapter_sha256": "99a5c04ed5714b938e7232718870fe80248f839227dfe59902de0abd8085637d",
+      "base_repo": "mlx-community/Qwen3-1.7B-4bit",
+      "base_revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+      "base_file_sha256": {
+        "added_tokens.json": "c0284b582e14987fbd3d5a2cb2bd139084371ed9acbae488829a1c900833c680",
+        "config.json": "507a6701220524eb8b283425bf0856a9ae4f21f4052e563896ddd668994b1dc7",
+        "model.safetensors": "0e86d9677e519323849eac1bc272caae88567a481ff188c431f70be543d9995f",
+        "model.safetensors.index.json": "1e3058d4ba4b04e4de35b74467725cbef90ff022198404218e48f21adc9cfa15",
+        "special_tokens_map.json": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+        "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+        "tokenizer_config.json": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "fresh_adapter": true,
+      "microbatches": 1536,
+      "optimizer_updates": 384,
+      "learning_rate": 1e-05,
+      "batch_size": 1,
+      "gradient_accumulation": 4,
+      "last_layers": 8,
+      "lora_rank": 8,
+      "lora_scale": 20.0,
+      "lora_dropout": 0.0,
+      "projections": [
+        "self_attn.q_proj",
+        "self_attn.v_proj"
+      ],
+      "max_sequence_length": 8192,
+      "elapsed_seconds": 529.753460083004,
+      "peak_memory_bytes": 6062763256,
+      "dataset_fingerprint": "83a0444ac32cf955925894f6e023086feda57c9a4b92838f34ce676894aee992",
+      "data_manifest_sha256": "6a220d7634cf85410e4e57639d7a7a409ffb87f2e784de9191ad677b99acdee7",
+      "training_file_sha256": {
+        "train.jsonl": "ca50d54020e24f3a95d1f7b6395d994a3027cd6e348ca62730ce176a1aa0b412",
+        "valid.jsonl": "0e7bc29b42bea9c4c5bd4ba795793b4758da57626393a446bac149bd2fbe113e",
+        "test.jsonl": "7544402feec0b22c6945505eab69fdbe0c27d2dff25a0f965cbcd83c115d0fd4"
+      },
+      "workflow_sha256": {
+        "__init__.py": "95832bb6ec5f31d0038f40181a26c2d5b8236f9cf39c1f1ea623cb1f45cf7835",
+        "train.py": "d7fc9f38c676ff0621d82d7fe54c38656124883666fbf0b7d22148f946559bd3",
+        "dataset.py": "83f4b97098cae5e8b11e24fe22a4400ed99768c90416170b3526ab0fa824f04a",
+        "job.py": "12db8790cc309ee501a248730cbc1a9d490a5fe0f78ab6c01492d75ee38171c9",
+        "requirements.lock": "0717467f599f4eabcdbe864757e477e37ae4d7b3140ee479d7528e4655de42a0",
+        "realpage_dataset.py": "fe7dccc8ca2c0769c85e4eee3372a91a0570c056bf003d17406181f6811dfb50",
+        "realpage_augment.py": "b2f47f9470589aedffc3d0ab3e83b1bcbe8e7b39e28d2a48465aa004115ad204",
+        "src/ai_scraper/extraction/grounded.py": "32c66719597ad3e841cc3009050d5ebcbd89b276e988f1c43b203e51715f0de1",
+        "src/ai_scraper/extraction/grounded_view.py": "e59007e84703c357c6f463bfeb5209d7a2d74d1c45c66d58e8150ca47673e778"
+      },
+      "tokenizer_preflight": {
+        "train": {
+          "rows": 560,
+          "full_tokens": {
+            "min": 329,
+            "p50": 1536.0,
+            "p95": 2528,
+            "max": 6112
+          },
+          "truncated_rows": 0,
+          "mask_prompt": true
+        },
+        "valid": {
+          "rows": 32,
+          "full_tokens": {
+            "min": 522,
+            "p50": 1451.0,
+            "p95": 4390,
+            "max": 5362
+          },
+          "truncated_rows": 0,
+          "mask_prompt": true
+        },
+        "test": {
+          "rows": 32,
+          "full_tokens": {
+            "min": 381,
+            "p50": 1515.5,
+            "p95": 3108,
+            "max": 4579
+          },
+          "truncated_rows": 0,
+          "mask_prompt": true
+        }
+      },
+      "python": "3.12.16",
+      "mlx_lm_commit": "736ab0d8c1d0edc79c3d798044fe6904e2fa23be",
+      "versions": {
+        "mlx": "0.32.4",
+        "mlx-lm": "0.32.3.dev17+g736ab0d8c",
+        "transformers": "5.22.1",
+        "tokenizers": "0.23.3",
+        "numpy": "2.5.4"
+      },
+      "hardware": {
+        "system": "Darwin",
+        "machine": "arm64"
+      },
+      "test_loss_or_generation_used_during_training": false
+    }
+  },
+  "historical_curricula": {
+    "v4": {
+      "training_rows": 140,
+      "business_rows": 64,
+      "grounding_rows": 76,
+      "counterfactual_controls": 12,
+      "site_test_generated": false
+    },
+    "v5": {
+      "training_rows": 401,
+      "business_rows": 274,
+      "grounding_rows": 127,
+      "reviewed_counterfactuals": 64,
+      "supervised_counterfactual_rows": 63,
+      "site_test_generated": false,
+      "manifest_sha256": "ee7d3457d85a6622cf8e6ad746b8ef8e7d7e1f2c93966593ec9b42073ebf4b68",
+      "token_exclusion": {
+        "failed_preflight_rows": 402,
+        "whole_rows_removed": 1,
+        "excluded_full_tokens": 12579,
+        "max_sequence_length": 8192,
+        "retained_max_tokens": 6102,
+        "excluded_row_sha256": "3ecc071190eb858fff154b495b0e67a186438b5237dbfd94974c6cfbe809a05c",
+        "receipt_sha256": "524e51c99cdd23b44b2de045e46ff7bc9e5e9fcb49cd69978088aac7d1f35cd5",
+        "filter_script_sha256": "5005d00501bf0a2af2c26c6d12b2aa12aa3009e31a06dcab98fbc1d6f7bdaa30",
+        "model_forward_calls": 0,
+        "optimizer_updates": 0,
+        "text_or_catalog_clipped": false,
+        "applies_to_v6": false
+      }
+    }
+  },
+  "paired_build_proof": {
+    "receipt_sha256": "719942d51c937fac751d5725e5a559fa8d270ae5c8a33feacd7710cfa67a1827",
+    "every_business_target_has_one_positive_grounding_pair": true,
+    "validated_training_rows": 560,
+    "nonnull_selection_targets": 412,
+    "null_selection_targets": 12,
+    "builder_model_calls": 0,
+    "builder_training_calls": 0
+  },
+  "sources": {
+    "v4_training_commit": "f16d368b7fda3c9b9b91f5ba573836d92501181e",
+    "v4_training_python_tree_sha256": "db1185951fc46c9367ceec68057dd9db326019705b90379b5c23b3e8b198a887",
+    "v4_evaluation_commit": "fd28d69e48b3e04c2a5e0533fe844112be0a8d07",
+    "v4_evaluation_python_tree_sha256": "b00031280f815143dc39228bd006213897a59d390469cce626e7d2d18623f1f4",
+    "v5_evaluation_python_tree_sha256": "5c81f2a0a00f191d05d6dc951970433603d47eafec8dc9cb44ff79cb1524878c",
+    "v5_evaluation_commit": "b88e295502bb8c33ff3195aced16d1b96c3ce817",
+    "v6_training_and_evaluation_commit": "2912ccc3aad74fd2ff2eba9bae2fcad25e49a3e7",
+    "v6_python_tree_sha256": "b0c269479ae0b4f3789f6bd860e357d4349cef6a46277c677f2bbcc4738e05b6",
+    "v6_preregistered_plan_sha256": "90e350feb9107431defd52ec233e9e810e120e084c0c27ba430fcfeb8990c605",
+    "strict_summary_helper_sha256": "746bf20717be200d49b0959adeb874af87c86a5087c94a74215c5a2f4bad893e",
+    "summary_generator_sha256": "98cf2e18f8ab70369306990beef67e7cd9022cb9f837a57750088f3fc5ffe304",
+    "production_provenance_exception": {
+      "all_application_file_bytes_identical": false,
+      "all_other_application_files_identical": true,
+      "extraction_prompts_source_builders_and_validators_identical": true,
+      "evaluated_inference_budgets_identical": true,
+      "exception": {
+        "file": "ai_scraper/config.py",
+        "change_commit": "4cd4689d5d17542cb0f6e870ead8d1e38d3fb599",
+        "v4_evaluation_commit": "fd28d69e48b3e04c2a5e0533fe844112be0a8d07",
+        "v5_evaluation_commit": "b88e295502bb8c33ff3195aced16d1b96c3ce817",
+        "v6_evaluation_commit": "2912ccc3aad74fd2ff2eba9bae2fcad25e49a3e7",
+        "v4_v5_file_sha256": "4c313bd487d52a6c3757b67f96ba5d09745c355c7e63bdb11d78d9948cc5e411",
+        "v6_file_sha256": "97722ebeea01f8316e19b311d87618cc7695e221ec13e3bfb2ea7beefc0101b7",
+        "change": "Only two environment-variable mappings were added to Settings.from_env; their target fields and defaults already existed.",
+        "added_environment_mappings": {
+          "SCRAPER_MAX_SOURCE_CHARS": "max_source_chars:int",
+          "SCRAPER_MAX_OUTPUT_TOKENS": "max_output_tokens:int"
+        },
+        "evaluated_values_from_all_actual_arm_freezes": {
+          "max_source_chars": 8000,
+          "max_tokens": 768
+        },
+        "allowlist_scope": "Exact old/new config hashes and sole changed application path; no general exemption for config or production changes."
+      },
+      "unchanged_source_builder_sha256": {
+        "training/evaluate.py": "b303d3bcf733e88973f2335d7a09ffc4fde775232288d7961c629f3d8cc1ba17",
+        "training/firecrawl_views.py": "12c1d6e0bc5b3f90ecdea473fdf5c58895b5b18a3f10c51df429eb0e3d3e5eb7",
+        "training/realpage_evaluate.py": "5db2014fa5ba8e70bb55fc71589e6dda5b1e0e579d668e53368cd6a86779fbae"
+      }
+    }
+  },
+  "preparation_component": {
+    "receipt_sha256": "1ffebb128771a3044ccf44f1f1fa49cdbadeefbbdcc6d0c4a3dd098e8258a7d5",
+    "image": "ghcr.io/firecrawl/firecrawl@sha256:6157ce24e6867f013704c1cf2b752ec1ea7a3f730da09014b511d1049c8651af",
+    "build_sha": "7666c1f9ae8720a6bba271e0f60b6a217f8a5210",
+    "inputs": 48,
+    "successes": 48,
+    "warnings": 0,
+    "errors": 0,
+    "network": "none",
+    "full_firecrawl_api_tested": false
+  },
+  "v4_validation_history": {
+    "plan_sha256": "eece14fc4a01265da1717a96fe7c2ed2076d3b99345745cfc53291c06072cf22",
+    "completion_state_sha256": "1d2a9f9d0ed78c4311d05c9d799b397918e3bcdfcbdb2bfc9a7f35cce563328d",
+    "all_arms_frozen_before_inference": true,
+    "owned_server_stopped": true,
+    "post_holdout_tuning_allowed": false,
+    "source_python_tree_sha256": "b00031280f815143dc39228bd006213897a59d390469cce626e7d2d18623f1f4",
+    "backend_versions": {
+      "mlx": "0.32.4",
+      "mlx-lm": "0.32.3.dev8+g0d4d3d04f",
+      "omlx": "0.7.3rc1",
+      "xgrammar": "0.2.8"
+    },
+    "arms": {
+      "valid-base": {
+        "model": {
+          "id": "realpage-qwen3-base",
+          "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+          "weights_sha256": "0e86d9677e519323849eac1bc272caae88567a481ff188c431f70be543d9995f"
+        },
+        "receipt_sha256": "e32f69fa07ce92c063a03f033cc2136b9b239ee8ecace2ff4238cb6b3fd213e6",
+        "freeze_sha256": "1b09684198e9d2a856b97186370be646390e011e6a50e9c25b95e257ff981bd2",
+        "case_file_sha256": "5ce63a07e05e3af622b2188e2719115ad8d87bb1201891fe5107edf791746fb2",
+        "case_count": 16,
+        "raw_business": {
+          "facts": {
+            "present": 36,
+            "predicted": 35,
+            "correct": 28,
+            "wrong_or_unlabeled": 7,
+            "missed": 8,
+            "precision": 0.8,
+            "recall": 0.7777777777777778,
+            "f1": 0.7887323943661971
+          },
+          "json_object_cases": 16,
+          "complete_schema_valid_cases": 16,
+          "exact_business_records": 9,
+          "null_controls": 4,
+          "correct_null_controls": 4
+        },
+        "validated_output": {
+          "accepted_cases": 11,
+          "facts": {
+            "present": 36,
+            "predicted": 26,
+            "correct": 23,
+            "wrong_or_unlabeled": 3,
+            "missed": 13,
+            "precision": 0.8846153846153846,
+            "recall": 0.6388888888888888,
+            "f1": 0.7419354838709677
+          },
+          "wrong_accepted_facts": 3,
+          "accepted_case_count_is_not_factual_record_accuracy": true
+        },
+        "required_fields": {
+          "raw": {
+            "present": 36,
+            "predicted": 35,
+            "correct": 28,
+            "wrong_or_unlabeled": 7,
+            "missed": 8,
+            "precision": 0.8,
+            "recall": 0.7777777777777778,
+            "f1": 0.7887323943661971
+          },
+          "accepted": {
+            "present": 36,
+            "predicted": 26,
+            "correct": 23,
+            "wrong_or_unlabeled": 3,
+            "missed": 13,
+            "precision": 0.8846153846153846,
+            "recall": 0.6388888888888888,
+            "f1": 0.7419354838709677
+          }
+        },
+        "grounding": {
+          "populated_leaves": 35,
+          "catalogued_leaves": 35,
+          "valid_ids": 31,
+          "source_valid_leaves": 31,
+          "invalid_or_missing_ids": 0,
+          "abstentions": 4
+        },
+        "reviewed_anchor_agreement_proxy": 20,
+        "input_gold_coverage": {
+          "positive_fields": 36,
+          "reviewed_fields_visible": 33
+        },
+        "failures": {
+          "missing_outputs": 0,
+          "token_limit_cases": 0,
+          "errors": {
+            "GROUNDING_REJECTED": 5
+          }
+        },
+        "latency": {
+          "measured_cases": 16,
+          "p50_ms": 906.6730420017848,
+          "p95_ms": 4158.426624999265,
+          "unknown_cases": 0
+        },
+        "stage_usage": {
+          "business": {
+            "calls": 16,
+            "input_tokens": 25596,
+            "output_tokens": 487,
+            "failed_calls": 0,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 447.44462500239024,
+              "p95_ms": 3806.8220830027713
+            }
+          },
+          "grounding": {
+            "calls": 16,
+            "input_tokens": 22789,
+            "output_tokens": 463,
+            "failed_calls": 5,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 389.98162500502076,
+              "p95_ms": 1558.4828749997541
+            }
+          }
+        },
+        "actual_model_calls": 32,
+        "unknown_call_count_cases": 0,
+        "tokens": {
+          "input_tokens": {
+            "total": 48385,
+            "measured_cases": 16
+          },
+          "output_tokens": {
+            "total": 950,
+            "measured_cases": 16
+          }
+        },
+        "inference": {
+          "temperature": 0,
+          "max_tokens": 768,
+          "enable_thinking": false,
+          "response_format": "json_schema",
+          "repair_attempts": 0,
+          "max_source_chars": 8000
+        },
+        "loaded_weight_integrity": {
+          "verified": true,
+          "base_tensors": 704,
+          "adapter_tensors": 0,
+          "adapter_wrappers": 0,
+          "proof_sha256": "36cdc850a151f21376bf9bac0d85687e1404e1f01712d1885499c151bfb5e86f"
+        }
+      },
+      "valid-candidate": {
+        "model": {
+          "id": "realpage-qwen3-v4",
+          "revision": "realpage-v4-final-512",
+          "weights_sha256": "eee04f033ac1957f3310ee347ebf272f5f1baa96f8674ba0d7cce7698f7c724d"
+        },
+        "receipt_sha256": "5332993c20de3e4b5e8d7d70be917e6c848cfab4e7d461f029ede124ced5e9c6",
+        "freeze_sha256": "8e9a2ac7fcca2f9cd0b0be563d0585698c123bf599b7275a4f2d2053ff7c7c5a",
+        "case_file_sha256": "5ce63a07e05e3af622b2188e2719115ad8d87bb1201891fe5107edf791746fb2",
+        "case_count": 16,
+        "raw_business": {
+          "facts": {
+            "present": 36,
+            "predicted": 36,
+            "correct": 27,
+            "wrong_or_unlabeled": 9,
+            "missed": 9,
+            "precision": 0.75,
+            "recall": 0.75,
+            "f1": 0.75
+          },
+          "json_object_cases": 16,
+          "complete_schema_valid_cases": 16,
+          "exact_business_records": 9,
+          "null_controls": 4,
+          "correct_null_controls": 4
+        },
+        "validated_output": {
+          "accepted_cases": 14,
+          "facts": {
+            "present": 36,
+            "predicted": 32,
+            "correct": 26,
+            "wrong_or_unlabeled": 6,
+            "missed": 10,
+            "precision": 0.8125,
+            "recall": 0.7222222222222222,
+            "f1": 0.7647058823529411
+          },
+          "wrong_accepted_facts": 6,
+          "accepted_case_count_is_not_factual_record_accuracy": true
+        },
+        "required_fields": {
+          "raw": {
+            "present": 36,
+            "predicted": 36,
+            "correct": 27,
+            "wrong_or_unlabeled": 9,
+            "missed": 9,
+            "precision": 0.75,
+            "recall": 0.75,
+            "f1": 0.75
+          },
+          "accepted": {
+            "present": 36,
+            "predicted": 32,
+            "correct": 26,
+            "wrong_or_unlabeled": 6,
+            "missed": 10,
+            "precision": 0.8125,
+            "recall": 0.7222222222222222,
+            "f1": 0.7647058823529411
+          }
+        },
+        "grounding": {
+          "populated_leaves": 36,
+          "catalogued_leaves": 36,
+          "valid_ids": 33,
+          "source_valid_leaves": 33,
+          "invalid_or_missing_ids": 0,
+          "abstentions": 3
+        },
+        "reviewed_anchor_agreement_proxy": 21,
+        "input_gold_coverage": {
+          "positive_fields": 36,
+          "reviewed_fields_visible": 33
+        },
+        "failures": {
+          "missing_outputs": 0,
+          "token_limit_cases": 0,
+          "errors": {
+            "GROUNDING_REJECTED": 2
+          }
+        },
+        "latency": {
+          "measured_cases": 16,
+          "p50_ms": 1982.6493750006193,
+          "p95_ms": 6769.047124995268,
+          "unknown_cases": 0
+        },
+        "stage_usage": {
+          "business": {
+            "calls": 16,
+            "input_tokens": 25596,
+            "output_tokens": 369,
+            "failed_calls": 0,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 944.9829160002992,
+              "p95_ms": 5090.35720799875
+            }
+          },
+          "grounding": {
+            "calls": 16,
+            "input_tokens": 23071,
+            "output_tokens": 410,
+            "failed_calls": 2,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 930.6015839974862,
+              "p95_ms": 1859.8076670023147
+            }
+          }
+        },
+        "actual_model_calls": 32,
+        "unknown_call_count_cases": 0,
+        "tokens": {
+          "input_tokens": {
+            "total": 48667,
+            "measured_cases": 16
+          },
+          "output_tokens": {
+            "total": 779,
+            "measured_cases": 16
+          }
+        },
+        "inference": {
+          "temperature": 0,
+          "max_tokens": 768,
+          "enable_thinking": false,
+          "response_format": "json_schema",
+          "repair_attempts": 0,
+          "max_source_chars": 8000
+        },
+        "loaded_weight_integrity": {
+          "verified": true,
+          "base_tensors": 704,
+          "adapter_tensors": 32,
+          "adapter_wrappers": 16,
+          "proof_sha256": "802cc69bbce8459323b62eb46999c7cef2360116eb3e179c06085a009ce96f15"
+        }
+      }
+    }
+  },
+  "v5_validation_history": {
+    "plan_sha256": "5798c8a228235d23b2d497e394e72d1862e5f967fd9b6f51f31b49122bd3d17e",
+    "completion_state_sha256": "44732588e5de423208b4f7da05f3a2802c44b73ae32b887b40f007d7cc30502e",
+    "all_arms_frozen_before_inference": true,
+    "owned_server_stopped": true,
+    "post_holdout_tuning_allowed": false,
+    "source_python_tree_sha256": "5c81f2a0a00f191d05d6dc951970433603d47eafec8dc9cb44ff79cb1524878c",
+    "backend_versions": {
+      "mlx": "0.32.4",
+      "mlx-lm": "0.32.3.dev8+g0d4d3d04f",
+      "omlx": "0.7.3rc1",
+      "xgrammar": "0.2.8"
+    },
+    "arms": {
+      "valid-base": {
+        "model": {
+          "id": "realpage-qwen3-base",
+          "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+          "weights_sha256": "0e86d9677e519323849eac1bc272caae88567a481ff188c431f70be543d9995f"
+        },
+        "receipt_sha256": "20e7d0a1e496552920ce2c986d369e3c53f675e9610bc39672e972972f46710f",
+        "freeze_sha256": "981e3110e5c2acd143e54e3fcbd9defbd084273bb947771ad169e4bb63776acb",
+        "case_file_sha256": "5ce63a07e05e3af622b2188e2719115ad8d87bb1201891fe5107edf791746fb2",
+        "case_count": 16,
+        "raw_business": {
+          "facts": {
+            "present": 36,
+            "predicted": 35,
+            "correct": 28,
+            "wrong_or_unlabeled": 7,
+            "missed": 8,
+            "precision": 0.8,
+            "recall": 0.7777777777777778,
+            "f1": 0.7887323943661971
+          },
+          "json_object_cases": 16,
+          "complete_schema_valid_cases": 16,
+          "exact_business_records": 9,
+          "null_controls": 4,
+          "correct_null_controls": 4
+        },
+        "validated_output": {
+          "accepted_cases": 11,
+          "facts": {
+            "present": 36,
+            "predicted": 26,
+            "correct": 23,
+            "wrong_or_unlabeled": 3,
+            "missed": 13,
+            "precision": 0.8846153846153846,
+            "recall": 0.6388888888888888,
+            "f1": 0.7419354838709677
+          },
+          "wrong_accepted_facts": 3,
+          "accepted_case_count_is_not_factual_record_accuracy": true
+        },
+        "required_fields": {
+          "raw": {
+            "present": 36,
+            "predicted": 35,
+            "correct": 28,
+            "wrong_or_unlabeled": 7,
+            "missed": 8,
+            "precision": 0.8,
+            "recall": 0.7777777777777778,
+            "f1": 0.7887323943661971
+          },
+          "accepted": {
+            "present": 36,
+            "predicted": 26,
+            "correct": 23,
+            "wrong_or_unlabeled": 3,
+            "missed": 13,
+            "precision": 0.8846153846153846,
+            "recall": 0.6388888888888888,
+            "f1": 0.7419354838709677
+          }
+        },
+        "grounding": {
+          "populated_leaves": 35,
+          "catalogued_leaves": 35,
+          "valid_ids": 31,
+          "source_valid_leaves": 31,
+          "invalid_or_missing_ids": 0,
+          "abstentions": 4
+        },
+        "reviewed_anchor_agreement_proxy": 20,
+        "input_gold_coverage": {
+          "positive_fields": 36,
+          "reviewed_fields_visible": 33
+        },
+        "failures": {
+          "missing_outputs": 0,
+          "token_limit_cases": 0,
+          "errors": {
+            "GROUNDING_REJECTED": 5
+          }
+        },
+        "latency": {
+          "measured_cases": 16,
+          "p50_ms": 950.2369999972871,
+          "p95_ms": 4035.3411249961937,
+          "unknown_cases": 0
+        },
+        "stage_usage": {
+          "business": {
+            "calls": 16,
+            "input_tokens": 25596,
+            "output_tokens": 487,
+            "failed_calls": 0,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 478.8193750064238,
+              "p95_ms": 3638.569083996117
+            }
+          },
+          "grounding": {
+            "calls": 16,
+            "input_tokens": 22789,
+            "output_tokens": 463,
+            "failed_calls": 5,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 429.75433399988106,
+              "p95_ms": 1788.8712500061956
+            }
+          }
+        },
+        "actual_model_calls": 32,
+        "unknown_call_count_cases": 0,
+        "tokens": {
+          "input_tokens": {
+            "total": 48385,
+            "measured_cases": 16
+          },
+          "output_tokens": {
+            "total": 950,
+            "measured_cases": 16
+          }
+        },
+        "inference": {
+          "temperature": 0,
+          "max_tokens": 768,
+          "enable_thinking": false,
+          "response_format": "json_schema",
+          "repair_attempts": 0,
+          "max_source_chars": 8000
+        },
+        "loaded_weight_integrity": {
+          "verified": true,
+          "base_tensors": 704,
+          "adapter_tensors": 0,
+          "adapter_wrappers": 0,
+          "proof_sha256": "36cdc850a151f21376bf9bac0d85687e1404e1f01712d1885499c151bfb5e86f"
+        }
+      },
+      "valid-candidate": {
+        "model": {
+          "id": "realpage-qwen3-v5",
+          "revision": "realpage-v5-final-1024",
+          "weights_sha256": "c54d1667a31607323f4b4b4309a6f6e66947bc5423273d398932c525c6cc5b06"
+        },
+        "receipt_sha256": "9b6d4455681cc4efaac78e3e8e692c2d986cbd529a12a14585608422579e5bd7",
+        "freeze_sha256": "b487c83afb77d6c2a447b0d910790f9b22a712953b1884273d315c5430e78c65",
+        "case_file_sha256": "5ce63a07e05e3af622b2188e2719115ad8d87bb1201891fe5107edf791746fb2",
+        "case_count": 16,
+        "raw_business": {
+          "facts": {
+            "present": 36,
+            "predicted": 36,
+            "correct": 28,
+            "wrong_or_unlabeled": 8,
+            "missed": 8,
+            "precision": 0.7777777777777778,
+            "recall": 0.7777777777777778,
+            "f1": 0.7777777777777778
+          },
+          "json_object_cases": 16,
+          "complete_schema_valid_cases": 16,
+          "exact_business_records": 10,
+          "null_controls": 4,
+          "correct_null_controls": 4
+        },
+        "validated_output": {
+          "accepted_cases": 3,
+          "facts": {
+            "present": 36,
+            "predicted": 7,
+            "correct": 5,
+            "wrong_or_unlabeled": 2,
+            "missed": 31,
+            "precision": 0.7142857142857143,
+            "recall": 0.1388888888888889,
+            "f1": 0.23255813953488372
+          },
+          "wrong_accepted_facts": 2,
+          "accepted_case_count_is_not_factual_record_accuracy": true
+        },
+        "required_fields": {
+          "raw": {
+            "present": 36,
+            "predicted": 36,
+            "correct": 28,
+            "wrong_or_unlabeled": 8,
+            "missed": 8,
+            "precision": 0.7777777777777778,
+            "recall": 0.7777777777777778,
+            "f1": 0.7777777777777778
+          },
+          "accepted": {
+            "present": 36,
+            "predicted": 7,
+            "correct": 5,
+            "wrong_or_unlabeled": 2,
+            "missed": 31,
+            "precision": 0.7142857142857143,
+            "recall": 0.1388888888888889,
+            "f1": 0.23255813953488372
+          }
+        },
+        "grounding": {
+          "populated_leaves": 36,
+          "catalogued_leaves": 36,
+          "valid_ids": 22,
+          "source_valid_leaves": 22,
+          "invalid_or_missing_ids": 0,
+          "abstentions": 14
+        },
+        "reviewed_anchor_agreement_proxy": 14,
+        "input_gold_coverage": {
+          "positive_fields": 36,
+          "reviewed_fields_visible": 33
+        },
+        "failures": {
+          "missing_outputs": 0,
+          "token_limit_cases": 0,
+          "errors": {
+            "GROUNDING_REJECTED": 13
+          }
+        },
+        "latency": {
+          "measured_cases": 16,
+          "p50_ms": 1860.3835000030813,
+          "p95_ms": 4926.462041999912,
+          "unknown_cases": 0
+        },
+        "stage_usage": {
+          "business": {
+            "calls": 16,
+            "input_tokens": 25596,
+            "output_tokens": 370,
+            "failed_calls": 0,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 931.3911669960362,
+              "p95_ms": 4099.7581249976065
+            }
+          },
+          "grounding": {
+            "calls": 16,
+            "input_tokens": 23157,
+            "output_tokens": 366,
+            "failed_calls": 13,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 919.2467500033672,
+              "p95_ms": 1789.0492910009925
+            }
+          }
+        },
+        "actual_model_calls": 32,
+        "unknown_call_count_cases": 0,
+        "tokens": {
+          "input_tokens": {
+            "total": 48753,
+            "measured_cases": 16
+          },
+          "output_tokens": {
+            "total": 736,
+            "measured_cases": 16
+          }
+        },
+        "inference": {
+          "temperature": 0,
+          "max_tokens": 768,
+          "enable_thinking": false,
+          "response_format": "json_schema",
+          "repair_attempts": 0,
+          "max_source_chars": 8000
+        },
+        "loaded_weight_integrity": {
+          "verified": true,
+          "base_tensors": 704,
+          "adapter_tensors": 32,
+          "adapter_wrappers": 16,
+          "proof_sha256": "00f22c8738cf0094bf82e518ed9b5d4ecddac8b6c91bccefe7db68c54311963b"
+        }
+      }
+    }
+  },
+  "v6_final_comparison": {
+    "plan_sha256": "f57ab6e0cb25fe4ad9d64d25103570b6b7224be5f848d44f476cb1f65a270c6a",
+    "completion_state_sha256": "23b38df1635abe0efdcc770029b16eb91b8de3e8528591c46b128fc89309f1c7",
+    "all_arms_frozen_before_inference": true,
+    "owned_server_stopped": true,
+    "post_holdout_tuning_allowed": false,
+    "source_python_tree_sha256": "b0c269479ae0b4f3789f6bd860e357d4349cef6a46277c677f2bbcc4738e05b6",
+    "backend_versions": {
+      "mlx": "0.32.4",
+      "mlx-lm": "0.32.3.dev8+g0d4d3d04f",
+      "omlx": "0.7.3rc1",
+      "xgrammar": "0.2.8"
+    },
+    "arms": {
+      "test-base": {
+        "model": {
+          "id": "realpage-qwen3-base",
+          "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+          "weights_sha256": "0e86d9677e519323849eac1bc272caae88567a481ff188c431f70be543d9995f"
+        },
+        "receipt_sha256": "c2c9b00db449e0c81fc3edc74461a7f407831069103b5b3c06bb95603265d7ef",
+        "freeze_sha256": "5ba82ffa41fde64407b2874024301b3a23d0ce1d8ae808610769d48cbd929995",
+        "case_file_sha256": "945a5ef1961cb9157923b2e46220ce3b0a3dcd203e4b29a1a7ab46e33e6a50f8",
+        "case_count": 16,
+        "raw_business": {
+          "facts": {
+            "present": 38,
+            "predicted": 40,
+            "correct": 27,
+            "wrong_or_unlabeled": 13,
+            "missed": 11,
+            "precision": 0.675,
+            "recall": 0.7105263157894737,
+            "f1": 0.6923076923076923
+          },
+          "json_object_cases": 16,
+          "complete_schema_valid_cases": 16,
+          "exact_business_records": 9,
+          "null_controls": 4,
+          "correct_null_controls": 4
+        },
+        "validated_output": {
+          "accepted_cases": 14,
+          "facts": {
+            "present": 38,
+            "predicted": 36,
+            "correct": 27,
+            "wrong_or_unlabeled": 9,
+            "missed": 11,
+            "precision": 0.75,
+            "recall": 0.7105263157894737,
+            "f1": 0.7297297297297297
+          },
+          "wrong_accepted_facts": 9,
+          "accepted_case_count_is_not_factual_record_accuracy": true
+        },
+        "required_fields": {
+          "raw": {
+            "present": 38,
+            "predicted": 40,
+            "correct": 27,
+            "wrong_or_unlabeled": 13,
+            "missed": 11,
+            "precision": 0.675,
+            "recall": 0.7105263157894737,
+            "f1": 0.6923076923076923
+          },
+          "accepted": {
+            "present": 38,
+            "predicted": 36,
+            "correct": 27,
+            "wrong_or_unlabeled": 9,
+            "missed": 11,
+            "precision": 0.75,
+            "recall": 0.7105263157894737,
+            "f1": 0.7297297297297297
+          }
+        },
+        "grounding": {
+          "populated_leaves": 40,
+          "catalogued_leaves": 40,
+          "valid_ids": 37,
+          "source_valid_leaves": 37,
+          "invalid_or_missing_ids": 0,
+          "abstentions": 3
+        },
+        "reviewed_anchor_agreement_proxy": 23,
+        "input_gold_coverage": {
+          "positive_fields": 38,
+          "reviewed_fields_visible": 34
+        },
+        "failures": {
+          "missing_outputs": 0,
+          "token_limit_cases": 0,
+          "errors": {
+            "GROUNDING_REJECTED": 2
+          }
+        },
+        "latency": {
+          "measured_cases": 16,
+          "p50_ms": 896.9308750019991,
+          "p95_ms": 3911.335374999908,
+          "unknown_cases": 0
+        },
+        "stage_usage": {
+          "business": {
+            "calls": 16,
+            "input_tokens": 26462,
+            "output_tokens": 594,
+            "failed_calls": 0,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 523.8807080022525,
+              "p95_ms": 3534.2670419995557
+            }
+          },
+          "grounding": {
+            "calls": 16,
+            "input_tokens": 24922,
+            "output_tokens": 558,
+            "failed_calls": 2,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 371.5641250018962,
+              "p95_ms": 1490.8733330012183
+            }
+          }
+        },
+        "actual_model_calls": 32,
+        "unknown_call_count_cases": 0,
+        "tokens": {
+          "input_tokens": {
+            "total": 51384,
+            "measured_cases": 16
+          },
+          "output_tokens": {
+            "total": 1152,
+            "measured_cases": 16
+          }
+        },
+        "inference": {
+          "temperature": 0,
+          "max_tokens": 768,
+          "enable_thinking": false,
+          "response_format": "json_schema",
+          "repair_attempts": 0,
+          "max_source_chars": 8000
+        },
+        "loaded_weight_integrity": {
+          "verified": true,
+          "base_tensors": 704,
+          "adapter_tensors": 0,
+          "adapter_wrappers": 0,
+          "proof_sha256": "36cdc850a151f21376bf9bac0d85687e1404e1f01712d1885499c151bfb5e86f"
+        }
+      },
+      "test-candidate": {
+        "model": {
+          "id": "realpage-qwen3-v6",
+          "revision": "realpage-v6-final-1536",
+          "weights_sha256": "99a5c04ed5714b938e7232718870fe80248f839227dfe59902de0abd8085637d"
+        },
+        "receipt_sha256": "ccd4acf68e9bce08e4bc889ccfd384d1823e5ae74c062631a8e508287ac4873b",
+        "freeze_sha256": "2f662c7e9677c3a00ca4d63c6b257773d1b8c675f3eda8165f8c650c2b7e0f95",
+        "case_file_sha256": "945a5ef1961cb9157923b2e46220ce3b0a3dcd203e4b29a1a7ab46e33e6a50f8",
+        "case_count": 16,
+        "raw_business": {
+          "facts": {
+            "present": 38,
+            "predicted": 35,
+            "correct": 25,
+            "wrong_or_unlabeled": 10,
+            "missed": 13,
+            "precision": 0.7142857142857143,
+            "recall": 0.6578947368421053,
+            "f1": 0.684931506849315
+          },
+          "json_object_cases": 16,
+          "complete_schema_valid_cases": 16,
+          "exact_business_records": 8,
+          "null_controls": 4,
+          "correct_null_controls": 4
+        },
+        "validated_output": {
+          "accepted_cases": 14,
+          "facts": {
+            "present": 38,
+            "predicted": 31,
+            "correct": 25,
+            "wrong_or_unlabeled": 6,
+            "missed": 13,
+            "precision": 0.8064516129032258,
+            "recall": 0.6578947368421053,
+            "f1": 0.7246376811594203
+          },
+          "wrong_accepted_facts": 6,
+          "accepted_case_count_is_not_factual_record_accuracy": true
+        },
+        "required_fields": {
+          "raw": {
+            "present": 38,
+            "predicted": 35,
+            "correct": 25,
+            "wrong_or_unlabeled": 10,
+            "missed": 13,
+            "precision": 0.7142857142857143,
+            "recall": 0.6578947368421053,
+            "f1": 0.684931506849315
+          },
+          "accepted": {
+            "present": 38,
+            "predicted": 31,
+            "correct": 25,
+            "wrong_or_unlabeled": 6,
+            "missed": 13,
+            "precision": 0.8064516129032258,
+            "recall": 0.6578947368421053,
+            "f1": 0.7246376811594203
+          }
+        },
+        "grounding": {
+          "populated_leaves": 35,
+          "catalogued_leaves": 35,
+          "valid_ids": 33,
+          "source_valid_leaves": 33,
+          "invalid_or_missing_ids": 0,
+          "abstentions": 2
+        },
+        "reviewed_anchor_agreement_proxy": 20,
+        "input_gold_coverage": {
+          "positive_fields": 38,
+          "reviewed_fields_visible": 34
+        },
+        "failures": {
+          "missing_outputs": 0,
+          "token_limit_cases": 0,
+          "errors": {
+            "GROUNDING_REJECTED": 2
+          }
+        },
+        "latency": {
+          "measured_cases": 16,
+          "p50_ms": 1995.9237080038292,
+          "p95_ms": 6401.909332998912,
+          "unknown_cases": 0
+        },
+        "stage_usage": {
+          "business": {
+            "calls": 16,
+            "input_tokens": 26462,
+            "output_tokens": 367,
+            "failed_calls": 0,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 950.6559590008692,
+              "p95_ms": 5424.541624997801
+            }
+          },
+          "grounding": {
+            "calls": 16,
+            "input_tokens": 24812,
+            "output_tokens": 418,
+            "failed_calls": 2,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 971.9199579994893,
+              "p95_ms": 1864.265208998404
+            }
+          }
+        },
+        "actual_model_calls": 32,
+        "unknown_call_count_cases": 0,
+        "tokens": {
+          "input_tokens": {
+            "total": 51274,
+            "measured_cases": 16
+          },
+          "output_tokens": {
+            "total": 785,
+            "measured_cases": 16
+          }
+        },
+        "inference": {
+          "temperature": 0,
+          "max_tokens": 768,
+          "enable_thinking": false,
+          "response_format": "json_schema",
+          "repair_attempts": 0,
+          "max_source_chars": 8000
+        },
+        "loaded_weight_integrity": {
+          "verified": true,
+          "base_tensors": 704,
+          "adapter_tensors": 32,
+          "adapter_wrappers": 16,
+          "proof_sha256": "20e8896e2da0c63459e09c8a24646d849f812ff05cd22eceda3515b505283cb2"
+        }
+      },
+      "valid-base": {
+        "model": {
+          "id": "realpage-qwen3-base",
+          "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+          "weights_sha256": "0e86d9677e519323849eac1bc272caae88567a481ff188c431f70be543d9995f"
+        },
+        "receipt_sha256": "3321cc29f4323321429681ee054b065864f4d7d364e246927649c822a028b7ea",
+        "freeze_sha256": "12a76ceb7d0e5bc713032e54556a3d71ef01953d34f19bd14c26fde7f560b3e1",
+        "case_file_sha256": "5ce63a07e05e3af622b2188e2719115ad8d87bb1201891fe5107edf791746fb2",
+        "case_count": 16,
+        "raw_business": {
+          "facts": {
+            "present": 36,
+            "predicted": 35,
+            "correct": 28,
+            "wrong_or_unlabeled": 7,
+            "missed": 8,
+            "precision": 0.8,
+            "recall": 0.7777777777777778,
+            "f1": 0.7887323943661971
+          },
+          "json_object_cases": 16,
+          "complete_schema_valid_cases": 16,
+          "exact_business_records": 9,
+          "null_controls": 4,
+          "correct_null_controls": 4
+        },
+        "validated_output": {
+          "accepted_cases": 11,
+          "facts": {
+            "present": 36,
+            "predicted": 26,
+            "correct": 23,
+            "wrong_or_unlabeled": 3,
+            "missed": 13,
+            "precision": 0.8846153846153846,
+            "recall": 0.6388888888888888,
+            "f1": 0.7419354838709677
+          },
+          "wrong_accepted_facts": 3,
+          "accepted_case_count_is_not_factual_record_accuracy": true
+        },
+        "required_fields": {
+          "raw": {
+            "present": 36,
+            "predicted": 35,
+            "correct": 28,
+            "wrong_or_unlabeled": 7,
+            "missed": 8,
+            "precision": 0.8,
+            "recall": 0.7777777777777778,
+            "f1": 0.7887323943661971
+          },
+          "accepted": {
+            "present": 36,
+            "predicted": 26,
+            "correct": 23,
+            "wrong_or_unlabeled": 3,
+            "missed": 13,
+            "precision": 0.8846153846153846,
+            "recall": 0.6388888888888888,
+            "f1": 0.7419354838709677
+          }
+        },
+        "grounding": {
+          "populated_leaves": 35,
+          "catalogued_leaves": 35,
+          "valid_ids": 31,
+          "source_valid_leaves": 31,
+          "invalid_or_missing_ids": 0,
+          "abstentions": 4
+        },
+        "reviewed_anchor_agreement_proxy": 20,
+        "input_gold_coverage": {
+          "positive_fields": 36,
+          "reviewed_fields_visible": 33
+        },
+        "failures": {
+          "missing_outputs": 0,
+          "token_limit_cases": 0,
+          "errors": {
+            "GROUNDING_REJECTED": 5
+          }
+        },
+        "latency": {
+          "measured_cases": 16,
+          "p50_ms": 907.8122089995304,
+          "p95_ms": 5780.927166000765,
+          "unknown_cases": 0
+        },
+        "stage_usage": {
+          "business": {
+            "calls": 16,
+            "input_tokens": 25596,
+            "output_tokens": 487,
+            "failed_calls": 0,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 411.99533399776556,
+              "p95_ms": 4870.825416997832
+            }
+          },
+          "grounding": {
+            "calls": 16,
+            "input_tokens": 22789,
+            "output_tokens": 463,
+            "failed_calls": 5,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 379.26204199902713,
+              "p95_ms": 904.7754580024048
+            }
+          }
+        },
+        "actual_model_calls": 32,
+        "unknown_call_count_cases": 0,
+        "tokens": {
+          "input_tokens": {
+            "total": 48385,
+            "measured_cases": 16
+          },
+          "output_tokens": {
+            "total": 950,
+            "measured_cases": 16
+          }
+        },
+        "inference": {
+          "temperature": 0,
+          "max_tokens": 768,
+          "enable_thinking": false,
+          "response_format": "json_schema",
+          "repair_attempts": 0,
+          "max_source_chars": 8000
+        },
+        "loaded_weight_integrity": {
+          "verified": true,
+          "base_tensors": 704,
+          "adapter_tensors": 0,
+          "adapter_wrappers": 0,
+          "proof_sha256": "36cdc850a151f21376bf9bac0d85687e1404e1f01712d1885499c151bfb5e86f"
+        }
+      },
+      "valid-candidate": {
+        "model": {
+          "id": "realpage-qwen3-v6",
+          "revision": "realpage-v6-final-1536",
+          "weights_sha256": "99a5c04ed5714b938e7232718870fe80248f839227dfe59902de0abd8085637d"
+        },
+        "receipt_sha256": "bf52cd5c71b34edf33a47d83ee75a0524e2b2b3c936b6e46c35d73ba59e652b4",
+        "freeze_sha256": "3bef53999687b13c1fddeff0340dc9090e71f29119e1dc90f115d0aef764cd4a",
+        "case_file_sha256": "5ce63a07e05e3af622b2188e2719115ad8d87bb1201891fe5107edf791746fb2",
+        "case_count": 16,
+        "raw_business": {
+          "facts": {
+            "present": 36,
+            "predicted": 34,
+            "correct": 26,
+            "wrong_or_unlabeled": 8,
+            "missed": 10,
+            "precision": 0.7647058823529411,
+            "recall": 0.7222222222222222,
+            "f1": 0.7428571428571429
+          },
+          "json_object_cases": 16,
+          "complete_schema_valid_cases": 16,
+          "exact_business_records": 8,
+          "null_controls": 4,
+          "correct_null_controls": 4
+        },
+        "validated_output": {
+          "accepted_cases": 13,
+          "facts": {
+            "present": 36,
+            "predicted": 30,
+            "correct": 24,
+            "wrong_or_unlabeled": 6,
+            "missed": 12,
+            "precision": 0.8,
+            "recall": 0.6666666666666666,
+            "f1": 0.7272727272727273
+          },
+          "wrong_accepted_facts": 6,
+          "accepted_case_count_is_not_factual_record_accuracy": true
+        },
+        "required_fields": {
+          "raw": {
+            "present": 36,
+            "predicted": 34,
+            "correct": 26,
+            "wrong_or_unlabeled": 8,
+            "missed": 10,
+            "precision": 0.7647058823529411,
+            "recall": 0.7222222222222222,
+            "f1": 0.7428571428571429
+          },
+          "accepted": {
+            "present": 36,
+            "predicted": 30,
+            "correct": 24,
+            "wrong_or_unlabeled": 6,
+            "missed": 12,
+            "precision": 0.8,
+            "recall": 0.6666666666666666,
+            "f1": 0.7272727272727273
+          }
+        },
+        "grounding": {
+          "populated_leaves": 34,
+          "catalogued_leaves": 34,
+          "valid_ids": 33,
+          "source_valid_leaves": 33,
+          "invalid_or_missing_ids": 0,
+          "abstentions": 1
+        },
+        "reviewed_anchor_agreement_proxy": 18,
+        "input_gold_coverage": {
+          "positive_fields": 36,
+          "reviewed_fields_visible": 33
+        },
+        "failures": {
+          "missing_outputs": 0,
+          "token_limit_cases": 0,
+          "errors": {
+            "GROUNDING_REJECTED": 3
+          }
+        },
+        "latency": {
+          "measured_cases": 16,
+          "p50_ms": 1939.524708002864,
+          "p95_ms": 6274.026291001064,
+          "unknown_cases": 0
+        },
+        "stage_usage": {
+          "business": {
+            "calls": 16,
+            "input_tokens": 25596,
+            "output_tokens": 355,
+            "failed_calls": 0,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 900.0063749990659,
+              "p95_ms": 5342.757833001087
+            }
+          },
+          "grounding": {
+            "calls": 16,
+            "input_tokens": 23376,
+            "output_tokens": 400,
+            "failed_calls": 3,
+            "latency": {
+              "measured_cases": 16,
+              "p50_ms": 925.5575419956585,
+              "p95_ms": 2020.6262080027955
+            }
+          }
+        },
+        "actual_model_calls": 32,
+        "unknown_call_count_cases": 0,
+        "tokens": {
+          "input_tokens": {
+            "total": 48972,
+            "measured_cases": 16
+          },
+          "output_tokens": {
+            "total": 755,
+            "measured_cases": 16
+          }
+        },
+        "inference": {
+          "temperature": 0,
+          "max_tokens": 768,
+          "enable_thinking": false,
+          "response_format": "json_schema",
+          "repair_attempts": 0,
+          "max_source_chars": 8000
+        },
+        "loaded_weight_integrity": {
+          "verified": true,
+          "base_tensors": 704,
+          "adapter_tensors": 32,
+          "adapter_wrappers": 16,
+          "proof_sha256": "409a1414ca3b9d282af8e626e0e3a714467542bdd6c31e1ff0157c7c80131e6a"
+        }
+      }
+    }
+  },
+  "selection": {
+    "validation_reused_for_design_and_selection": true,
+    "validation_gate_thresholds": {
+      "raw_correct_at_least": 28,
+      "exact_business_records_at_least": 9,
+      "accepted_correct_at_least": 23,
+      "wrong_accepted_at_most": 3
+    },
+    "validation_gate_checks": {
+      "raw_correct": false,
+      "exact_records": false,
+      "accepted_correct": true,
+      "wrong_accepted": false
+    },
+    "validation_gate_passed": false,
+    "checkpoint_policy": "One preregistered final checkpoint per run; no checkpoint search.",
+    "final_site_test_policy": "Only the base and frozen V6 candidate generate site-test outputs, once after validation; no post-test tuning.",
+    "production_qualification_established": false
+  },
+  "artifact_target": {
+    "huggingface_repo": "guike8/evidence-scraper-qwen3-1.7b-realpage-v6-mlx-lora",
+    "upload_performed_by_this_generator": false
+  },
+  "inference_budgets": {
+    "temperature": 0,
+    "enable_thinking": false,
+    "output_tokens_per_stage": 768,
+    "timeout_seconds_per_stage": 45,
+    "wall_seconds_per_arm": 1800,
+    "maximum_calls_per_case": 2,
+    "repair_attempts": 0,
+    "source_limit_chars": 8000
+  },
+  "metric_definitions": {
+    "raw_business": "Unmodified stage-one JSON, including records rejected by grounding.",
+    "accepted": "Passes the complete application gate; acceptance is not proof of semantic truth.",
+    "exact_record": "Complete typed business object exactly matches gold, including keys and nulls.",
+    "source_valid": "Literal/reference mechanics, not arbitrary field meaning.",
+    "anchor_agreement": "Preferred reviewed-anchor agreement is a proxy; another anchor can be valid.",
+    "denominators": "All original cases/full-page facts retained through omissions and failures.",
+    "latency": "Includes failures and warm-up; not accepted-correct throughput."
+  },
+  "limitations": [
+    "Small English technical-documentation-heavy flat custom-schema pilot; final site test has eight pages/four reserved families.",
+    "Validation informed V5 and V6 design; validation is selection data, not a fresh generalization estimate.",
+    "V6 changed supervision balance, training duration and learning rate together; this is not a causal ablation of row balance.",
+    "Raw sources/completions stay private; exact historical reproduction requires the reviewed corpus and pinned serving artifacts.",
+    "No matched benchmark against Firecrawl native extraction or hosted extraction models establishes competitive superiority.",
+    "Actual networkless preparation does not establish live Studio scraping or full API retrieval.",
+    "Studio VPN/blocked egress and existing defaults remain unchanged; no paid inference calls were used."
+  ]
+}

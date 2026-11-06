@@ -58,7 +58,8 @@ networkless content-preparation component execution are separate measurements.
 The [12-page development baseline](training/RESULTS-firecrawl.md) reports the
 base model and existing fine-tune separately. Neither produced an accepted
 cited record; the base model performed better on the separate business-only
-diagnostic. No further training was performed for this baseline.
+diagnostic. That baseline preceded the separately reviewed
+[48-page, two-stage real-page experiment](training/README-realpage-v6.md).
 
 ## Crawl and render public pages
 
@@ -105,9 +106,18 @@ These live URLs illustrate syntax. Missing facts stay missing; source occurrence
 
 Every populated business leaf requires a verified excerpt in a saved section or a verified JSON-LD pointer. Application code assigns source hashes, retrieval details and model identifiers. Models provide business fields and evidence candidates, not provenance.
 
-General inference saves a source-view descriptor with original evidence IDs. Identical text representations can collapse; oversized page/article tasks can use a declared main/article scope. Structured data, metadata and the complete snapshot remain retained. Custom tasks keep full-page coverage and fail explicitly when they cannot fit the configured context budget.
+General inference saves a source-view descriptor with original evidence IDs. Identical text representations can collapse; oversized page/article tasks can use a declared main/article scope. Structured data, metadata and the complete snapshot remain retained. One-call custom tasks keep full-page coverage and fail explicitly when they cannot fit the configured context budget.
 
 Local inference can optionally restrict generated references to locations present in the supplied source with `--source-bound-evidence` or `LOCAL_SOURCE_BOUND_EVIDENCE=true`. Exact quotes, field support and completeness still pass the same validators. See the [citation grammar and training guide](docs/citation-training.md) for limits, library usage and the separate citation curriculum.
+
+The experimental [two-stage grounded profile](training/README-realpage-v6.md)
+first produces business JSON, then selects application-assigned evidence IDs
+from the same declared source window. Enable it with `--two-stage-grounding`
+or `LOCAL_TWO_STAGE_GROUNDING=true`; citation modes are mutually exclusive.
+It uses at most two calls per attempt and four with the pipeline's single
+repair. A valid literal citation can still express the wrong field or entity,
+so the [real-page measurements](training/RESULTS-realpage.md) report factual
+correctness separately from validator acceptance.
 
 | Status | Meaning | CLI exit |
 | --- | --- | ---: |
@@ -170,7 +180,20 @@ The [comparison protocol](benchmarks/README.md) separates business accuracy, evi
 
 For optional paid adapters, configure credentials, explicit provider/model identifiers, actual account prices and a spending cap before live calls. See [model capability checks](docs/model-selection.md). Raw Unlocker rendering stays disabled unless its observed redirect destination can be verified.
 
-An optional [Apple Silicon model experiment](training/README.md) provides a grouped synthetic curriculum, isolated QLoRA training, direct weight-space patch tools and base/candidate scoring. The [citation-v3 MLX adapter](https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-citation-v3-mlx-lora) improved synthetic regression acceptance from 41/108 to 61/108 and fresh synthetic acceptance from 16/108 to 29/108, but accepted 0/13 eligible real-page replays. It is experimental and MLX-only; see the [full measurements and failures](training/RESULTS.md) and [explicit local serving guide](training/README-serving.md). The next comparison prioritizes [reusing self-hosted Firecrawl](docs/firecrawl-integration.md) and measuring business accuracy on the same real pages before further training. Training dependencies are separate from the scraper runtime, and weights are distributed separately.
+The optional [Apple Silicon training workflow](training/README.md) includes
+synthetic curricula, isolated QLoRA, direct weight-space patch tools and paired
+base/candidate scoring. The [real-page v6 experiment](training/README-realpage-v6.md)
+trains a fresh small adapter on independently source-reviewed agent labels,
+then compares business accuracy and grounding on saved public pages. See its
+[validation history and reserved site-test results](training/RESULTS-realpage.md)
+and [machine-readable measurements](training/realpage-v6-metrics.json).
+V6 failed its validation gate and remains a research artifact; it is not
+recommended as the default extractor.
+This English, technical-documentation-heavy pilot does not establish universal
+web accuracy or superiority over Firecrawl's native extraction. The earlier
+[citation-v3 synthetic results](training/RESULTS.md) remain available as a
+separate experiment. Training dependencies and weights are distributed
+separately; [serving is explicit and experimental](training/README-serving.md).
 
 ## License
 

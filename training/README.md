@@ -6,7 +6,19 @@ change the scraper's default model or start/stop its inference service. Training
 and synthetic validation have run on Apple Silicon; see [measured results](RESULTS.md).
 Representative real-web accuracy remains unverified.
 
-The latest [Firecrawl-content development baseline](RESULTS-firecrawl.md)
+The latest [reviewed real-page experiment](README-realpage-v6.md) uses a fresh
+adapter and a separate two-stage business/grounding target format. It retains
+the v4/v5 validation regressions, documents the validation-informed v6 curriculum,
+and reports the reserved site-family test of the frozen final candidate. Read the
+[complete results](RESULTS-realpage.md) and
+[portable metrics](realpage-v6-metrics.json) before selecting weights. Its
+560 conversations reuse 64 original TRAIN requests over 32 pages; schema
+variations are not additional independent facts. It does not establish broad
+web accuracy or compare against Firecrawl's native extraction model.
+V6 failed the preregistered validation gate; its trained weights remain an
+experimental research artifact and are not recommended as the default.
+
+The earlier [Firecrawl-content development baseline](RESULTS-firecrawl.md)
 tested the same base and citation-v3 weights before further training. Both
 accepted 0/12 cited records. A separate business-only Markdown diagnostic
 produced 6/12 exact records for the base model and 5/12 for citation-v3, with
@@ -16,7 +28,7 @@ separate validation and unseen-site tests, and evidence grounding evaluated
 alongside business accuracy. Reusing these 12 development cases as a test set
 after tuning on them would not establish generalization.
 
-The latest [experimental citation-v3 MLX adapter](https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-citation-v3-mlx-lora)
+The earlier [experimental citation-v3 MLX adapter](https://huggingface.co/guike8/evidence-scraper-qwen3-1.7b-citation-v3-mlx-lora)
 improves synthetic measurements but fails the eligible real-page replay set.
 It is distributed separately with its model card, measurements and checksums.
 Read the [paired results and failures](RESULTS.md) and the
