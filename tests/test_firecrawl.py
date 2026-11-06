@@ -170,6 +170,7 @@ async def test_async_one_url_batch_has_source_only_options_and_no_credentials():
             assert json.loads(request.content) == {
                 "urls": [URL],
                 "formats": ["rawHtml", "html", "markdown"],
+                "parsers": [],
                 "onlyMainContent": False,
                 "maxAge": 0,
                 "storeInCache": False,
@@ -190,24 +191,26 @@ async def test_async_one_url_batch_has_source_only_options_and_no_credentials():
     assert "observed_final_url" not in result.record
     assert result.record["firecrawl_service"]["native_connection_pinning"] is False
     assert result.record["firecrawl_service"]["skip_tls_verification"] is False
+    assert result.record["firecrawl_service"]["parsers"] == []
     assert job["state"] == "fetched" and [r.method for r in calls] == ["POST", "GET"]
 
 
-async def test_tls_verification_choice_is_bound_to_cache_and_saved_source():
+@pytest.mark.parametrize("option, expected", [("skip_tls_verification", False), ("parsers", [])])
+async def test_explicit_service_choices_are_bound_to_cache_and_saved_source(option, expected):
     from ai_scraper.jobs import digest
 
     def handle(request):
         return httpx.Response(200, json=acknowledgment() if request.method == "POST" else completed())
 
     instance = adapter(handle)
-    assert instance.cache_options["skip_tls_verification"] is False
-    implicit_tls_options = dict(instance.cache_options)
-    implicit_tls_options.pop("skip_tls_verification")
-    assert digest(implicit_tls_options) != instance.binding
+    assert instance.cache_options[option] == expected
+    implicit_options = dict(instance.cache_options)
+    implicit_options.pop(option)
+    assert digest(implicit_options) != instance.binding
     job = {"state": "new"}
     assert (await instance.retrieve(REQUEST, job, checkpoint(job), 10)).status == "ready"
     saved_without_policy = copy.deepcopy(job)
-    saved_without_policy["record"]["firecrawl_service"].pop("skip_tls_verification")
+    saved_without_policy["record"]["firecrawl_service"].pop(option)
     with pytest.raises(ScraperError, match="different Firecrawl configuration"):
         instance.validate_job_identity(saved_without_policy)
     await instance.client.aclose()

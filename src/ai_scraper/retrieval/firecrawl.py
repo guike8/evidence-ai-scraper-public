@@ -82,6 +82,7 @@ def firecrawl_cache_options(base_url: str, runtime_id: str, trust_service_egress
         "endpoint_sha256": hashlib.sha256(endpoint.encode()).hexdigest(),
         "runtime_id": runtime,
         "formats": list(FORMATS),
+        "parsers": [],
         "only_main_content": False,
         "max_age": 0,
         "store_in_cache": False,
@@ -286,6 +287,7 @@ class FirecrawlRetriever:
                     json={
                         "urls": [request.url],
                         "formats": list(FORMATS),
+                        "parsers": [],
                         "onlyMainContent": False,
                         "maxAge": 0,
                         "storeInCache": False,
